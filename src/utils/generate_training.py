@@ -1,14 +1,17 @@
 import petsc4py
+
 petsc4py.init()
 
 import sys
 import numpy as np
 from petsc4py import PETSc
 
+
 def generate_random_matrix(size):
     # Generate a random matrix of given size
     np.random.seed(123)
     return np.random.rand(size, size)
+
 
 def jacobi_preconditioner(matrix):
     # Create a PETSc matrix and vector
@@ -37,7 +40,8 @@ def jacobi_preconditioner(matrix):
     # Return the preconditioned vector
     return x.getArray()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     matrix_size = 500  # Size of the random matrix
     num_examples = 1000  # Number of training examples
 
@@ -60,7 +64,7 @@ if __name__ == '__main__':
         preconditioned_vector = jacobi_preconditioner(random_matrix)
 
         # Print the input matrix and output vector
-        print("Training Example", i+1)
+        print("Training Example", i + 1)
         print("Input Matrix:")
         print(random_matrix)
         print("Output Vector:")
@@ -76,7 +80,10 @@ if __name__ == '__main__':
     output_vectors = np.array(output_vectors)
 
     # Save the input matrices and output vectors to a NumPy file
-    np.savez("training_data_500.npz", input_matrices=input_matrices, output_vectors=output_vectors)
+    np.savez(
+        "training_data_500.npz",
+        input_matrices=input_matrices,
+        output_vectors=output_vectors,
+    )
 
     print("Training examples saved to 'training_data.npz'.")
-
