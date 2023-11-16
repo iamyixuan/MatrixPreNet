@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/Users/yixuan.sun/Documents/projects/Preconditioners/MatrixPreNet/DiracNPC/reconstructConfig.py", line 54, in <module>
+    final_state = train_val(TrainLoader, ValLoader, state, epochs, verbose=False)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yixuan.sun/Documents/projects/Preconditioners/MatrixPreNet/NeuralPC/train/TrainFlax.py", line 76, in train_val
+    state, loss = train_step(state, train_batch.numpy())
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 1, in <lambda>
+KeyboardInterrupt

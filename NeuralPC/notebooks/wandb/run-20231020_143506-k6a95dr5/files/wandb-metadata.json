@@ -1,0 +1,36 @@
+{
+    "os": "macOS-14.0-arm64-arm-64bit",
+    "python": "3.11.6",
+    "heartbeatAt": "2023-10-20T19:35:11.779031",
+    "startedAt": "2023-10-20T19:35:06.441613",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "<python with no main file>",
+    "codePathLocal": null,
+    "git": {
+        "remote": "https://github.com/iamyixuan/MatrixPreNet.git",
+        "commit": "4b6ba05fc0da072db815c3660c14263440380deb"
+    },
+    "email": null,
+    "root": "/Users/yixuan.sun/Documents/projects/Preconditioners/MatrixPreNet",
+    "host": "v1521206.cels.anl.gov",
+    "username": "yixuan.sun",
+    "executable": "/Users/yixuan.sun/miniforge3/envs/ml/bin/python",
+    "cpu_count": 12,
+    "cpu_count_logical": 12,
+    "disk": {
+        "/": {
+            "total": 926.3517189025879,
+            "used": 341.9833564758301
+        }
+    },
+    "gpuapple": {
+        "type": "arm",
+        "vendor": "Apple"
+    },
+    "memory": {
+        "total": 32.0
+    }
+}

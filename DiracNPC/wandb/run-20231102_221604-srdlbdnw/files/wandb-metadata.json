@@ -1,0 +1,37 @@
+{
+    "os": "macOS-14.0-arm64-arm-64bit",
+    "python": "3.11.6",
+    "heartbeatAt": "2023-11-03T03:16:05.173773",
+    "startedAt": "2023-11-03T03:16:04.721515",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "/Users/yixuan.sun/Documents/projects/Preconditioners/MatrixPreNet/DiracNPC/NPC_CG.py",
+    "codePathLocal": "NPC_CG.py",
+    "codePath": "DiracNPC/NPC_CG.py",
+    "git": {
+        "remote": "https://github.com/iamyixuan/MatrixPreNet.git",
+        "commit": "4b6ba05fc0da072db815c3660c14263440380deb"
+    },
+    "email": null,
+    "root": "/Users/yixuan.sun/Documents/projects/Preconditioners/MatrixPreNet",
+    "host": "Yixuans-MacBook-Pro.local",
+    "username": "yixuan.sun",
+    "executable": "/Users/yixuan.sun/miniforge3/envs/ml/bin/python",
+    "cpu_count": 12,
+    "cpu_count_logical": 12,
+    "disk": {
+        "/": {
+            "total": 926.3517189025879,
+            "used": 347.7372627258301
+        }
+    },
+    "gpuapple": {
+        "type": "arm",
+        "vendor": "Apple"
+    },
+    "memory": {
+        "total": 32.0
+    }
+}

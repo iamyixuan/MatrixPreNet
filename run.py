@@ -1,7 +1,7 @@
-from src.model import FNN, CNNEncoderDecoder, build_unet
-from src.utils.data import PreconditionerData, precodition_loss
-from src.train.trainer import Trainer
-from src.utils.metrics import test_metrics
+from NeuralPC.model import FNN, CNNEncoderDecoder, build_unet
+from NeuralPC.utils.data import PreconditionerData, precodition_loss
+from NeuralPC.train.trainer import Trainer
+from NeuralPC.utils.metrics import test_metrics
 from plot import Plotter
 
 

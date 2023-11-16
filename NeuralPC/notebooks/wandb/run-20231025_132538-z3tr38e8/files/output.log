@@ -1,0 +1,1534 @@
+
+(200, 16, 16, 4)
+[[[[-0.26962605  0.725733    0.          0.        ]
+   [-0.99982184  0.6531943   0.          0.        ]
+   [ 0.2995953  -0.4070685   0.          0.        ]
+   ...
+   [ 0.9404848   0.9887114   0.          0.        ]
+   [ 0.724446   -0.36971197  0.          0.        ]
+   [ 0.9530991  -0.9516044   0.          0.        ]]
+  [[ 0.79065377 -0.21710214  0.          0.        ]
+   [ 0.96234834  0.8471102   0.          0.        ]
+   [ 0.0408004  -0.80380774  0.          0.        ]
+   ...
+   [-0.7868517   0.8280854   0.          0.        ]
+   [-0.26302245 -0.863432    0.          0.        ]
+   [-0.12323034  0.47711402  0.          0.        ]]
+  [[-0.05168701 -0.16796654  0.          0.        ]
+   [ 0.7221791   0.80226886  0.          0.        ]
+   [-0.6484023   0.29819775  0.          0.        ]
+   ...
+   [-0.50495756  0.8712684   0.          0.        ]
+   [ 0.8559732  -0.9351998   0.          0.        ]
+   [-0.98131967 -0.90899974  0.          0.        ]]
+  ...
+  [[-0.895065    0.44305137  0.          0.        ]
+   [ 0.7959792  -0.7395626   0.          0.        ]
+   [-0.7636475  -0.66391176  0.          0.        ]
+   ...
+   [-0.750203    0.93311924  0.          0.        ]
+   [-0.68403894  0.13858815  0.          0.        ]
+   [-0.8218302   0.91052014  0.          0.        ]]
+  [[-0.61830646 -0.4088072   0.          0.        ]
+   [-0.3127954   0.44584814  0.          0.        ]
+   [-0.97860235 -0.06697577  0.          0.        ]
+   ...
+   [-0.8839525  -0.3422923   0.          0.        ]
+   [ 0.5016705   0.19549254  0.          0.        ]
+   [-0.52658015  0.5492315   0.          0.        ]]
+  [[ 0.9148672  -0.723772    0.          0.        ]
+   [ 0.9210052  -0.6003125   0.          0.        ]
+   [-0.6575404  -0.8816043   0.          0.        ]
+   ...
+   [ 0.02753037 -0.25235617  0.          0.        ]
+   [-0.99888754 -0.9921613   0.          0.        ]
+   [-0.9978189   0.9562338   0.          0.        ]]]
+ [[[-0.25156388 -0.99970174  0.          0.        ]
+   [ 0.49744534  0.6018853   0.          0.        ]
+   [-0.9504103  -0.85989743  0.          0.        ]
+   ...
+   [-0.8562297   0.81073684  0.          0.        ]
+   [-0.37157503 -0.48637584  0.          0.        ]
+   [ 0.9978609   0.03536651  0.          0.        ]]
+  [[ 0.91136295  0.99820554  0.          0.        ]
+   [-0.9948913  -0.9989732   0.          0.        ]
+   [ 0.48227105 -0.66775584  0.          0.        ]
+   ...
+   [ 0.45538935  0.4625865   0.          0.        ]
+   [ 0.9998917  -0.92630726  0.          0.        ]
+   [ 0.9428056   0.8309483   0.          0.        ]]
+  [[ 0.79754245 -0.9951913   0.          0.        ]
+   [ 0.4659824   0.85360104  0.          0.        ]
+   [-0.02940092  0.68540806  0.          0.        ]
+   ...
+   [-0.16772997 -0.23898824  0.          0.        ]
+   [ 0.14880212 -0.9604337   0.          0.        ]
+   [ 0.818648    0.3996909   0.          0.        ]]
+  ...
+  [[ 0.95552754 -0.50234896  0.          0.        ]
+   [-0.98355794 -0.76617926  0.          0.        ]
+   [ 0.26576468 -0.736102    0.          0.        ]
+   ...
+   [ 0.33216342  0.98141384  0.          0.        ]
+   [-0.8776195  -0.5604935   0.          0.        ]
+   [ 0.56872636 -0.21419458  0.          0.        ]]
+  [[ 0.9999934   0.40456602  0.          0.        ]
+   [ 0.8830508  -0.7585684   0.          0.        ]
+   [ 0.42906138 -0.02724029  0.          0.        ]
+   ...
+   [ 0.0286499   0.14020973  0.          0.        ]
+   [-0.9270512  -0.24987312  0.          0.        ]
+   [ 0.9653644  -0.23150727  0.          0.        ]]
+  [[-0.15178466  0.56621045  0.          0.        ]
+   [-0.99424213 -0.6256205   0.          0.        ]
+   [ 0.2093487  -0.5426932   0.          0.        ]
+   ...
+   [-0.62005436  0.9597102   0.          0.        ]
+   [-0.9976457   0.14262967  0.          0.        ]
+   [ 0.99681693 -0.3154196   0.          0.        ]]]
+ [[[ 0.9999999  -0.95176494  0.          0.        ]
+   [-0.93983865  0.9941737   0.          0.        ]
+   [-0.25926244 -0.87781554  0.          0.        ]
+   ...
+   [-0.9743351   0.9990101   0.          0.        ]
+   [-0.60053134  0.9466367   0.          0.        ]
+   [ 0.88567644 -0.9759322   0.          0.        ]]
+  [[ 0.89668214  0.97534186  0.          0.        ]
+   [-0.9224354  -0.335237    0.          0.        ]
+   [-0.95974636  0.8616832   0.          0.        ]
+   ...
+   [-0.0035551   0.9516518   0.          0.        ]
+   [ 0.9930175  -0.05329019  0.          0.        ]
+   [ 0.9760664  -0.8700835   0.          0.        ]]
+  [[ 0.19057594 -0.9429961   0.          0.        ]
+   [ 0.07507878 -0.9108467   0.          0.        ]
+   [ 0.68338543 -0.35164073  0.          0.        ]
+   ...
+   [ 0.44514033 -0.7385022   0.          0.        ]
+   [ 0.13092464 -0.99968857  0.          0.        ]
+   [ 0.09282079 -0.49409422  0.          0.        ]]
+  ...
+  [[ 0.97623736  0.9079433   0.          0.        ]
+   [ 0.07288789 -0.46311322  0.          0.        ]
+   [ 0.9911481  -0.38346532  0.          0.        ]
+   ...
+   [ 0.96871054 -0.93825155  0.          0.        ]
+   [ 0.66994125 -0.99224496  0.          0.        ]
+   [-0.87238944 -0.01775259  0.          0.        ]]
+  [[-0.86216    -0.5730678   0.          0.        ]
+   [-0.9812235  -0.7026065   0.          0.        ]
+   [-0.4801961   0.27169096  0.          0.        ]
+   ...
+   [-0.7714227  -0.9512671   0.          0.        ]
+   [ 0.9885851   0.4242481   0.          0.        ]
+   [-0.45089188 -0.03968619  0.          0.        ]]
+  [[-0.866476    0.60598594  0.          0.        ]
+   [-0.33637065  0.17062992  0.          0.        ]
+   [-0.43128696  0.79727787  0.          0.        ]
+   ...
+   [ 0.4018392   0.92383355  0.          0.        ]
+   [ 0.42194623 -0.97408867  0.          0.        ]
+   [ 0.28917915 -0.52306515  0.          0.        ]]]
+ ...
+ [[[-0.93799037  0.11786413  0.          0.        ]
+   [-0.70922863 -0.17309485  0.          0.        ]
+   [ 0.34041753 -0.96078223  0.          0.        ]
+   ...
+   [-0.9906726   0.16366874  0.          0.        ]
+   [-0.8991398   0.90404505  0.          0.        ]
+   [-0.9999363  -0.6951969   0.          0.        ]]
+  [[ 0.99602306 -0.8843338   0.          0.        ]
+   [-0.9754593   0.9869075   0.          0.        ]
+   [ 0.9436076   0.5504285   0.          0.        ]
+   ...
+   [-0.18138304 -0.8187224   0.          0.        ]
+   [ 0.7074355   0.12389886  0.          0.        ]
+   [ 0.42046943 -0.98320305  0.          0.        ]]
+  [[-0.9996178   0.62730825  0.          0.        ]
+   [ 0.9858614  -0.99454707  0.          0.        ]
+   [-0.5274534   0.7864932   0.          0.        ]
+   ...
+   [ 0.9914194   0.6037094   0.          0.        ]
+   [-0.03581811  0.31956375  0.          0.        ]
+   [ 0.15707827 -0.38714465  0.          0.        ]]
+  ...
+  [[ 0.34051675  0.7484717   0.          0.        ]
+   [ 0.90431595 -0.9397546   0.          0.        ]
+   [ 0.8847874   0.7698697   0.          0.        ]
+   ...
+   [ 0.47652712  0.43295136  0.          0.        ]
+   [-0.40377173 -0.7474689   0.          0.        ]
+   [ 0.25416747  0.94036317  0.          0.        ]]
+  [[-0.5276829  -0.954205    0.          0.        ]
+   [-0.79637086 -0.73192924  0.          0.        ]
+   [-0.9550396   0.9111142   0.          0.        ]
+   ...
+   [ 0.94474703 -0.5447902   0.          0.        ]
+   [-0.9886653  -0.45337424  0.          0.        ]
+   [-0.05988855  0.1809745   0.          0.        ]]
+  [[ 0.17961012 -0.7523724   0.          0.        ]
+   [-0.09718164 -0.43378976  0.          0.        ]
+   [ 0.9866638  -0.24003695  0.          0.        ]
+   ...
+   [-0.7341649  -0.09503667  0.          0.        ]
+   [ 0.82605994 -0.9832007   0.          0.        ]
+   [-0.9931274   0.7402352   0.          0.        ]]]
+ [[[-0.62098616  0.68452203  0.          0.        ]
+   [-0.70823     0.07686353  0.          0.        ]
+   [ 0.6279039   0.98547304  0.          0.        ]
+   ...
+   [ 0.88223225 -0.28069377  0.          0.        ]
+   [-0.99707085 -0.16079642  0.          0.        ]
+   [ 0.94079936 -0.61020553  0.          0.        ]]
+  [[-0.6076748   0.17545491  0.          0.        ]
+   [-0.40169945 -0.96490234  0.          0.        ]
+   [-0.96936494  0.2563687   0.          0.        ]
+   ...
+   [-0.74215823  0.4040819   0.          0.        ]
+   [-0.7759672  -0.5274808   0.          0.        ]
+   [-0.27209795 -0.41309258  0.          0.        ]]
+  [[-0.9538159   0.9048837   0.          0.        ]
+   [ 0.31676495 -0.6929899   0.          0.        ]
+   [-0.99959284  0.5027264   0.          0.        ]
+   ...
+   [-0.9996703  -0.7349464   0.          0.        ]
+   [ 0.3299607  -0.47087172  0.          0.        ]
+   [ 0.7263492  -0.7208072   0.          0.        ]]
+  ...
+  [[ 0.9508218   0.99398345  0.          0.        ]
+   [ 0.9999591  -0.6790075   0.          0.        ]
+   [ 0.9729042   0.7589749   0.          0.        ]
+   ...
+   [-0.33729517  0.9796233   0.          0.        ]
+   [-0.24600835 -0.35914373  0.          0.        ]
+   [ 0.89450157 -0.8848531   0.          0.        ]]
+  [[ 0.8166724   0.9972959   0.          0.        ]
+   [ 0.9999939  -0.9791952   0.          0.        ]
+   [ 0.43449768  0.7198971   0.          0.        ]
+   ...
+   [ 0.20024177 -0.90548646  0.          0.        ]
+   [-0.990882    0.92548853  0.          0.        ]
+   [ 0.9815184  -0.4514836   0.          0.        ]]
+  [[-0.22452377  0.07689135  0.          0.        ]
+   [-0.74830407  0.3849482   0.          0.        ]
+   [-0.97332025  0.74381965  0.          0.        ]
+   ...
+   [ 0.69652075 -0.5787329   0.          0.        ]
+   [ 0.22393434 -0.96714985  0.          0.        ]
+   [-0.9838893   0.8616328   0.          0.        ]]]
+ [[[ 0.94959694  0.9446287   0.          0.        ]
+   [ 0.69291323  0.8673571   0.          0.        ]
+   [ 0.87455344 -0.75076455  0.          0.        ]
+   ...
+   [ 0.48680985 -0.9684593   0.          0.        ]
+   [ 0.58304745 -0.98915833  0.          0.        ]
+   [ 0.21157086  0.58708876  0.          0.        ]]
+  [[-0.96406645  0.8243249   0.          0.        ]
+   [ 0.7544653  -0.89061     0.          0.        ]
+   [ 0.9869592   0.6170316   0.          0.        ]
+   ...
+   [ 0.99989253 -0.6825181   0.          0.        ]
+   [ 0.99910235  0.87551     0.          0.        ]
+   [-0.8797931  -0.60836834  0.          0.        ]]
+  [[ 0.9993738  -0.99999434  0.          0.        ]
+   [ 0.8398503  -0.8985666   0.          0.        ]
+   [ 0.6973991   0.45592546  0.          0.        ]
+   ...
+   [ 0.83785933 -0.07430748  0.          0.        ]
+   [ 0.9999486  -0.5360944   0.          0.        ]
+   [ 0.7893612  -0.923652    0.          0.        ]]
+  ...
+  [[ 0.9117591   0.86704373  0.          0.        ]
+   [-0.45161888  0.6982221   0.          0.        ]
+   [-0.425895    0.97347265  0.          0.        ]
+   ...
+   [ 0.49267352 -0.6393433   0.          0.        ]
+   [-0.41458467  0.8384703   0.          0.        ]
+   [ 0.7099262   0.7256574   0.          0.        ]]
+  [[ 0.49573702  0.04325132  0.          0.        ]
+   [-0.98757356  0.5834984   0.          0.        ]
+   [-0.9951793  -0.8606703   0.          0.        ]
+   ...
+   [-0.91699904  0.18030302  0.          0.        ]
+   [ 0.15050118 -0.50468504  0.          0.        ]
+   [-0.24929917  0.00718297  0.          0.        ]]
+  [[ 0.95627844 -0.5533638   0.          0.        ]
+   [-0.13384128 -0.3301648   0.          0.        ]
+   [ 0.99887234  0.4610604   0.          0.        ]
+   ...
+   [ 0.9997946  -0.99960357  0.          0.        ]
+   [-0.25496808  0.11085207  0.          0.        ]
+   [ 0.61468077  0.28180447  0.          0.        ]]]]
+float32
+<class 'jaxlib.xla_extension.ArrayImpl'>
+tensor([[[[ 0.7611, -0.5006,  0.0000,  0.0000],
+          [ 0.0302,  0.9999,  0.0000,  0.0000],
+          [ 0.8847,  0.2497,  0.0000,  0.0000],
+          ...,
+          [ 0.5166, -0.2433,  0.0000,  0.0000],
+          [ 0.9982,  0.5543,  0.0000,  0.0000],
+          [ 0.8013,  0.9979,  0.0000,  0.0000]],
+         [[-0.3824, -0.9846,  0.0000,  0.0000],
+          [-0.6768,  0.5206,  0.0000,  0.0000],
+          [ 0.2803,  0.1908,  0.0000,  0.0000],
+          ...,
+          [-0.1714, -0.6404,  0.0000,  0.0000],
+          [ 0.9376, -0.1166,  0.0000,  0.0000],
+          [ 0.2958,  0.7661,  0.0000,  0.0000]],
+         [[ 0.4225,  0.3999,  0.0000,  0.0000],
+          [ 0.7424, -0.9522,  0.0000,  0.0000],
+          [ 0.7173,  0.9998,  0.0000,  0.0000],
+          ...,
+          [-0.6562,  0.0205,  0.0000,  0.0000],
+          [ 0.4951,  0.9992,  0.0000,  0.0000],
+          [ 0.9670,  0.3475,  0.0000,  0.0000]],
+         ...,
+         [[ 0.0019, -0.9328,  0.0000,  0.0000],
+          [-0.9549, -0.6519,  0.0000,  0.0000],
+          [-0.5806,  0.1696,  0.0000,  0.0000],
+          ...,
+          [-0.5495,  0.6431,  0.0000,  0.0000],
+          [-0.7452,  0.9431,  0.0000,  0.0000],
+          [ 0.9922, -0.6937,  0.0000,  0.0000]],
+         [[-0.9560,  0.0549,  0.0000,  0.0000],
+          [-0.6945,  0.4178,  0.0000,  0.0000],
+          [ 0.9490, -0.2262,  0.0000,  0.0000],
+          ...,
+          [-0.9331, -0.9994,  0.0000,  0.0000],
+          [ 0.2296, -0.9941,  0.0000,  0.0000],
+          [-0.3804,  0.4911,  0.0000,  0.0000]],
+         [[-0.9957,  0.9998,  0.0000,  0.0000],
+          [ 0.9793, -0.2277,  0.0000,  0.0000],
+          [-0.9749,  0.0557,  0.0000,  0.0000],
+          ...,
+          [-0.9547, -0.4300,  0.0000,  0.0000],
+          [ 0.9671,  0.3135,  0.0000,  0.0000],
+          [-0.7640,  0.8584,  0.0000,  0.0000]]],
+        [[[-0.3922, -0.9203,  0.0000,  0.0000],
+          [-0.9381,  0.9869,  0.0000,  0.0000],
+          [-0.7772,  0.2268,  0.0000,  0.0000],
+          ...,
+          [-0.9732,  0.1753,  0.0000,  0.0000],
+          [ 0.7590,  0.9951,  0.0000,  0.0000],
+          [ 0.3586, -0.2646,  0.0000,  0.0000]],
+         [[ 0.9318, -0.9967,  0.0000,  0.0000],
+          [ 0.8894, -0.5676,  0.0000,  0.0000],
+          [ 0.9770,  0.6301,  0.0000,  0.0000],
+          ...,
+          [-0.9177, -0.6748,  0.0000,  0.0000],
+          [ 0.7315,  0.3508,  0.0000,  0.0000],
+          [ 0.5871, -0.8642,  0.0000,  0.0000]],
+         [[-0.3857, -0.7886,  0.0000,  0.0000],
+          [-0.4410, -0.1967,  0.0000,  0.0000],
+          [-0.1671,  0.9595,  0.0000,  0.0000],
+          ...,
+          [-0.0832,  0.9853,  0.0000,  0.0000],
+          [-0.2465,  0.5516,  0.0000,  0.0000],
+          [-0.6278, -0.7849,  0.0000,  0.0000]],
+         ...,
+         [[ 0.5952, -0.9053,  0.0000,  0.0000],
+          [ 0.9470,  0.5603,  0.0000,  0.0000],
+          [-0.5672,  0.1965,  0.0000,  0.0000],
+          ...,
+          [ 0.9022,  0.9987,  0.0000,  0.0000],
+          [ 0.1240, -0.8161,  0.0000,  0.0000],
+          [-0.4055,  0.9597,  0.0000,  0.0000]],
+         [[ 0.9324, -0.7721,  0.0000,  0.0000],
+          [-0.7371, -0.1536,  0.0000,  0.0000],
+          [ 0.1861, -0.6004,  0.0000,  0.0000],
+          ...,
+          [ 0.9891, -0.9972,  0.0000,  0.0000],
+          [-0.9851,  0.3750,  0.0000,  0.0000],
+          [ 0.9209,  0.9391,  0.0000,  0.0000]],
+         [[-0.7895,  0.9264,  0.0000,  0.0000],
+          [ 0.4815,  0.0816,  0.0000,  0.0000],
+          [-0.2658, -0.9419,  0.0000,  0.0000],
+          ...,
+          [ 0.9749,  0.9766,  0.0000,  0.0000],
+          [-0.7926,  0.4134,  0.0000,  0.0000],
+          [-0.9960,  0.2548,  0.0000,  0.0000]]],
+        [[[ 0.9722, -0.0763,  0.0000,  0.0000],
+          [ 0.9871,  0.4736,  0.0000,  0.0000],
+          [-0.8801,  0.9905,  0.0000,  0.0000],
+          ...,
+          [-0.5845,  0.3370,  0.0000,  0.0000],
+          [-0.3813, -0.1512,  0.0000,  0.0000],
+          [ 0.9810,  0.4972,  0.0000,  0.0000]],
+         [[ 0.7968,  0.2666,  0.0000,  0.0000],
+          [ 0.7825, -0.9967,  0.0000,  0.0000],
+          [ 0.4663, -0.7590,  0.0000,  0.0000],
+          ...,
+          [ 0.9975, -0.4201,  0.0000,  0.0000],
+          [ 0.9968,  0.4969,  0.0000,  0.0000],
+          [ 0.9287,  0.1289,  0.0000,  0.0000]],
+         [[-0.9643,  0.3079,  0.0000,  0.0000],
+          [ 0.9820, -0.8440,  0.0000,  0.0000],
+          [ 0.4927,  1.0000,  0.0000,  0.0000],
+          ...,
+          [ 0.2872,  0.4407,  0.0000,  0.0000],
+          [ 0.8157,  0.7828,  0.0000,  0.0000],
+          [ 0.2395,  0.9923,  0.0000,  0.0000]],
+         ...,
+         [[ 0.3097,  0.8181,  0.0000,  0.0000],
+          [ 0.9854, -0.9838,  0.0000,  0.0000],
+          [ 0.4298, -0.1938,  0.0000,  0.0000],
+          ...,
+          [ 0.4224, -0.3512,  0.0000,  0.0000],
+          [-0.6983, -0.5555,  0.0000,  0.0000],
+          [-0.7460,  0.2630,  0.0000,  0.0000]],
+         [[ 0.5133, -0.2952,  0.0000,  0.0000],
+          [-0.8399, -0.0644,  0.0000,  0.0000],
+          [ 0.9421,  0.3798,  0.0000,  0.0000],
+          ...,
+          [ 0.9947, -0.3740,  0.0000,  0.0000],
+          [-0.7284,  0.6311,  0.0000,  0.0000],
+          [ 0.6290, -0.7135,  0.0000,  0.0000]],
+         [[-0.4895, -0.4747,  0.0000,  0.0000],
+          [ 0.8724, -0.6746,  0.0000,  0.0000],
+          [ 0.2240,  0.4040,  0.0000,  0.0000],
+          ...,
+          [-0.6917, -0.5445,  0.0000,  0.0000],
+          [-0.5105, -0.8160,  0.0000,  0.0000],
+          [ 0.9256,  0.9806,  0.0000,  0.0000]]],
+        ...,
+        [[[-0.5884, -0.8039,  0.0000,  0.0000],
+          [-0.5607,  0.1821,  0.0000,  0.0000],
+          [-0.8663, -0.9672,  0.0000,  0.0000],
+          ...,
+          [-0.4325,  0.8681,  0.0000,  0.0000],
+          [ 0.5605, -0.0683,  0.0000,  0.0000],
+          [ 0.9828, -0.9379,  0.0000,  0.0000]],
+         [[-0.3231, -0.9564,  0.0000,  0.0000],
+          [-0.7419, -0.7125,  0.0000,  0.0000],
+          [-0.0717, -0.8192,  0.0000,  0.0000],
+          ...,
+          [ 0.9188,  0.8319,  0.0000,  0.0000],
+          [-0.6307, -0.0550,  0.0000,  0.0000],
+          [ 0.9968,  0.1772,  0.0000,  0.0000]],
+         [[ 0.9988, -0.5849,  0.0000,  0.0000],
+          [-0.2572,  0.9987,  0.0000,  0.0000],
+          [-0.6428, -0.9224,  0.0000,  0.0000],
+          ...,
+          [ 0.8800,  0.0425,  0.0000,  0.0000],
+          [-0.9904, -0.1840,  0.0000,  0.0000],
+          [ 0.9998,  0.9116,  0.0000,  0.0000]],
+         ...,
+         [[-0.4203, -0.9293,  0.0000,  0.0000],
+          [-0.9246, -0.3087,  0.0000,  0.0000],
+          [-0.5517, -0.6309,  0.0000,  0.0000],
+          ...,
+          [ 0.8432,  0.9981,  0.0000,  0.0000],
+          [ 0.9669, -0.0419,  0.0000,  0.0000],
+          [ 0.9890,  0.7073,  0.0000,  0.0000]],
+         [[ 0.6002, -0.0732,  0.0000,  0.0000],
+          [ 0.6833, -0.0522,  0.0000,  0.0000],
+          [-0.6090, -0.9693,  0.0000,  0.0000],
+          ...,
+          [ 0.1289,  0.7109,  0.0000,  0.0000],
+          [ 0.4145, -0.3019,  0.0000,  0.0000],
+          [-0.7218, -0.9965,  0.0000,  0.0000]],
+         [[ 0.1277, -0.7317,  0.0000,  0.0000],
+          [-0.7701, -0.9490,  0.0000,  0.0000],
+          [-0.9754, -0.1025,  0.0000,  0.0000],
+          ...,
+          [-0.4346,  0.5999,  0.0000,  0.0000],
+          [-0.9930,  0.0483,  0.0000,  0.0000],
+          [ 0.6496, -0.0295,  0.0000,  0.0000]]],
+        [[[ 0.9706,  0.7317,  0.0000,  0.0000],
+          [ 0.9689, -0.9367,  0.0000,  0.0000],
+          [ 0.9600,  0.9869,  0.0000,  0.0000],
+          ...,
+          [ 0.5756,  0.9080,  0.0000,  0.0000],
+          [ 0.9203, -0.4925,  0.0000,  0.0000],
+          [ 0.2335,  0.1022,  0.0000,  0.0000]],
+         [[ 0.4729, -0.0354,  0.0000,  0.0000],
+          [-0.4330, -0.3284,  0.0000,  0.0000],
+          [ 0.2597,  0.7024,  0.0000,  0.0000],
+          ...,
+          [-0.2107,  0.8771,  0.0000,  0.0000],
+          [ 0.9398,  0.9992,  0.0000,  0.0000],
+          [-0.8072,  0.9962,  0.0000,  0.0000]],
+         [[-0.6505,  0.9275,  0.0000,  0.0000],
+          [-0.7419,  0.6061,  0.0000,  0.0000],
+          [-0.5302,  0.9395,  0.0000,  0.0000],
+          ...,
+          [ 0.7791, -0.2885,  0.0000,  0.0000],
+          [ 0.5292, -0.5590,  0.0000,  0.0000],
+          [ 0.9994, -0.8867,  0.0000,  0.0000]],
+         ...,
+         [[-0.6580, -0.7964,  0.0000,  0.0000],
+          [ 0.8085,  0.7271,  0.0000,  0.0000],
+          [ 0.8885, -0.9872,  0.0000,  0.0000],
+          ...,
+          [ 0.3586,  0.9974,  0.0000,  0.0000],
+          [ 0.3337, -0.9984,  0.0000,  0.0000],
+          [-0.9738,  0.7973,  0.0000,  0.0000]],
+         [[ 0.5787, -0.6501,  0.0000,  0.0000],
+          [ 0.4907, -0.8952,  0.0000,  0.0000],
+          [-0.9996,  0.8013,  0.0000,  0.0000],
+          ...,
+          [-0.3660,  0.5081,  0.0000,  0.0000],
+          [-0.9211,  0.4790,  0.0000,  0.0000],
+          [-0.8637,  0.7191,  0.0000,  0.0000]],
+         [[ 0.6612, -0.9127,  0.0000,  0.0000],
+          [ 0.5841,  0.9914,  0.0000,  0.0000],
+          [-0.7163,  0.9768,  0.0000,  0.0000],
+          ...,
+          [ 0.2385,  0.9996,  0.0000,  0.0000],
+          [-0.8608, -0.7424,  0.0000,  0.0000],
+          [-0.8295, -0.7092,  0.0000,  0.0000]]],
+        [[[ 0.9965, -0.6300,  0.0000,  0.0000],
+          [ 0.5277, -0.7825,  0.0000,  0.0000],
+          [ 0.9752,  0.5462,  0.0000,  0.0000],
+          ...,
+          [-0.8608, -0.8670,  0.0000,  0.0000],
+          [-0.5919, -0.5449,  0.0000,  0.0000],
+          [ 0.9811,  0.9992,  0.0000,  0.0000]],
+         [[-0.3662,  0.8327,  0.0000,  0.0000],
+          [-0.9880,  0.4438,  0.0000,  0.0000],
+          [ 0.7341, -0.7740,  0.0000,  0.0000],
+          ...,
+          [ 0.9695, -0.2951,  0.0000,  0.0000],
+          [ 0.9995,  0.6533,  0.0000,  0.0000],
+          [-0.5189,  0.9986,  0.0000,  0.0000]],
+         [[ 0.8376,  0.1449,  0.0000,  0.0000],
+          [-0.7749, -0.8154,  0.0000,  0.0000],
+          [ 0.5485, -0.0500,  0.0000,  0.0000],
+          ...,
+          [ 0.5437,  0.9739,  0.0000,  0.0000],
+          [ 0.6466, -0.1959,  0.0000,  0.0000],
+          [ 0.6900,  0.8565,  0.0000,  0.0000]],
+         ...,
+         [[ 0.0329, -0.1365,  0.0000,  0.0000],
+          [-0.7182,  0.9672,  0.0000,  0.0000],
+          [ 0.4226, -0.9152,  0.0000,  0.0000],
+          ...,
+          [ 0.3609, -0.9973,  0.0000,  0.0000],
+          [ 0.7582,  0.8646,  0.0000,  0.0000],
+          [ 0.5344, -0.9352,  0.0000,  0.0000]],
+         [[ 0.2727, -0.9628,  0.0000,  0.0000],
+          [ 0.2237, -0.8493,  0.0000,  0.0000],
+          [ 0.6111,  0.9908,  0.0000,  0.0000],
+          ...,
+          [-0.1938, -0.2902,  0.0000,  0.0000],
+          [ 0.8834,  0.3071,  0.0000,  0.0000],
+          [ 0.5753,  0.9688,  0.0000,  0.0000]],
+         [[-0.3089,  0.9874,  0.0000,  0.0000],
+          [ 0.4630, -0.3191,  0.0000,  0.0000],
+          [-0.8814, -0.9944,  0.0000,  0.0000],
+          ...,
+          [-0.2435, -0.9949,  0.0000,  0.0000],
+          [-0.4468, -0.7170,  0.0000,  0.0000],
+          [-0.4008,  0.9668,  0.0000,  0.0000]]]])
+<class 'torch.Tensor'>
+<class 'torch.Tensor'>
+<class 'torch.Tensor'>
+<class 'torch.Tensor'>
+0.48283255
+0.46564695
+0.43990216
+0.43381938
+0.40733376
+0.39821556
+0.38780892
+0.36988142
+Epoch 1, train loss 0.4278 validation loss 0.2502
+Epoch 2, train loss 0.3273 validation loss 0.2503
+Epoch 3, train loss 0.2864 validation loss 0.2504
+Epoch 4, train loss 0.2673 validation loss 0.2505
+Epoch 5, train loss 0.2579 validation loss 0.2506
+Epoch 6, train loss 0.2537 validation loss 0.2507
+Epoch 7, train loss 0.2519 validation loss 0.2509
+Epoch 8, train loss 0.2511 validation loss 0.2510
+Epoch 9, train loss 0.2506 validation loss 0.2512
+Epoch 10, train loss 0.2497 validation loss 0.2513
+Epoch 11, train loss 0.2493 validation loss 0.2515
+Epoch 12, train loss 0.2489 validation loss 0.2517
+Epoch 13, train loss 0.2486 validation loss 0.2519
+Epoch 14, train loss 0.2486 validation loss 0.2521
+Epoch 15, train loss 0.2481 validation loss 0.2523
+Epoch 16, train loss 0.2480 validation loss 0.2526
+Epoch 17, train loss 0.2476 validation loss 0.2529
+Epoch 18, train loss 0.2475 validation loss 0.2532
+Epoch 19, train loss 0.2471 validation loss 0.2535
+Epoch 20, train loss 0.2473 validation loss 0.2538
+Epoch 21, train loss 0.2465 validation loss 0.2542
+Epoch 22, train loss 0.2466 validation loss 0.2546
+Epoch 23, train loss 0.2459 validation loss 0.2551
+Epoch 24, train loss 0.2468 validation loss 0.2556
+Epoch 25, train loss 0.2455 validation loss 0.2561
+Epoch 26, train loss 0.2453 validation loss 0.2567
+Epoch 27, train loss 0.2449 validation loss 0.2573
+Epoch 28, train loss 0.2449 validation loss 0.2579
+Epoch 29, train loss 0.2457 validation loss 0.2586
+Epoch 30, train loss 0.2445 validation loss 0.2593
+Epoch 31, train loss 0.2440 validation loss 0.2600
+Epoch 32, train loss 0.2440 validation loss 0.2607
+Epoch 33, train loss 0.2439 validation loss 0.2615
+Epoch 34, train loss 0.2427 validation loss 0.2624
+Epoch 35, train loss 0.2433 validation loss 0.2632
+Epoch 36, train loss 0.2431 validation loss 0.2640
+Epoch 37, train loss 0.2428 validation loss 0.2649
+Epoch 38, train loss 0.2420 validation loss 0.2659
+Epoch 39, train loss 0.2422 validation loss 0.2669
+Epoch 40, train loss 0.2409 validation loss 0.2679
+Epoch 41, train loss 0.2406 validation loss 0.2690
+Epoch 42, train loss 0.2402 validation loss 0.2701
+Epoch 43, train loss 0.2416 validation loss 0.2712
+Epoch 44, train loss 0.2399 validation loss 0.2723
+Epoch 45, train loss 0.2411 validation loss 0.2734
+Epoch 46, train loss 0.2398 validation loss 0.2745
+Epoch 47, train loss 0.2415 validation loss 0.2757
+Epoch 48, train loss 0.2414 validation loss 0.2770
+Epoch 49, train loss 0.2402 validation loss 0.2780
+Epoch 50, train loss 0.2405 validation loss 0.2791
+Epoch 51, train loss 0.2398 validation loss 0.2802
+Epoch 52, train loss 0.2394 validation loss 0.2814
+Epoch 53, train loss 0.2390 validation loss 0.2826
+Epoch 54, train loss 0.2391 validation loss 0.2838
+Epoch 55, train loss 0.2384 validation loss 0.2851
+Epoch 56, train loss 0.2382 validation loss 0.2863
+Epoch 57, train loss 0.2381 validation loss 0.2876
+Epoch 58, train loss 0.2375 validation loss 0.2888
+Epoch 59, train loss 0.2372 validation loss 0.2900
+Epoch 60, train loss 0.2365 validation loss 0.2912
+Epoch 61, train loss 0.2360 validation loss 0.2925
+Epoch 62, train loss 0.2350 validation loss 0.2939
+Epoch 63, train loss 0.2363 validation loss 0.2953
+Epoch 64, train loss 0.2350 validation loss 0.2967
+Epoch 65, train loss 0.2350 validation loss 0.2981
+Epoch 66, train loss 0.2342 validation loss 0.2996
+Epoch 67, train loss 0.2352 validation loss 0.3010
+Epoch 68, train loss 0.2345 validation loss 0.3022
+Epoch 69, train loss 0.2352 validation loss 0.3034
+Epoch 70, train loss 0.2334 validation loss 0.3046
+Epoch 71, train loss 0.2347 validation loss 0.3059
+Epoch 72, train loss 0.2328 validation loss 0.3071
+Epoch 73, train loss 0.2316 validation loss 0.3084
+Epoch 74, train loss 0.2320 validation loss 0.3097
+Epoch 75, train loss 0.2307 validation loss 0.3111
+Epoch 76, train loss 0.2310 validation loss 0.3125
+Epoch 77, train loss 0.2306 validation loss 0.3140
+Epoch 78, train loss 0.2306 validation loss 0.3154
+Epoch 79, train loss 0.2301 validation loss 0.3168
+Epoch 80, train loss 0.2300 validation loss 0.3183
+Epoch 81, train loss 0.2299 validation loss 0.3198
+Epoch 82, train loss 0.2287 validation loss 0.3213
+Epoch 83, train loss 0.2287 validation loss 0.3227
+Epoch 84, train loss 0.2283 validation loss 0.3243
+Epoch 85, train loss 0.2275 validation loss 0.3259
+Epoch 86, train loss 0.2289 validation loss 0.3273
+Epoch 87, train loss 0.2282 validation loss 0.3287
+Epoch 88, train loss 0.2276 validation loss 0.3301
+Epoch 89, train loss 0.2267 validation loss 0.3314
+Epoch 90, train loss 0.2277 validation loss 0.3328
+Epoch 91, train loss 0.2283 validation loss 0.3342
+Epoch 92, train loss 0.2266 validation loss 0.3356
+Epoch 93, train loss 0.2268 validation loss 0.3370
+Epoch 94, train loss 0.2272 validation loss 0.3383
+Epoch 95, train loss 0.2263 validation loss 0.3398
+Epoch 96, train loss 0.2257 validation loss 0.3412
+Epoch 97, train loss 0.2258 validation loss 0.3425
+Epoch 98, train loss 0.2262 validation loss 0.3438
+Epoch 99, train loss 0.2258 validation loss 0.3451
+Epoch 100, train loss 0.2267 validation loss 0.3465
+Epoch 101, train loss 0.2254 validation loss 0.3478
+Epoch 102, train loss 0.2250 validation loss 0.3490
+Epoch 103, train loss 0.2244 validation loss 0.3502
+Epoch 104, train loss 0.2245 validation loss 0.3514
+Epoch 105, train loss 0.2244 validation loss 0.3527
+Epoch 106, train loss 0.2237 validation loss 0.3541
+Epoch 107, train loss 0.2251 validation loss 0.3553
+Epoch 108, train loss 0.2241 validation loss 0.3567
+Epoch 109, train loss 0.2239 validation loss 0.3580
+Epoch 110, train loss 0.2241 validation loss 0.3591
+Epoch 111, train loss 0.2255 validation loss 0.3604
+Epoch 112, train loss 0.2241 validation loss 0.3615
+Epoch 113, train loss 0.2235 validation loss 0.3627
+Epoch 114, train loss 0.2227 validation loss 0.3640
+Epoch 115, train loss 0.2232 validation loss 0.3652
+Epoch 116, train loss 0.2225 validation loss 0.3664
+Epoch 117, train loss 0.2217 validation loss 0.3677
+Epoch 118, train loss 0.2213 validation loss 0.3691
+Epoch 119, train loss 0.2205 validation loss 0.3704
+Epoch 120, train loss 0.2215 validation loss 0.3716
+Epoch 121, train loss 0.2204 validation loss 0.3728
+Epoch 122, train loss 0.2204 validation loss 0.3740
+Epoch 123, train loss 0.2196 validation loss 0.3751
+Epoch 124, train loss 0.2217 validation loss 0.3764
+Epoch 125, train loss 0.2201 validation loss 0.3777
+Epoch 126, train loss 0.2189 validation loss 0.3791
+Epoch 127, train loss 0.2192 validation loss 0.3805
+Epoch 128, train loss 0.2190 validation loss 0.3821
+Epoch 129, train loss 0.2192 validation loss 0.3835
+Epoch 130, train loss 0.2193 validation loss 0.3850
+Epoch 131, train loss 0.2177 validation loss 0.3863
+Epoch 132, train loss 0.2189 validation loss 0.3874
+Epoch 133, train loss 0.2185 validation loss 0.3885
+Epoch 134, train loss 0.2174 validation loss 0.3897
+Epoch 135, train loss 0.2193 validation loss 0.3909
+Epoch 136, train loss 0.2177 validation loss 0.3921
+Epoch 137, train loss 0.2189 validation loss 0.3935
+Epoch 138, train loss 0.2199 validation loss 0.3947
+Epoch 139, train loss 0.2193 validation loss 0.3959
+Epoch 140, train loss 0.2188 validation loss 0.3971
+Epoch 141, train loss 0.2186 validation loss 0.3983
+Epoch 142, train loss 0.2183 validation loss 0.3996
+Epoch 143, train loss 0.2189 validation loss 0.4009
+Epoch 144, train loss 0.2171 validation loss 0.4020
+Epoch 145, train loss 0.2163 validation loss 0.4032
+Epoch 146, train loss 0.2180 validation loss 0.4047
+Epoch 147, train loss 0.2169 validation loss 0.4061
+Epoch 148, train loss 0.2179 validation loss 0.4076
+Epoch 149, train loss 0.2161 validation loss 0.4089
+Epoch 150, train loss 0.2166 validation loss 0.4103
+Epoch 151, train loss 0.2160 validation loss 0.4113
+Epoch 152, train loss 0.2167 validation loss 0.4123
+Epoch 153, train loss 0.2151 validation loss 0.4137
+Epoch 154, train loss 0.2146 validation loss 0.4149
+Epoch 155, train loss 0.2141 validation loss 0.4162
+Epoch 156, train loss 0.2151 validation loss 0.4173
+Epoch 157, train loss 0.2160 validation loss 0.4184
+Epoch 158, train loss 0.2168 validation loss 0.4196
+Epoch 159, train loss 0.2153 validation loss 0.4205
+Epoch 160, train loss 0.2149 validation loss 0.4213
+Epoch 161, train loss 0.2141 validation loss 0.4221
+Epoch 162, train loss 0.2153 validation loss 0.4232
+Epoch 163, train loss 0.2150 validation loss 0.4244
+Epoch 164, train loss 0.2138 validation loss 0.4252
+Epoch 165, train loss 0.2141 validation loss 0.4261
+Epoch 166, train loss 0.2147 validation loss 0.4273
+Epoch 167, train loss 0.2150 validation loss 0.4286
+Epoch 168, train loss 0.2132 validation loss 0.4296
+Epoch 169, train loss 0.2127 validation loss 0.4307
+Epoch 170, train loss 0.2144 validation loss 0.4320
+Epoch 171, train loss 0.2120 validation loss 0.4325
+Epoch 172, train loss 0.2122 validation loss 0.4333
+Epoch 173, train loss 0.2127 validation loss 0.4342
+Epoch 174, train loss 0.2110 validation loss 0.4349
+Epoch 175, train loss 0.2108 validation loss 0.4358
+Epoch 176, train loss 0.2108 validation loss 0.4369
+Epoch 177, train loss 0.2113 validation loss 0.4377
+Epoch 178, train loss 0.2111 validation loss 0.4387
+Epoch 179, train loss 0.2133 validation loss 0.4401
+Epoch 180, train loss 0.2096 validation loss 0.4408
+Epoch 181, train loss 0.2116 validation loss 0.4419
+Epoch 182, train loss 0.2103 validation loss 0.4431
+Epoch 183, train loss 0.2115 validation loss 0.4441
+Epoch 184, train loss 0.2100 validation loss 0.4453
+Epoch 185, train loss 0.2100 validation loss 0.4460
+Epoch 186, train loss 0.2106 validation loss 0.4470
+Epoch 187, train loss 0.2099 validation loss 0.4482
+Epoch 188, train loss 0.2085 validation loss 0.4493
+Epoch 189, train loss 0.2090 validation loss 0.4504
+Epoch 190, train loss 0.2085 validation loss 0.4517
+Epoch 191, train loss 0.2102 validation loss 0.4526
+Epoch 192, train loss 0.2102 validation loss 0.4537
+Epoch 193, train loss 0.2110 validation loss 0.4548
+Epoch 194, train loss 0.2098 validation loss 0.4555
+Epoch 195, train loss 0.2099 validation loss 0.4565
+Epoch 196, train loss 0.2084 validation loss 0.4571
+Epoch 197, train loss 0.2085 validation loss 0.4578
+Epoch 198, train loss 0.2123 validation loss 0.4592
+Epoch 199, train loss 0.2093 validation loss 0.4606
+Epoch 200, train loss 0.2112 validation loss 0.4620
+Epoch 201, train loss 0.2103 validation loss 0.4633
+Epoch 202, train loss 0.2093 validation loss 0.4645
+Epoch 203, train loss 0.2081 validation loss 0.4658
+Epoch 204, train loss 0.2087 validation loss 0.4667
+Epoch 205, train loss 0.2078 validation loss 0.4677
+Epoch 206, train loss 0.2099 validation loss 0.4689
+Epoch 207, train loss 0.2099 validation loss 0.4700
+Epoch 208, train loss 0.2084 validation loss 0.4712
+Epoch 209, train loss 0.2079 validation loss 0.4720
+Epoch 210, train loss 0.2089 validation loss 0.4727
+Epoch 211, train loss 0.2076 validation loss 0.4737
+Epoch 212, train loss 0.2066 validation loss 0.4746
+Epoch 213, train loss 0.2094 validation loss 0.4758
+Epoch 214, train loss 0.2097 validation loss 0.4769
+Epoch 215, train loss 0.2074 validation loss 0.4780
+Epoch 216, train loss 0.2081 validation loss 0.4794
+Epoch 217, train loss 0.2080 validation loss 0.4808
+Epoch 218, train loss 0.2069 validation loss 0.4818
+Epoch 219, train loss 0.2066 validation loss 0.4827
+Epoch 220, train loss 0.2076 validation loss 0.4840
+Epoch 221, train loss 0.2079 validation loss 0.4849
+Epoch 222, train loss 0.2094 validation loss 0.4863
+Epoch 223, train loss 0.2078 validation loss 0.4875
+Epoch 224, train loss 0.2068 validation loss 0.4883
+Epoch 225, train loss 0.2070 validation loss 0.4893
+Epoch 226, train loss 0.2060 validation loss 0.4903
+Epoch 227, train loss 0.2076 validation loss 0.4914
+Epoch 228, train loss 0.2065 validation loss 0.4926
+Epoch 229, train loss 0.2080 validation loss 0.4936
+Epoch 230, train loss 0.2086 validation loss 0.4944
+Epoch 231, train loss 0.2047 validation loss 0.4949
+Epoch 232, train loss 0.2080 validation loss 0.4955
+Epoch 233, train loss 0.2080 validation loss 0.4966
+Epoch 234, train loss 0.2083 validation loss 0.4981
+Epoch 235, train loss 0.2064 validation loss 0.4990
+Epoch 236, train loss 0.2066 validation loss 0.5001
+Epoch 237, train loss 0.2060 validation loss 0.5011
+Epoch 238, train loss 0.2055 validation loss 0.5018
+Epoch 239, train loss 0.2070 validation loss 0.5029
+Epoch 240, train loss 0.2062 validation loss 0.5033
+Epoch 241, train loss 0.2059 validation loss 0.5042
+Epoch 242, train loss 0.2046 validation loss 0.5047
+Epoch 243, train loss 0.2055 validation loss 0.5056
+Epoch 244, train loss 0.2060 validation loss 0.5067
+Epoch 245, train loss 0.2047 validation loss 0.5076
+Epoch 246, train loss 0.2058 validation loss 0.5090
+Epoch 247, train loss 0.2068 validation loss 0.5102
+Epoch 248, train loss 0.2057 validation loss 0.5110
+Epoch 249, train loss 0.2038 validation loss 0.5117
+Epoch 250, train loss 0.2050 validation loss 0.5125
+Epoch 251, train loss 0.2043 validation loss 0.5132
+Epoch 252, train loss 0.2057 validation loss 0.5142
+Epoch 253, train loss 0.2039 validation loss 0.5147
+Epoch 254, train loss 0.2052 validation loss 0.5157
+Epoch 255, train loss 0.2037 validation loss 0.5161
+Epoch 256, train loss 0.2035 validation loss 0.5171
+Epoch 257, train loss 0.2043 validation loss 0.5178
+Epoch 258, train loss 0.2043 validation loss 0.5187
+Epoch 259, train loss 0.2026 validation loss 0.5195
+Epoch 260, train loss 0.2035 validation loss 0.5203
+Epoch 261, train loss 0.2039 validation loss 0.5207
+Epoch 262, train loss 0.2019 validation loss 0.5211
+Epoch 263, train loss 0.2043 validation loss 0.5220
+Epoch 264, train loss 0.2042 validation loss 0.5227
+Epoch 265, train loss 0.2048 validation loss 0.5231
+Epoch 266, train loss 0.2045 validation loss 0.5231
+Epoch 267, train loss 0.2038 validation loss 0.5234
+Epoch 268, train loss 0.2027 validation loss 0.5236
+Epoch 269, train loss 0.2039 validation loss 0.5243
+Epoch 270, train loss 0.2035 validation loss 0.5249
+Epoch 271, train loss 0.2054 validation loss 0.5257
+Epoch 272, train loss 0.2050 validation loss 0.5268
+Epoch 273, train loss 0.2034 validation loss 0.5274
+Epoch 274, train loss 0.2042 validation loss 0.5280
+Epoch 275, train loss 0.2043 validation loss 0.5287
+Epoch 276, train loss 0.2043 validation loss 0.5293
+Epoch 277, train loss 0.2014 validation loss 0.5294
+Epoch 278, train loss 0.2021 validation loss 0.5305
+Epoch 279, train loss 0.2013 validation loss 0.5310
+Epoch 280, train loss 0.2021 validation loss 0.5320
+Epoch 281, train loss 0.2026 validation loss 0.5328
+Epoch 282, train loss 0.2014 validation loss 0.5331
+Epoch 283, train loss 0.2013 validation loss 0.5332
+Epoch 284, train loss 0.2010 validation loss 0.5333
+Epoch 285, train loss 0.2028 validation loss 0.5341
+Epoch 286, train loss 0.2039 validation loss 0.5346
+Epoch 287, train loss 0.2009 validation loss 0.5349
+Epoch 288, train loss 0.2028 validation loss 0.5356
+Epoch 289, train loss 0.2039 validation loss 0.5367
+Epoch 290, train loss 0.2031 validation loss 0.5375
+Epoch 291, train loss 0.2025 validation loss 0.5380
+Epoch 292, train loss 0.2029 validation loss 0.5388
+Epoch 293, train loss 0.2057 validation loss 0.5402
+Epoch 294, train loss 0.2023 validation loss 0.5405
+Epoch 295, train loss 0.2032 validation loss 0.5409
+Epoch 296, train loss 0.2009 validation loss 0.5406
+Epoch 297, train loss 0.1990 validation loss 0.5407
+Epoch 298, train loss 0.2026 validation loss 0.5416
+Epoch 299, train loss 0.2014 validation loss 0.5417
+Epoch 300, train loss 0.2029 validation loss 0.5426
+Epoch 301, train loss 0.1993 validation loss 0.5430
+Epoch 302, train loss 0.2026 validation loss 0.5437
+Epoch 303, train loss 0.2013 validation loss 0.5440
+Epoch 304, train loss 0.2009 validation loss 0.5443
+Epoch 305, train loss 0.2010 validation loss 0.5448
+Epoch 306, train loss 0.2013 validation loss 0.5452
+Epoch 307, train loss 0.2019 validation loss 0.5457
+Epoch 308, train loss 0.2032 validation loss 0.5464
+Epoch 309, train loss 0.2026 validation loss 0.5472
+Epoch 310, train loss 0.2012 validation loss 0.5475
+Epoch 311, train loss 0.2040 validation loss 0.5485
+Epoch 312, train loss 0.2040 validation loss 0.5489
+Epoch 313, train loss 0.2014 validation loss 0.5492
+Epoch 314, train loss 0.2013 validation loss 0.5493
+Epoch 315, train loss 0.2003 validation loss 0.5495
+Epoch 316, train loss 0.2004 validation loss 0.5503
+Epoch 317, train loss 0.1994 validation loss 0.5506
+Epoch 318, train loss 0.2013 validation loss 0.5506
+Epoch 319, train loss 0.1996 validation loss 0.5508
+Epoch 320, train loss 0.2000 validation loss 0.5516
+Epoch 321, train loss 0.2030 validation loss 0.5525
+Epoch 322, train loss 0.1980 validation loss 0.5529
+Epoch 323, train loss 0.1998 validation loss 0.5534
+Epoch 324, train loss 0.2010 validation loss 0.5543
+Epoch 325, train loss 0.2017 validation loss 0.5557
+Epoch 326, train loss 0.1999 validation loss 0.5563
+Epoch 327, train loss 0.1994 validation loss 0.5574
+Epoch 328, train loss 0.2018 validation loss 0.5585
+Epoch 329, train loss 0.1990 validation loss 0.5590
+Epoch 330, train loss 0.1979 validation loss 0.5593
+Epoch 331, train loss 0.1997 validation loss 0.5604
+Epoch 332, train loss 0.1988 validation loss 0.5610
+Epoch 333, train loss 0.1976 validation loss 0.5611
+Epoch 334, train loss 0.1990 validation loss 0.5612
+Epoch 335, train loss 0.2021 validation loss 0.5621
+Epoch 336, train loss 0.2013 validation loss 0.5629
+Epoch 337, train loss 0.1983 validation loss 0.5631
+Epoch 338, train loss 0.1997 validation loss 0.5635
+Epoch 339, train loss 0.1997 validation loss 0.5643
+Epoch 340, train loss 0.1984 validation loss 0.5647
+Epoch 341, train loss 0.1996 validation loss 0.5654
+Epoch 342, train loss 0.1984 validation loss 0.5659
+Epoch 343, train loss 0.1977 validation loss 0.5662
+Epoch 344, train loss 0.1991 validation loss 0.5669
+Epoch 345, train loss 0.1975 validation loss 0.5672
+Epoch 346, train loss 0.1988 validation loss 0.5676
+Epoch 347, train loss 0.1976 validation loss 0.5678
+Epoch 348, train loss 0.1985 validation loss 0.5684
+Epoch 349, train loss 0.2007 validation loss 0.5694
+Epoch 350, train loss 0.1969 validation loss 0.5697
+Epoch 351, train loss 0.2017 validation loss 0.5709
+Epoch 352, train loss 0.1985 validation loss 0.5709
+Epoch 353, train loss 0.1983 validation loss 0.5714
+Epoch 354, train loss 0.1988 validation loss 0.5715
+Epoch 355, train loss 0.1999 validation loss 0.5721
+Epoch 356, train loss 0.1966 validation loss 0.5723
+Epoch 357, train loss 0.1996 validation loss 0.5725
+Epoch 358, train loss 0.1981 validation loss 0.5728
+Epoch 359, train loss 0.1986 validation loss 0.5740
+Epoch 360, train loss 0.1969 validation loss 0.5740
+Epoch 361, train loss 0.1972 validation loss 0.5744
+Epoch 362, train loss 0.1975 validation loss 0.5744
+Epoch 363, train loss 0.1988 validation loss 0.5753
+Epoch 364, train loss 0.1976 validation loss 0.5755
+Epoch 365, train loss 0.1985 validation loss 0.5761
+Epoch 366, train loss 0.1984 validation loss 0.5770
+Epoch 367, train loss 0.1992 validation loss 0.5773
+Epoch 368, train loss 0.1964 validation loss 0.5777
+Epoch 369, train loss 0.2001 validation loss 0.5789
+Epoch 370, train loss 0.1981 validation loss 0.5794
+Epoch 371, train loss 0.1981 validation loss 0.5801
+Epoch 372, train loss 0.1965 validation loss 0.5805
+Epoch 373, train loss 0.1980 validation loss 0.5815
+Epoch 374, train loss 0.2006 validation loss 0.5830
+Epoch 375, train loss 0.1974 validation loss 0.5835
+Epoch 376, train loss 0.1980 validation loss 0.5840
+Epoch 377, train loss 0.1983 validation loss 0.5843
+Epoch 378, train loss 0.1992 validation loss 0.5846
+Epoch 379, train loss 0.1984 validation loss 0.5844
+Epoch 380, train loss 0.1984 validation loss 0.5845
+Epoch 381, train loss 0.1974 validation loss 0.5846
+Epoch 382, train loss 0.1975 validation loss 0.5845
+Epoch 383, train loss 0.1963 validation loss 0.5848
+Epoch 384, train loss 0.1974 validation loss 0.5852
+Epoch 385, train loss 0.1970 validation loss 0.5853
+Epoch 386, train loss 0.1993 validation loss 0.5859
+Epoch 387, train loss 0.1961 validation loss 0.5856
+Epoch 388, train loss 0.1953 validation loss 0.5855
+Epoch 389, train loss 0.1963 validation loss 0.5857
+Epoch 390, train loss 0.1988 validation loss 0.5859
+Epoch 391, train loss 0.1957 validation loss 0.5860
+Epoch 392, train loss 0.1971 validation loss 0.5859
+Epoch 393, train loss 0.1958 validation loss 0.5866
+Epoch 394, train loss 0.1977 validation loss 0.5871
+Epoch 395, train loss 0.1979 validation loss 0.5878
+Epoch 396, train loss 0.1944 validation loss 0.5873
+Epoch 397, train loss 0.1968 validation loss 0.5875
+Epoch 398, train loss 0.1959 validation loss 0.5879
+Epoch 399, train loss 0.1985 validation loss 0.5888
+Epoch 400, train loss 0.1964 validation loss 0.5893
+Epoch 401, train loss 0.1976 validation loss 0.5896
+Epoch 402, train loss 0.1967 validation loss 0.5898
+Epoch 403, train loss 0.1972 validation loss 0.5902
+Epoch 404, train loss 0.1968 validation loss 0.5909
+Epoch 405, train loss 0.1949 validation loss 0.5913
+Epoch 406, train loss 0.1953 validation loss 0.5915
+Epoch 407, train loss 0.1964 validation loss 0.5922
+Epoch 408, train loss 0.1940 validation loss 0.5928
+Epoch 409, train loss 0.1961 validation loss 0.5934
+Epoch 410, train loss 0.1950 validation loss 0.5937
+Epoch 411, train loss 0.1939 validation loss 0.5938
+Epoch 412, train loss 0.1964 validation loss 0.5946
+Epoch 413, train loss 0.1961 validation loss 0.5953
+Epoch 414, train loss 0.1980 validation loss 0.5965
+Epoch 415, train loss 0.1976 validation loss 0.5976
+Epoch 416, train loss 0.1959 validation loss 0.5980
+Epoch 417, train loss 0.1979 validation loss 0.5987
+Epoch 418, train loss 0.2001 validation loss 0.5996
+Epoch 419, train loss 0.1965 validation loss 0.6002
+Epoch 420, train loss 0.1957 validation loss 0.6002
+Epoch 421, train loss 0.1957 validation loss 0.6001
+Epoch 422, train loss 0.1960 validation loss 0.5998
+Epoch 423, train loss 0.1983 validation loss 0.5998
+Epoch 424, train loss 0.1939 validation loss 0.5995
+Epoch 425, train loss 0.1954 validation loss 0.6002
+Epoch 426, train loss 0.1970 validation loss 0.6011
+Epoch 427, train loss 0.1951 validation loss 0.6010
+Epoch 428, train loss 0.1957 validation loss 0.6011
+Epoch 429, train loss 0.1958 validation loss 0.6010
+Epoch 430, train loss 0.1942 validation loss 0.6014
+Epoch 431, train loss 0.1951 validation loss 0.6019
+Epoch 432, train loss 0.1949 validation loss 0.6023
+Epoch 433, train loss 0.1938 validation loss 0.6021
+Epoch 434, train loss 0.1935 validation loss 0.6023
+Epoch 435, train loss 0.1935 validation loss 0.6033
+Epoch 436, train loss 0.1965 validation loss 0.6045
+Epoch 437, train loss 0.1930 validation loss 0.6047
+Epoch 438, train loss 0.1953 validation loss 0.6052
+Epoch 439, train loss 0.1957 validation loss 0.6059
+Epoch 440, train loss 0.1969 validation loss 0.6060
+Epoch 441, train loss 0.1951 validation loss 0.6063
+Epoch 442, train loss 0.1948 validation loss 0.6065
+Epoch 443, train loss 0.1933 validation loss 0.6064
+Epoch 444, train loss 0.1961 validation loss 0.6070
+Epoch 445, train loss 0.1970 validation loss 0.6077
+Epoch 446, train loss 0.1927 validation loss 0.6076
+Epoch 447, train loss 0.1947 validation loss 0.6079
+Epoch 448, train loss 0.1939 validation loss 0.6083
+Epoch 449, train loss 0.1939 validation loss 0.6094
+Epoch 450, train loss 0.1975 validation loss 0.6107
+Epoch 451, train loss 0.1950 validation loss 0.6116
+Epoch 452, train loss 0.1935 validation loss 0.6125
+Epoch 453, train loss 0.1959 validation loss 0.6134
+Epoch 454, train loss 0.1951 validation loss 0.6141
+Epoch 455, train loss 0.1939 validation loss 0.6146
+Epoch 456, train loss 0.1951 validation loss 0.6154
+Epoch 457, train loss 0.1931 validation loss 0.6159
+Epoch 458, train loss 0.1958 validation loss 0.6166
+Epoch 459, train loss 0.1942 validation loss 0.6172
+Epoch 460, train loss 0.1948 validation loss 0.6179
+Epoch 461, train loss 0.1950 validation loss 0.6185
+Epoch 462, train loss 0.1943 validation loss 0.6183
+Epoch 463, train loss 0.1923 validation loss 0.6182
+Epoch 464, train loss 0.1934 validation loss 0.6181
+Epoch 465, train loss 0.1935 validation loss 0.6186
+Epoch 466, train loss 0.1945 validation loss 0.6184
+Epoch 467, train loss 0.1928 validation loss 0.6190
+Epoch 468, train loss 0.1950 validation loss 0.6193
+Epoch 469, train loss 0.1932 validation loss 0.6195
+Epoch 470, train loss 0.1951 validation loss 0.6198
+Epoch 471, train loss 0.1959 validation loss 0.6203
+Epoch 472, train loss 0.1941 validation loss 0.6203
+Epoch 473, train loss 0.1941 validation loss 0.6210
+Epoch 474, train loss 0.1941 validation loss 0.6211
+Epoch 475, train loss 0.1948 validation loss 0.6215
+Epoch 476, train loss 0.1952 validation loss 0.6222
+Epoch 477, train loss 0.1950 validation loss 0.6223
+Epoch 478, train loss 0.1926 validation loss 0.6220
+Epoch 479, train loss 0.1951 validation loss 0.6221
+Epoch 480, train loss 0.1947 validation loss 0.6221
+Epoch 481, train loss 0.1931 validation loss 0.6216
+Epoch 482, train loss 0.1944 validation loss 0.6217
+Epoch 483, train loss 0.1946 validation loss 0.6225
+Epoch 484, train loss 0.1971 validation loss 0.6233
+Epoch 485, train loss 0.1947 validation loss 0.6233
+Epoch 486, train loss 0.1950 validation loss 0.6236
+Epoch 487, train loss 0.1953 validation loss 0.6236
+Epoch 488, train loss 0.1952 validation loss 0.6241
+Epoch 489, train loss 0.1952 validation loss 0.6249
+Epoch 490, train loss 0.1935 validation loss 0.6250
+Epoch 491, train loss 0.1925 validation loss 0.6249
+Epoch 492, train loss 0.1966 validation loss 0.6259
+Epoch 493, train loss 0.1942 validation loss 0.6261
+Epoch 494, train loss 0.1928 validation loss 0.6258
+Epoch 495, train loss 0.1938 validation loss 0.6262
+Epoch 496, train loss 0.1924 validation loss 0.6260
+Epoch 497, train loss 0.1942 validation loss 0.6261
+Epoch 498, train loss 0.1947 validation loss 0.6263
+Epoch 499, train loss 0.1951 validation loss 0.6266
+Epoch 500, train loss 0.1931 validation loss 0.6268
+Epoch 501, train loss 0.1930 validation loss 0.6266
+Epoch 502, train loss 0.1923 validation loss 0.6264
+Epoch 503, train loss 0.1966 validation loss 0.6265
+Epoch 504, train loss 0.1944 validation loss 0.6268
+Epoch 505, train loss 0.1928 validation loss 0.6273
+Epoch 506, train loss 0.1917 validation loss 0.6273
+Epoch 507, train loss 0.1930 validation loss 0.6275
+Epoch 508, train loss 0.1943 validation loss 0.6284
+Epoch 509, train loss 0.1946 validation loss 0.6286
+Epoch 510, train loss 0.1936 validation loss 0.6289
+Epoch 511, train loss 0.1936 validation loss 0.6292
+Epoch 512, train loss 0.1916 validation loss 0.6298
+Epoch 513, train loss 0.1932 validation loss 0.6298
+Epoch 514, train loss 0.1927 validation loss 0.6301
+Epoch 515, train loss 0.1929 validation loss 0.6296
+Epoch 516, train loss 0.1915 validation loss 0.6294
+Epoch 517, train loss 0.1911 validation loss 0.6295
+Epoch 518, train loss 0.1924 validation loss 0.6295
+Epoch 519, train loss 0.1959 validation loss 0.6302
+Epoch 520, train loss 0.1921 validation loss 0.6306
+Epoch 521, train loss 0.1911 validation loss 0.6309
+Epoch 522, train loss 0.1929 validation loss 0.6317
+Epoch 523, train loss 0.1933 validation loss 0.6319
+Epoch 524, train loss 0.1924 validation loss 0.6320
+Epoch 525, train loss 0.1937 validation loss 0.6326
+Epoch 526, train loss 0.1950 validation loss 0.6333
+Epoch 527, train loss 0.1913 validation loss 0.6330
+Epoch 528, train loss 0.1921 validation loss 0.6333
+Epoch 529, train loss 0.1931 validation loss 0.6335
+Epoch 530, train loss 0.1922 validation loss 0.6332
+Epoch 531, train loss 0.1915 validation loss 0.6334
+Epoch 532, train loss 0.1922 validation loss 0.6337
+Epoch 533, train loss 0.1908 validation loss 0.6338
+Epoch 534, train loss 0.1909 validation loss 0.6334
+Epoch 535, train loss 0.1930 validation loss 0.6338
+Epoch 536, train loss 0.1906 validation loss 0.6343
+Epoch 537, train loss 0.1940 validation loss 0.6352
+Epoch 538, train loss 0.1941 validation loss 0.6360
+Epoch 539, train loss 0.1919 validation loss 0.6363
+Epoch 540, train loss 0.1915 validation loss 0.6360
+Epoch 541, train loss 0.1909 validation loss 0.6364
+Epoch 542, train loss 0.1912 validation loss 0.6369
+Epoch 543, train loss 0.1901 validation loss 0.6374
+Epoch 544, train loss 0.1915 validation loss 0.6379
+Epoch 545, train loss 0.1924 validation loss 0.6384
+Epoch 546, train loss 0.1918 validation loss 0.6385
+Epoch 547, train loss 0.1928 validation loss 0.6395
+Epoch 548, train loss 0.1932 validation loss 0.6403
+Epoch 549, train loss 0.1926 validation loss 0.6406
+Epoch 550, train loss 0.1932 validation loss 0.6411
+Epoch 551, train loss 0.1904 validation loss 0.6415
+Epoch 552, train loss 0.1932 validation loss 0.6427
+Epoch 553, train loss 0.1909 validation loss 0.6431
+Epoch 554, train loss 0.1926 validation loss 0.6437
+Epoch 555, train loss 0.1936 validation loss 0.6443
+Epoch 556, train loss 0.1902 validation loss 0.6444
+Epoch 557, train loss 0.1917 validation loss 0.6450
+Epoch 558, train loss 0.1928 validation loss 0.6456
+Epoch 559, train loss 0.1934 validation loss 0.6460
+Epoch 560, train loss 0.1925 validation loss 0.6464
+Epoch 561, train loss 0.1914 validation loss 0.6468
+Epoch 562, train loss 0.1938 validation loss 0.6470
+Epoch 563, train loss 0.1946 validation loss 0.6479
+Epoch 564, train loss 0.1920 validation loss 0.6478
+Epoch 565, train loss 0.1928 validation loss 0.6475
+Epoch 566, train loss 0.1914 validation loss 0.6470
+Epoch 567, train loss 0.1924 validation loss 0.6473
+Epoch 568, train loss 0.1925 validation loss 0.6478
+Epoch 569, train loss 0.1913 validation loss 0.6480
+Epoch 570, train loss 0.1916 validation loss 0.6487
+Epoch 571, train loss 0.1930 validation loss 0.6496
+Epoch 572, train loss 0.1932 validation loss 0.6499
+Epoch 573, train loss 0.1898 validation loss 0.6498
+Epoch 574, train loss 0.1930 validation loss 0.6510
+Epoch 575, train loss 0.1935 validation loss 0.6519
+Epoch 576, train loss 0.1903 validation loss 0.6522
+Epoch 577, train loss 0.1910 validation loss 0.6523
+Epoch 578, train loss 0.1906 validation loss 0.6527
+Epoch 579, train loss 0.1951 validation loss 0.6530
+Epoch 580, train loss 0.1939 validation loss 0.6533
+Epoch 581, train loss 0.1925 validation loss 0.6529
+Epoch 582, train loss 0.1909 validation loss 0.6523
+Epoch 583, train loss 0.1909 validation loss 0.6519
+Epoch 584, train loss 0.1924 validation loss 0.6523
+Epoch 585, train loss 0.1922 validation loss 0.6533
+Epoch 586, train loss 0.1921 validation loss 0.6532
+Epoch 587, train loss 0.1939 validation loss 0.6534
+Epoch 588, train loss 0.1938 validation loss 0.6532
+Epoch 589, train loss 0.1911 validation loss 0.6531
+Epoch 590, train loss 0.1930 validation loss 0.6532
+Epoch 591, train loss 0.1902 validation loss 0.6527
+Epoch 592, train loss 0.1911 validation loss 0.6521
+Epoch 593, train loss 0.1908 validation loss 0.6518
+Epoch 594, train loss 0.1901 validation loss 0.6520
+Epoch 595, train loss 0.1913 validation loss 0.6525
+Epoch 596, train loss 0.1910 validation loss 0.6526
+Epoch 597, train loss 0.1915 validation loss 0.6532
+Epoch 598, train loss 0.1916 validation loss 0.6532
+Epoch 599, train loss 0.1920 validation loss 0.6534
+Epoch 600, train loss 0.1902 validation loss 0.6531
+Epoch 601, train loss 0.1901 validation loss 0.6523
+Epoch 602, train loss 0.1931 validation loss 0.6528
+Epoch 603, train loss 0.1928 validation loss 0.6526
+Epoch 604, train loss 0.1910 validation loss 0.6519
+Epoch 605, train loss 0.1940 validation loss 0.6522
+Epoch 606, train loss 0.1920 validation loss 0.6519
+Epoch 607, train loss 0.1909 validation loss 0.6513
+Epoch 608, train loss 0.1930 validation loss 0.6510
+Epoch 609, train loss 0.1907 validation loss 0.6507
+Epoch 610, train loss 0.1904 validation loss 0.6509
+Epoch 611, train loss 0.1911 validation loss 0.6517
+Epoch 612, train loss 0.1892 validation loss 0.6518
+Epoch 613, train loss 0.1898 validation loss 0.6523
+Epoch 614, train loss 0.1908 validation loss 0.6522
+Epoch 615, train loss 0.1894 validation loss 0.6520
+Epoch 616, train loss 0.1908 validation loss 0.6526
+Epoch 617, train loss 0.1931 validation loss 0.6535
+Epoch 618, train loss 0.1898 validation loss 0.6534
+Epoch 619, train loss 0.1945 validation loss 0.6549
+Epoch 620, train loss 0.1920 validation loss 0.6553
+Epoch 621, train loss 0.1917 validation loss 0.6550
+Epoch 622, train loss 0.1902 validation loss 0.6547
+Epoch 623, train loss 0.1910 validation loss 0.6543
+Epoch 624, train loss 0.1894 validation loss 0.6541
+Epoch 625, train loss 0.1896 validation loss 0.6539
+Epoch 626, train loss 0.1925 validation loss 0.6546
+Epoch 627, train loss 0.1912 validation loss 0.6551
+Epoch 628, train loss 0.1905 validation loss 0.6554
+Epoch 629, train loss 0.1923 validation loss 0.6556
+Epoch 630, train loss 0.1891 validation loss 0.6552
+Epoch 631, train loss 0.1890 validation loss 0.6555
+Epoch 632, train loss 0.1929 validation loss 0.6562
+Epoch 633, train loss 0.1909 validation loss 0.6564
+Epoch 634, train loss 0.1907 validation loss 0.6566
+Epoch 635, train loss 0.1903 validation loss 0.6568
+Epoch 636, train loss 0.1915 validation loss 0.6573
+Epoch 637, train loss 0.1902 validation loss 0.6576
+Epoch 638, train loss 0.1908 validation loss 0.6580
+Epoch 639, train loss 0.1903 validation loss 0.6581
+Epoch 640, train loss 0.1903 validation loss 0.6584
+Epoch 641, train loss 0.1893 validation loss 0.6586
+Epoch 642, train loss 0.1900 validation loss 0.6594
+Epoch 643, train loss 0.1914 validation loss 0.6599
+Epoch 644, train loss 0.1913 validation loss 0.6601
+Epoch 645, train loss 0.1904 validation loss 0.6603
+Epoch 646, train loss 0.1889 validation loss 0.6600
+Epoch 647, train loss 0.1913 validation loss 0.6605
+Epoch 648, train loss 0.1904 validation loss 0.6610
+Epoch 649, train loss 0.1900 validation loss 0.6609
+Epoch 650, train loss 0.1919 validation loss 0.6610
+Epoch 651, train loss 0.1913 validation loss 0.6612
+Epoch 652, train loss 0.1880 validation loss 0.6607
+Epoch 653, train loss 0.1918 validation loss 0.6615
+Epoch 654, train loss 0.1911 validation loss 0.6619
+Epoch 655, train loss 0.1899 validation loss 0.6620
+Epoch 656, train loss 0.1885 validation loss 0.6615
+Epoch 657, train loss 0.1895 validation loss 0.6614
+Epoch 658, train loss 0.1877 validation loss 0.6612
+Epoch 659, train loss 0.1912 validation loss 0.6615
+Epoch 660, train loss 0.1884 validation loss 0.6609
+Epoch 661, train loss 0.1887 validation loss 0.6604
+Epoch 662, train loss 0.1900 validation loss 0.6605
+Epoch 663, train loss 0.1890 validation loss 0.6605
+Epoch 664, train loss 0.1890 validation loss 0.6604
+Epoch 665, train loss 0.1922 validation loss 0.6604
+Epoch 666, train loss 0.1891 validation loss 0.6608
+Epoch 667, train loss 0.1906 validation loss 0.6610
+Epoch 668, train loss 0.1890 validation loss 0.6610
+Epoch 669, train loss 0.1879 validation loss 0.6604
+Epoch 670, train loss 0.1899 validation loss 0.6608
+Epoch 671, train loss 0.1916 validation loss 0.6613
+Epoch 672, train loss 0.1925 validation loss 0.6618
+Epoch 673, train loss 0.1897 validation loss 0.6614
+Epoch 674, train loss 0.1910 validation loss 0.6613
+Epoch 675, train loss 0.1894 validation loss 0.6611
+Epoch 676, train loss 0.1909 validation loss 0.6611
+Epoch 677, train loss 0.1888 validation loss 0.6609
+Epoch 678, train loss 0.1904 validation loss 0.6610
+Epoch 679, train loss 0.1910 validation loss 0.6610
+Epoch 680, train loss 0.1906 validation loss 0.6615
+Epoch 681, train loss 0.1890 validation loss 0.6614
+Epoch 682, train loss 0.1901 validation loss 0.6615
+Epoch 683, train loss 0.1870 validation loss 0.6612
+Epoch 684, train loss 0.1887 validation loss 0.6610
+Epoch 685, train loss 0.1885 validation loss 0.6609
+Epoch 686, train loss 0.1893 validation loss 0.6604
+Epoch 687, train loss 0.1885 validation loss 0.6604
+Epoch 688, train loss 0.1891 validation loss 0.6601
+Epoch 689, train loss 0.1887 validation loss 0.6601
+Epoch 690, train loss 0.1869 validation loss 0.6593
+Epoch 691, train loss 0.1901 validation loss 0.6593
+Epoch 692, train loss 0.1906 validation loss 0.6596
+Epoch 693, train loss 0.1878 validation loss 0.6593
+Epoch 694, train loss 0.1914 validation loss 0.6599
+Epoch 695, train loss 0.1891 validation loss 0.6598
+Epoch 696, train loss 0.1900 validation loss 0.6601
+Epoch 697, train loss 0.1899 validation loss 0.6600
+Epoch 698, train loss 0.1927 validation loss 0.6613
+Epoch 699, train loss 0.1902 validation loss 0.6615
+Epoch 700, train loss 0.1914 validation loss 0.6622
+Epoch 701, train loss 0.1876 validation loss 0.6618
+Epoch 702, train loss 0.1902 validation loss 0.6622
+Epoch 703, train loss 0.1876 validation loss 0.6617
+Epoch 704, train loss 0.1891 validation loss 0.6617
+Epoch 705, train loss 0.1896 validation loss 0.6621
+Epoch 706, train loss 0.1880 validation loss 0.6622
+Epoch 707, train loss 0.1871 validation loss 0.6621
+Epoch 708, train loss 0.1884 validation loss 0.6622
+Epoch 709, train loss 0.1879 validation loss 0.6619
+Epoch 710, train loss 0.1866 validation loss 0.6624
+Epoch 711, train loss 0.1913 validation loss 0.6636
+Epoch 712, train loss 0.1885 validation loss 0.6635
+Epoch 713, train loss 0.1871 validation loss 0.6636
+Epoch 714, train loss 0.1889 validation loss 0.6639
+Epoch 715, train loss 0.1886 validation loss 0.6641
+Epoch 716, train loss 0.1907 validation loss 0.6647
+Epoch 717, train loss 0.1882 validation loss 0.6645
+Epoch 718, train loss 0.1896 validation loss 0.6645
+Epoch 719, train loss 0.1904 validation loss 0.6648
+Epoch 720, train loss 0.1877 validation loss 0.6645
+Epoch 721, train loss 0.1875 validation loss 0.6647
+Epoch 722, train loss 0.1881 validation loss 0.6647
+Epoch 723, train loss 0.1896 validation loss 0.6648
+Epoch 724, train loss 0.1884 validation loss 0.6648
+Epoch 725, train loss 0.1889 validation loss 0.6649
+Epoch 726, train loss 0.1881 validation loss 0.6652
+Epoch 727, train loss 0.1900 validation loss 0.6659
+Epoch 728, train loss 0.1878 validation loss 0.6660
+Epoch 729, train loss 0.1884 validation loss 0.6663
+Epoch 730, train loss 0.1871 validation loss 0.6661
+Epoch 731, train loss 0.1874 validation loss 0.6663
+Epoch 732, train loss 0.1884 validation loss 0.6664
+Epoch 733, train loss 0.1887 validation loss 0.6667
+Epoch 734, train loss 0.1868 validation loss 0.6668
+Epoch 735, train loss 0.1893 validation loss 0.6673
+Epoch 736, train loss 0.1883 validation loss 0.6680
+Epoch 737, train loss 0.1883 validation loss 0.6687
+Epoch 738, train loss 0.1890 validation loss 0.6693
+Epoch 739, train loss 0.1886 validation loss 0.6694
+Epoch 740, train loss 0.1877 validation loss 0.6698
+Epoch 741, train loss 0.1873 validation loss 0.6699
+Epoch 742, train loss 0.1885 validation loss 0.6704
+Epoch 743, train loss 0.1878 validation loss 0.6707
+Epoch 744, train loss 0.1859 validation loss 0.6701
+Epoch 745, train loss 0.1888 validation loss 0.6698
+Epoch 746, train loss 0.1890 validation loss 0.6697
+Epoch 747, train loss 0.1900 validation loss 0.6698
+Epoch 748, train loss 0.1892 validation loss 0.6694
+Epoch 749, train loss 0.1877 validation loss 0.6695
+Epoch 750, train loss 0.1902 validation loss 0.6700
+Epoch 751, train loss 0.1884 validation loss 0.6702
+Epoch 752, train loss 0.1901 validation loss 0.6703
+Epoch 753, train loss 0.1892 validation loss 0.6702
+Epoch 754, train loss 0.1887 validation loss 0.6702
+Epoch 755, train loss 0.1881 validation loss 0.6699
+Epoch 756, train loss 0.1881 validation loss 0.6700
+Epoch 757, train loss 0.1873 validation loss 0.6696
+Epoch 758, train loss 0.1890 validation loss 0.6698
+Epoch 759, train loss 0.1885 validation loss 0.6701
+Epoch 760, train loss 0.1907 validation loss 0.6706
+Epoch 761, train loss 0.1867 validation loss 0.6706
+Epoch 762, train loss 0.1880 validation loss 0.6704
+Epoch 763, train loss 0.1875 validation loss 0.6703
+Epoch 764, train loss 0.1888 validation loss 0.6701
+Epoch 765, train loss 0.1879 validation loss 0.6699
+Epoch 766, train loss 0.1896 validation loss 0.6704
+Epoch 767, train loss 0.1872 validation loss 0.6707
+Epoch 768, train loss 0.1885 validation loss 0.6709
+Epoch 769, train loss 0.1857 validation loss 0.6707
+Epoch 770, train loss 0.1890 validation loss 0.6712
+Epoch 771, train loss 0.1874 validation loss 0.6709
+Epoch 772, train loss 0.1882 validation loss 0.6710
+Epoch 773, train loss 0.1864 validation loss 0.6707
+Epoch 774, train loss 0.1863 validation loss 0.6700
+Epoch 775, train loss 0.1889 validation loss 0.6703
+Epoch 776, train loss 0.1898 validation loss 0.6701
+Epoch 777, train loss 0.1859 validation loss 0.6700
+Epoch 778, train loss 0.1900 validation loss 0.6703
+Epoch 779, train loss 0.1876 validation loss 0.6705
+Epoch 780, train loss 0.1869 validation loss 0.6704
+Epoch 781, train loss 0.1866 validation loss 0.6702
+Epoch 782, train loss 0.1877 validation loss 0.6705
+Epoch 783, train loss 0.1893 validation loss 0.6708
+Epoch 784, train loss 0.1900 validation loss 0.6711
+Epoch 785, train loss 0.1875 validation loss 0.6716
+Epoch 786, train loss 0.1884 validation loss 0.6714
+Epoch 787, train loss 0.1868 validation loss 0.6711
+Epoch 788, train loss 0.1857 validation loss 0.6710
+Epoch 789, train loss 0.1885 validation loss 0.6715
+Epoch 790, train loss 0.1865 validation loss 0.6717
+Epoch 791, train loss 0.1862 validation loss 0.6718
+Epoch 792, train loss 0.1863 validation loss 0.6721
+Epoch 793, train loss 0.1878 validation loss 0.6725
+Epoch 794, train loss 0.1890 validation loss 0.6730
+Epoch 795, train loss 0.1870 validation loss 0.6728
+Epoch 796, train loss 0.1860 validation loss 0.6725
+Epoch 797, train loss 0.1883 validation loss 0.6731
+Epoch 798, train loss 0.1873 validation loss 0.6731
+Epoch 799, train loss 0.1866 validation loss 0.6731
+Epoch 800, train loss 0.1871 validation loss 0.6731
+Epoch 801, train loss 0.1883 validation loss 0.6733
+Epoch 802, train loss 0.1871 validation loss 0.6725
+Epoch 803, train loss 0.1895 validation loss 0.6725
+Epoch 804, train loss 0.1867 validation loss 0.6720
+Epoch 805, train loss 0.1872 validation loss 0.6722
+Epoch 806, train loss 0.1840 validation loss 0.6715
+Epoch 807, train loss 0.1865 validation loss 0.6714
+Epoch 808, train loss 0.1880 validation loss 0.6717
+Epoch 809, train loss 0.1860 validation loss 0.6713
+Epoch 810, train loss 0.1858 validation loss 0.6715
+Epoch 811, train loss 0.1853 validation loss 0.6716
+Epoch 812, train loss 0.1849 validation loss 0.6715
+Epoch 813, train loss 0.1867 validation loss 0.6719
+Epoch 814, train loss 0.1844 validation loss 0.6716
+Epoch 815, train loss 0.1863 validation loss 0.6721
+Epoch 816, train loss 0.1859 validation loss 0.6723
+Epoch 817, train loss 0.1880 validation loss 0.6726
+Epoch 818, train loss 0.1872 validation loss 0.6730
+Epoch 819, train loss 0.1908 validation loss 0.6734
+Epoch 820, train loss 0.1900 validation loss 0.6739
+Epoch 821, train loss 0.1906 validation loss 0.6746
+Epoch 822, train loss 0.1904 validation loss 0.6749
+Epoch 823, train loss 0.1852 validation loss 0.6747
+Epoch 824, train loss 0.1872 validation loss 0.6746
+Epoch 825, train loss 0.1887 validation loss 0.6744
+Epoch 826, train loss 0.1870 validation loss 0.6740
+Epoch 827, train loss 0.1881 validation loss 0.6739
+Epoch 828, train loss 0.1879 validation loss 0.6735
+Epoch 829, train loss 0.1880 validation loss 0.6736
+Epoch 830, train loss 0.1873 validation loss 0.6732
+Epoch 831, train loss 0.1852 validation loss 0.6722
+Epoch 832, train loss 0.1859 validation loss 0.6717
+Epoch 833, train loss 0.1862 validation loss 0.6716
+Epoch 834, train loss 0.1902 validation loss 0.6724
+Epoch 835, train loss 0.1887 validation loss 0.6726
+Epoch 836, train loss 0.1875 validation loss 0.6725
+Epoch 837, train loss 0.1855 validation loss 0.6720
+Epoch 838, train loss 0.1876 validation loss 0.6720
+Epoch 839, train loss 0.1883 validation loss 0.6720
+Epoch 840, train loss 0.1861 validation loss 0.6717
+Epoch 841, train loss 0.1894 validation loss 0.6721
+Epoch 842, train loss 0.1881 validation loss 0.6726
+Epoch 843, train loss 0.1890 validation loss 0.6728
+Epoch 844, train loss 0.1898 validation loss 0.6732
+Epoch 845, train loss 0.1863 validation loss 0.6730
+Epoch 846, train loss 0.1882 validation loss 0.6735
+Epoch 847, train loss 0.1874 validation loss 0.6731
+Epoch 848, train loss 0.1915 validation loss 0.6736
+Epoch 849, train loss 0.1883 validation loss 0.6734
+Epoch 850, train loss 0.1858 validation loss 0.6730
+Epoch 851, train loss 0.1865 validation loss 0.6729
+Epoch 852, train loss 0.1860 validation loss 0.6724
+Epoch 853, train loss 0.1868 validation loss 0.6720
+Epoch 854, train loss 0.1863 validation loss 0.6715
+Epoch 855, train loss 0.1862 validation loss 0.6712
+Epoch 856, train loss 0.1858 validation loss 0.6711
+Epoch 857, train loss 0.1870 validation loss 0.6712
+Epoch 858, train loss 0.1878 validation loss 0.6710
+Epoch 859, train loss 0.1866 validation loss 0.6710
+Epoch 860, train loss 0.1853 validation loss 0.6707
+Epoch 861, train loss 0.1874 validation loss 0.6709
+Epoch 862, train loss 0.1847 validation loss 0.6705
+Epoch 863, train loss 0.1867 validation loss 0.6706
+Epoch 864, train loss 0.1865 validation loss 0.6707
+Epoch 865, train loss 0.1862 validation loss 0.6709
+Epoch 866, train loss 0.1893 validation loss 0.6714
+Epoch 867, train loss 0.1863 validation loss 0.6714
+Epoch 868, train loss 0.1895 validation loss 0.6720
+Epoch 869, train loss 0.1878 validation loss 0.6722
+Epoch 870, train loss 0.1858 validation loss 0.6721
+Epoch 871, train loss 0.1902 validation loss 0.6729
+Epoch 872, train loss 0.1881 validation loss 0.6727
+Epoch 873, train loss 0.1885 validation loss 0.6724
+Epoch 874, train loss 0.1879 validation loss 0.6725
+Epoch 875, train loss 0.1885 validation loss 0.6723
+Epoch 876, train loss 0.1882 validation loss 0.6722
+Epoch 877, train loss 0.1893 validation loss 0.6722
+Epoch 878, train loss 0.1866 validation loss 0.6719
+Epoch 879, train loss 0.1859 validation loss 0.6716
+Epoch 880, train loss 0.1897 validation loss 0.6721
+Epoch 881, train loss 0.1867 validation loss 0.6722
+Epoch 882, train loss 0.1878 validation loss 0.6719
+Epoch 883, train loss 0.1899 validation loss 0.6725
+Epoch 884, train loss 0.1881 validation loss 0.6728
+Epoch 885, train loss 0.1866 validation loss 0.6727
+Epoch 886, train loss 0.1872 validation loss 0.6725
+Epoch 887, train loss 0.1868 validation loss 0.6723
+Epoch 888, train loss 0.1891 validation loss 0.6726
+Epoch 889, train loss 0.1877 validation loss 0.6731
+Epoch 890, train loss 0.1871 validation loss 0.6729
+Epoch 891, train loss 0.1876 validation loss 0.6729
+Epoch 892, train loss 0.1865 validation loss 0.6725
+Epoch 893, train loss 0.1885 validation loss 0.6726
+Epoch 894, train loss 0.1868 validation loss 0.6726
+Epoch 895, train loss 0.1893 validation loss 0.6727
+Epoch 896, train loss 0.1873 validation loss 0.6721
+Epoch 897, train loss 0.1874 validation loss 0.6722
+Epoch 898, train loss 0.1867 validation loss 0.6727
+Epoch 899, train loss 0.1871 validation loss 0.6731
+Epoch 900, train loss 0.1874 validation loss 0.6729
+Epoch 901, train loss 0.1873 validation loss 0.6724
+Epoch 902, train loss 0.1845 validation loss 0.6716
+Epoch 903, train loss 0.1871 validation loss 0.6719
+Epoch 904, train loss 0.1848 validation loss 0.6718
+Epoch 905, train loss 0.1868 validation loss 0.6719
+Epoch 906, train loss 0.1876 validation loss 0.6725
+Epoch 907, train loss 0.1875 validation loss 0.6728
+Epoch 908, train loss 0.1870 validation loss 0.6735
+Epoch 909, train loss 0.1868 validation loss 0.6738
+Epoch 910, train loss 0.1861 validation loss 0.6739
+Epoch 911, train loss 0.1881 validation loss 0.6746
+Epoch 912, train loss 0.1869 validation loss 0.6749
+Epoch 913, train loss 0.1864 validation loss 0.6749
+Epoch 914, train loss 0.1864 validation loss 0.6753
+Epoch 915, train loss 0.1869 validation loss 0.6751
+Epoch 916, train loss 0.1874 validation loss 0.6755
+Epoch 917, train loss 0.1856 validation loss 0.6754
+Epoch 918, train loss 0.1864 validation loss 0.6756
+Epoch 919, train loss 0.1857 validation loss 0.6760
+Epoch 920, train loss 0.1850 validation loss 0.6764
+Epoch 921, train loss 0.1845 validation loss 0.6762
+Epoch 922, train loss 0.1871 validation loss 0.6769
+Epoch 923, train loss 0.1871 validation loss 0.6768
+Epoch 924, train loss 0.1850 validation loss 0.6769
+Epoch 925, train loss 0.1874 validation loss 0.6770
+Epoch 926, train loss 0.1862 validation loss 0.6773
+Epoch 927, train loss 0.1887 validation loss 0.6776
+Epoch 928, train loss 0.1848 validation loss 0.6769
+Epoch 929, train loss 0.1854 validation loss 0.6764
+Epoch 930, train loss 0.1841 validation loss 0.6759
+Epoch 931, train loss 0.1876 validation loss 0.6764
+Epoch 932, train loss 0.1852 validation loss 0.6764
+Epoch 933, train loss 0.1857 validation loss 0.6766
+Epoch 934, train loss 0.1864 validation loss 0.6770
+Epoch 935, train loss 0.1838 validation loss 0.6762
+Epoch 936, train loss 0.1881 validation loss 0.6770
+Epoch 937, train loss 0.1869 validation loss 0.6770
+Epoch 938, train loss 0.1857 validation loss 0.6769
+Epoch 939, train loss 0.1858 validation loss 0.6772
+Epoch 940, train loss 0.1841 validation loss 0.6772
+Epoch 941, train loss 0.1850 validation loss 0.6772
+Epoch 942, train loss 0.1859 validation loss 0.6774
+Epoch 943, train loss 0.1886 validation loss 0.6779
+Epoch 944, train loss 0.1867 validation loss 0.6782
+Epoch 945, train loss 0.1858 validation loss 0.6782
+Epoch 946, train loss 0.1853 validation loss 0.6778
+Epoch 947, train loss 0.1891 validation loss 0.6782
+Epoch 948, train loss 0.1884 validation loss 0.6783
+Epoch 949, train loss 0.1892 validation loss 0.6787
+Epoch 950, train loss 0.1855 validation loss 0.6782
+Epoch 951, train loss 0.1851 validation loss 0.6781
+Epoch 952, train loss 0.1891 validation loss 0.6783
+Epoch 953, train loss 0.1849 validation loss 0.6779
+Epoch 954, train loss 0.1839 validation loss 0.6770
+Epoch 955, train loss 0.1867 validation loss 0.6771
+Epoch 956, train loss 0.1860 validation loss 0.6772
+Epoch 957, train loss 0.1878 validation loss 0.6777
+Epoch 958, train loss 0.1907 validation loss 0.6789
+Epoch 959, train loss 0.1861 validation loss 0.6791
+Epoch 960, train loss 0.1853 validation loss 0.6788
+Epoch 961, train loss 0.1851 validation loss 0.6787
+Epoch 962, train loss 0.1858 validation loss 0.6787
+Epoch 963, train loss 0.1859 validation loss 0.6793
+Epoch 964, train loss 0.1849 validation loss 0.6794
+Epoch 965, train loss 0.1855 validation loss 0.6789
+Epoch 966, train loss 0.1859 validation loss 0.6787
+Epoch 967, train loss 0.1906 validation loss 0.6793
+Epoch 968, train loss 0.1862 validation loss 0.6786
+Epoch 969, train loss 0.1889 validation loss 0.6789
+Epoch 970, train loss 0.1866 validation loss 0.6788
+Epoch 971, train loss 0.1871 validation loss 0.6788
+Epoch 972, train loss 0.1855 validation loss 0.6785
+Epoch 973, train loss 0.1859 validation loss 0.6786
+Epoch 974, train loss 0.1844 validation loss 0.6786
+Epoch 975, train loss 0.1845 validation loss 0.6780
+Epoch 976, train loss 0.1858 validation loss 0.6773
+Epoch 977, train loss 0.1842 validation loss 0.6770
+Epoch 978, train loss 0.1851 validation loss 0.6770
+Epoch 979, train loss 0.1858 validation loss 0.6771
+Epoch 980, train loss 0.1846 validation loss 0.6765
+Epoch 981, train loss 0.1867 validation loss 0.6764
+Epoch 982, train loss 0.1869 validation loss 0.6767
+Epoch 983, train loss 0.1858 validation loss 0.6760
+Epoch 984, train loss 0.1845 validation loss 0.6756
+Epoch 985, train loss 0.1875 validation loss 0.6759
+Epoch 986, train loss 0.1875 validation loss 0.6764
+Epoch 987, train loss 0.1885 validation loss 0.6769
+Epoch 988, train loss 0.1886 validation loss 0.6779
+Epoch 989, train loss 0.1876 validation loss 0.6779
+Epoch 990, train loss 0.1887 validation loss 0.6780
+Epoch 991, train loss 0.1837 validation loss 0.6776
+Epoch 992, train loss 0.1855 validation loss 0.6772
+Epoch 993, train loss 0.1857 validation loss 0.6767
+Epoch 994, train loss 0.1869 validation loss 0.6769
+Epoch 995, train loss 0.1839 validation loss 0.6767
+Epoch 996, train loss 0.1857 validation loss 0.6766
+Epoch 997, train loss 0.1847 validation loss 0.6765
+Epoch 998, train loss 0.1851 validation loss 0.6769
+Epoch 999, train loss 0.1845 validation loss 0.6766
+Epoch 1000, train loss 0.1852 validation loss 0.6762

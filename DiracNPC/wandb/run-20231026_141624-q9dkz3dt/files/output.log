@@ -1,0 +1,25 @@
+Traceback (most recent call last):
+  File "/Users/yixuan.sun/Documents/projects/Preconditioners/MatrixPreNet/DiracNPC/reconstructConfig.py", line 54, in <module>
+    final_state = train_val(TrainLoader, ValLoader, state, epochs, verbose=False)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yixuan.sun/Documents/projects/Preconditioners/MatrixPreNet/NeuralPC/train/TrainFlax.py", line 76, in train_val
+    state, loss = train_step(state, train_batch.numpy())
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yixuan.sun/Documents/projects/Preconditioners/MatrixPreNet/NeuralPC/train/TrainFlax.py", line 56, in train_step
+    (loss, updates), grads = gradient_fn(state.params)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yixuan.sun/Documents/projects/Preconditioners/MatrixPreNet/NeuralPC/train/TrainFlax.py", line 50, in loss_fn
+    pred, updates = state.apply_fn({'params': params, 'batch_stats': state.batch_stats}, in_mat, train=True, mutable=['batch_stats'])
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yixuan.sun/Documents/projects/Preconditioners/MatrixPreNet/NeuralPC/model/CNNs_flax.py", line 90, in __call__
+    x = self.encoder(x, train=train)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yixuan.sun/Documents/projects/Preconditioners/MatrixPreNet/NeuralPC/model/CNNs_flax.py", line 33, in __call__
+    x = self.dense1(x)
+        ^^^^^^^^^^^^^^
+  File "/Users/yixuan.sun/miniforge3/envs/ml/lib/python3.11/site-packages/flax/linen/linear.py", line 234, in __call__
+    kernel = self.param(
+             ^^^^^^^^^^^
+flax.errors.ScopeParamShapeError: Initializer expected to generate shape (16, 512) but got shape (4, 512) instead for parameter "kernel" in "/encoder/dense1". (https://flax.readthedocs.io/en/latest/api_reference/flax.errors.html#flax.errors.ScopeParamShapeError)
+--------------------
+For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
