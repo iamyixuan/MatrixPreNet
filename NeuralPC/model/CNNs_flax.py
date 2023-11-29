@@ -50,7 +50,7 @@ class CNNDecoder(nn.Module):
     def setup(self):
         self.Tconv_1 = nn.ConvTranspose(self.out_ch, self.ker_size, strides=(2, 2))
         self.Tconv_2 = nn.ConvTranspose(self.h_ch, self.ker_size, strides=(2, 2))
-        self.Tconv_3 = nn.ConvTranspose(self.in_ch, self.ker_size, strides=(2, 2))
+        self.Tconv_3 = nn.ConvTranspose(4, self.ker_size, strides=(2, 2))
         self.dense1 = nn.Dense(512)
         self.dense2 = nn.Dense(256)
         self.dense3 = nn.Dense(128)
@@ -143,7 +143,7 @@ class DiracPreconditionerCNN(nn.Module):
         self.conv2 = nn.Conv(features=32, kernel_size=(3, 3), use_bias=True)
         self.conv3 = nn.Conv(features=64, kernel_size=(3, 3), use_bias=True)
         self.dense = nn.Dense(features=self.L**4)
-        self.final_conv = nn.Conv(features=2, kernel_size=(1, 1), use_bias=True)
+        self.final_conv = nn.Conv(features=4, kernel_size=(1, 1), use_bias=True)
 
     @nn.compact
     def __call__(self, x, train: bool):

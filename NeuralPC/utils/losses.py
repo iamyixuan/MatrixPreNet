@@ -5,6 +5,8 @@ import jax.numpy as jnp
 import jax
 from jax import jit
 from functools import partial
+from ..utils.conjugate_gradient import solve
+from ..model.linearOpt import linearConvOpt
 
 
 class Losses:
@@ -61,28 +63,44 @@ class Losses:
         else:
             raise Exception("Loss name not recognized!")
 
-#@partial(jit, static_argnums=(0, 5))
-def PCG_loss(NN, U1, b, kappa, steps, operator):
+# @partial(jit, static_argnums=(0, 5))
+def PCG_loss(params, 
+             batch_stats,
+             model, 
+             U1, 
+             b, 
+             in_mat,
+             kappa, 
+             steps, 
+             operator,
+             train=False):
     """
-    NN: the neural network, acting as the preconditioning operator.
+    opt: the linear operator that act as the preconditioner 
     U1: gauge configuration of shape (b, 2, L, L).
     steps: total steps for PCG to run.
     operator: the operator of the original system.
     """
-    print(U1.shape)
-    # NN_vmap = jax.vmap(NN) # use this with equinox Module
-    def runPCG(operator, b, precond=NN):
-        x = jnp.ones(b.shape).astype(b.dtype)
-        print( b.dtype, x.dtype)
-        x_sol = cg(A=operator, b=b, x0=x, M=precond, maxiter=steps)
-        return x_sol
+   
+    def runPCG(operator, b):
+        kernels, updates = model.apply(
+         {"params": params, "batch_stats": batch_stats}, in_mat, mutable=['batch_stats'], train=train
+        )
+        kernels = jnp.reshape(kernels, (kernels.shape[:-1] + (2, 2)))
+
+        def PCopt(x):
+            x = x[:, jnp.newaxis, ...]
+            new_vect = jax.vmap(linearConvOpt, in_axes=[0, 0])(x, kernels)
+            return new_vect
+        
+        x_sol = solve(A=operator, b=b, M=PCopt, max_iters=steps)
+        return x_sol, updates
 
     # fix the iteration step, calculate the residual b - Ax_sol and minimize the squared value.
 
     opt = partial(operator, U1=U1, kappa=kappa)
-    x_sol, _ = runPCG(opt, b=b)
-    residual = b - opt(x_sol)
-    return jnp.mean(jnp.abs(residual)**2)
+    state, updates = runPCG(opt, b=b)
+    residual = b - opt(state.x)
+    return jnp.mean(jnp.abs(residual)**2), updates
 
 def testLoss(NN, x):
     NN_v = jax.vmap(NN)
