@@ -268,7 +268,7 @@ def exampleJAX(dataPath):
 
 def DDOpt(x, U1, kappa):
     """
-    U1 shape (B, L, L, 2) 
+    U1 shape (B, L, L, 2)
 
     x: the solution vector of shape (1, L, L, 2)
     """

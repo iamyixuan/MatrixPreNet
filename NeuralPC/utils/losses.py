@@ -6,7 +6,8 @@ import jax
 from jax import jit
 from functools import partial
 from ..utils.conjugate_gradient import solve
-from ..model.linearOpt import linearConvOpt
+from ..model.linearOpt import linearConvOpt, linearOpt
+from ..utils.dirac import DDOpt
 
 
 class Losses:
@@ -63,53 +64,64 @@ class Losses:
         else:
             raise Exception("Loss name not recognized!")
 
+
+def solveWithOpt(U1, b, w, bias, steps):
+    def linOpt(x):
+        new_vect = linearOpt(x, w, bias)
+        return new_vect
+
+    def opt(x):
+        return DDOpt(x, U1, kappa=0.276)
+
+    x0 = jnp.zeros_like(b)
+    state = solve(opt, b, x0, steps, M=linOpt)
+    return state.x
+
+
+vmap_solve = jax.vmap(solveWithOpt, in_axes=[0, 0, 0, 0, None], out_axes=0)
+
+
 # @partial(jit, static_argnums=(0, 5))
-def PCG_loss(params, 
-             batch_stats,
-             model, 
-             U1, 
-             b, 
-             in_mat,
-             kappa, 
-             steps, 
-             operator,
-             train=False):
+def PCG_loss(
+    params, batch_stats, model, U1, b, in_mat, kappa, steps, operator, train=False
+):
     """
-    opt: the linear operator that act as the preconditioner 
-    U1: gauge configuration of shape (b, 2, L, L).
+    params: NN weights and biases.
+    batch_stats: batch stats related to batchnorm; can get from the Flax model.
+    model: the NN model implemented in Flax.
+    U1: gauge configuration of shape (b, 2, L, L). (angle only)
+    b: RHS of the linear system; generated as a random vector.
+    in_mat: reshaped U1 for NN input.
+    kappa: partially determine the DD operator.
     steps: total steps for PCG to run.
     operator: the operator of the original system.
     """
-   
-    def runPCG(operator, b):
-        kernels, updates = model.apply(
-         {"params": params, "batch_stats": batch_stats}, in_mat, mutable=['batch_stats'], train=train
-        )
-        kernels = jnp.reshape(kernels, (kernels.shape[:-1] + (2, 2)))
+    U1_batch = U1[:, jnp.newaxis, ...]
+    b_batch = b[:, jnp.newaxis, ...]
 
-        def PCopt(x):
-            x = x[:, jnp.newaxis, ...]
-            new_vect = jax.vmap(linearConvOpt, in_axes=[0, 0])(x, kernels)
-            return new_vect
-        
-        x_sol = solve(A=operator, b=b, M=PCopt, max_iters=steps)
+    def runPCG(b):
+        kernels, updates = model.apply(
+            {"params": params, "batch_stats": batch_stats},
+            in_mat,
+            mutable=["batch_stats"],
+            train=train,
+        )
+        # kernels = jnp.reshape(kernels, (kernels.shape[:-1] + (4, 4)))
+        w, bias = kernels[:, :128], kernels[:, -128:]
+        w = jnp.tile(jnp.eye(128, 128), (kernels.shape[0], 1, 1))
+        x_sol = vmap_solve(U1_batch, b_batch, w, bias, steps)
+        x_sol = x_sol[:, 0, ...]  # remove the dummy dim.
         return x_sol, updates
 
     # fix the iteration step, calculate the residual b - Ax_sol and minimize the squared value.
-
     opt = partial(operator, U1=U1, kappa=kappa)
-    state, updates = runPCG(opt, b=b)
-    residual = b - opt(state.x)
-    return jnp.mean(jnp.abs(residual)**2), updates
+    state, updates = runPCG(b=b)
+    residual = b - opt(state)
+    residual = residual.reshape(residual.shape[0], -1)
+    norm = jnp.mean(jnp.linalg.norm(residual, axis=1))
+    return norm, updates
+
 
 def testLoss(NN, x):
     NN_v = jax.vmap(NN)
-    return jnp.mean(jnp.abs(NN_v(x))**2)
-
-
-# @jax.jit
-# def BatchPCGLoss(NN, U1, b, kappa, steps, operator):
-#     batchResidual = jax.vmap(PCG_loss, in_axes=[None, 1, 2, None, None])(
-#         NN, U1, b, kappa, steps, operator
-#     )
-#     return jnp.mean(batchResidual**2)
+    return jnp.mean(jnp.abs(NN_v(x)) ** 2)

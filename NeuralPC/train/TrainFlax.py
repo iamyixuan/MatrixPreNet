@@ -9,6 +9,7 @@ from flax.training import train_state
 from ..utils.losses import PCG_loss
 from functools import partial
 from tqdm import tqdm
+
 # from ..utils.dirac import DiracOperator
 
 
@@ -41,7 +42,7 @@ def mergRealImag(v):
     that can be used in CG
     """
     v = v[..., :2] + 1j * v[..., -2:]
-    return v 
+    return v
     pass
 
 
@@ -53,7 +54,11 @@ def init_train_state(model, random_key, shape, learning_rate) -> train_state.Tra
     # Initialize the Model
     variables = model.init(random_key, jnp.ones(shape), train=True)
     # Create the optimizer
-    optimizer = optax.adam(learning_rate)
+    # optimizer = optax.adam(learning_rate)
+    optimizer = optax.chain(
+        optax.clip(1.0),
+        optax.adamw(learning_rate=learning_rate),
+    )
     # Create a State
     return TrainState.create(
         apply_fn=model.apply,
@@ -62,19 +67,15 @@ def init_train_state(model, random_key, shape, learning_rate) -> train_state.Tra
         batch_stats=variables["batch_stats"],
     )
 
+
 @jax.jit
 def average_gradient_norm(grads):
     grads = jax.tree_util.tree_leaves(grads)
     avg_grad_norm = jnp.mean(jnp.array([jnp.linalg.norm(g) for g in grads]))
     return avg_grad_norm
 
-def train_step(
-    state: train_state.TrainState, 
-    batch: jnp.ndarray,  
-    diracOpt, 
-    model,
-    key
-):
+
+def train_step(state: train_state.TrainState, batch: jnp.ndarray, diracOpt, model, key):
     in_mat, kappa = batch
     kappa = float(kappa[0])
 
@@ -84,28 +85,28 @@ def train_step(
 
     b = random_b(key, shape=in_mat.shape)
 
-    U1_field = jnp.transpose(in_mat, axes=(0, 3, 1, 2))
+    U1_field = jnp.transpose(jnp.exp(1j * in_mat), axes=(0, 3, 1, 2))
 
     gradient_fn = jax.value_and_grad(PCG_loss, has_aux=True)
     (loss, updates), grads = jax.jit(gradient_fn, static_argnums=[2, 7, 8, 9])(
-                                state.params,
-                                batch_stats=state.batch_stats,
-                                model=model,
-                                U1=U1_field,
-                                b=b,
-                                in_mat=in_mat,
-                                kappa=kappa,
-                                steps=100,
-                                operator=diracOpt,
-                                train=True
-                            )
+        state.params,
+        batch_stats=state.batch_stats,
+        model=model,
+        U1=U1_field,
+        b=b,
+        in_mat=in_mat,
+        kappa=kappa,
+        steps=20,
+        operator=diracOpt,
+        train=True,
+    )
     state = state.apply_gradients(grads=grads)
     state = state.replace(batch_stats=updates["batch_stats"])
+
     return state, loss, key, grads
 
 
-
-def eval_step(state, batch,  diracOpt, model, key):
+def eval_step(state, batch, diracOpt, model, key):
     in_mat, kappa = batch
     kappa = float(kappa[0])
     # diracOpt = partial(diracOpt, U1=in_mat, kappa=0.276)
@@ -113,25 +114,26 @@ def eval_step(state, batch,  diracOpt, model, key):
     _, key = jax.random.split(key)
 
     b = random_b(key, shape=in_mat.shape)
-    U1_field = jnp.transpose(in_mat, axes=(0, 3, 1, 2))
+    U1_field = jnp.transpose(jnp.exp(1j * in_mat), axes=(0, 3, 1, 2))
 
-    loss, updates = PCG_loss(
-                params=state.params,
-                batch_stats=state.batch_stats,
-                model=model,
-                U1=U1_field,
-                b=b,
-                in_mat=in_mat,
-                kappa=kappa,
-                steps=100,
-                operator=diracOpt,
-                train=False
-            )
-
+    loss, updates = jax.jit(PCG_loss, static_argnums=[2, 7, 8, 9])(
+        params=state.params,
+        batch_stats=state.batch_stats,
+        model=model,
+        U1=U1_field,
+        b=b,
+        in_mat=in_mat,
+        kappa=kappa,
+        steps=20,
+        operator=diracOpt,
+        train=False,
+    )
     return loss, key
 
 
-def train_val(trainLoader, valLoader, state, epochs, diracOpt, model, verbose, log=False):
+def train_val(
+    trainLoader, valLoader, state, epochs, diracOpt, model, verbose, log=False
+):
     trainKey = jax.random.PRNGKey(0)
     valKey = jax.random.PRNGKey(1)
     for ep in range(epochs):
@@ -140,7 +142,9 @@ def train_val(trainLoader, valLoader, state, epochs, diracOpt, model, verbose, l
         gradients = []
         for train_batch in tqdm(trainLoader):
             batch = [train_batch[0].numpy(), train_batch[1].numpy()]
-            state, loss, trainKey, grads = train_step(state=state, batch=batch, diracOpt=diracOpt, model=model, key=trainKey)
+            state, loss, trainKey, grads = train_step(
+                state=state, batch=batch, diracOpt=diracOpt, model=model, key=trainKey
+            )
             trainBatchLoss.append(loss)
             gradients.append(average_gradient_norm(grads))
             # break # just for prelim results
@@ -149,15 +153,22 @@ def train_val(trainLoader, valLoader, state, epochs, diracOpt, model, verbose, l
             Vbatch = [val_batch[0].numpy(), val_batch[1].numpy()]
             vLoss, valKey = eval_step(state, Vbatch, diracOpt, model, valKey)
             valBatchLoss.append(vLoss)
-            break # only eval one batch
+            # break  # only eval one batch
         if verbose == True:
             print(
                 "Epoch {}, grads norm {:.4f} train loss {:.4f} validation loss {:.4f}".format(
-                    ep + 1, np.mean(gradients), np.mean(trainBatchLoss), np.mean(valBatchLoss)
+                    ep + 1,
+                    np.mean(gradients),
+                    np.mean(trainBatchLoss),
+                    np.mean(valBatchLoss),
                 )
             )
         if log:
             wandb.log(
-                {"trainLoss": np.mean(trainBatchLoss), "valLoss": np.mean(valBatchLoss),'grads': np.mean(gradients)}
+                {
+                    "trainLoss": np.mean(trainBatchLoss),
+                    "valLoss": np.mean(valBatchLoss),
+                    "grads": np.mean(gradients),
+                }
             )
     return state

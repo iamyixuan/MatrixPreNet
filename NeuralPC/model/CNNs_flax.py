@@ -1,6 +1,22 @@
 import jax
 import jax.numpy as jnp
+import numpy as np
 import flax.linen as nn
+from jax import random
+
+
+def complex_kernel_init(rng, shape, dtype):
+    fan_in = np.prod(shape) // shape[-1]
+    x = random.normal(random.PRNGKey(rng[0]), shape) + 1j * random.normal(
+        random.PRNGKey(rng[0]), shape
+    )
+    return x * (2 * fan_in) ** -0.5
+
+
+def complex_bias_init(rng, shape, dtype):
+    fan_in = np.prod(shape) // shape[-1]
+    x = 0 + 1j * 0
+    return x * (2 * fan_in) ** -0.5
 
 
 class CNNEncoder(nn.Module):
@@ -10,9 +26,21 @@ class CNNEncoder(nn.Module):
     ker_size: tuple
 
     def setup(self):
-        self.conv_1 = nn.Conv(self.in_ch, self.ker_size, strides=2)
-        self.conv_2 = nn.Conv(self.h_ch, self.ker_size, strides=2)
-        self.conv_3 = nn.Conv(self.out_ch, self.ker_size, strides=2)
+        self.conv_1 = nn.Conv(
+            self.in_ch,
+            self.ker_size,
+            strides=2,
+        )
+        self.conv_2 = nn.Conv(
+            self.h_ch,
+            self.ker_size,
+            strides=2,
+        )
+        self.conv_3 = nn.Conv(
+            self.out_ch,
+            self.ker_size,
+            strides=2,
+        )
 
         self.dense1 = nn.Dense(512)
         self.dense2 = nn.Dense(256)
@@ -48,9 +76,21 @@ class CNNDecoder(nn.Module):
     ker_size: tuple
 
     def setup(self):
-        self.Tconv_1 = nn.ConvTranspose(self.out_ch, self.ker_size, strides=(2, 2))
-        self.Tconv_2 = nn.ConvTranspose(self.h_ch, self.ker_size, strides=(2, 2))
-        self.Tconv_3 = nn.ConvTranspose(4, self.ker_size, strides=(2, 2))
+        self.Tconv_1 = nn.ConvTranspose(
+            self.out_ch,
+            self.ker_size,
+            strides=(2, 2),
+        )
+        self.Tconv_2 = nn.ConvTranspose(
+            self.h_ch,
+            self.ker_size,
+            strides=(2, 2),
+        )
+        self.Tconv_3 = nn.ConvTranspose(
+            16,
+            self.ker_size,
+            strides=(2, 2),
+        )
         self.dense1 = nn.Dense(512)
         self.dense2 = nn.Dense(256)
         self.dense3 = nn.Dense(128)
@@ -87,10 +127,12 @@ class Encoder_Decoder(nn.Module):
     def setup(self):
         self.encoder = CNNEncoder(self.in_ch, self.out_ch, self.h_ch, self.ker_size)
         self.decoder = CNNDecoder(self.in_ch, self.out_ch, self.h_ch, self.ker_size)
+        self.linear = nn.Dense(128 * 2)
 
     def __call__(self, x, train: bool):
         x = self.encoder(x, train=train)
         out = self.decoder(x, train=train)
+        out = self.linear(out.reshape(out.shape[0], -1))
         return out
 
 
