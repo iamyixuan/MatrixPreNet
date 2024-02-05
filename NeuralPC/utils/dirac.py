@@ -19,8 +19,7 @@ class Dirac_Matrix:
         self.time_index = 2
 
         self.U = U
-        self.kappa = kappa
-
+        self.kappa = kappa 
         assert torch.is_complex(U)
         assert len(U.shape) == 4
         assert U.shape[1] == self.n_dim
@@ -273,5 +272,15 @@ def DDOpt(x, U1, kappa):
     x: the solution vector of shape (1, L, L, 2)
     """
     D = Dirac_Matrix_Jax(U1, kappa=kappa)
+    y = D.apply(D.apply(x), dagger=True)
+    return y
+
+def DDOpt_torch(x, U1, kappa):
+    """
+    U1 shape (B, L, L, 2)
+
+    x: the solution vector of shape (1, L, L, 2)
+    """
+    D = Dirac_Matrix(U1, kappa=kappa)
     y = D.apply(D.apply(x), dagger=True)
     return y

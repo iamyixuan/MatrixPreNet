@@ -59,20 +59,22 @@ def runPCG(operator, b, precond=None):
 #     return state.x
 
 
-def solveWithOpt(U1, b, w, bias, steps):
+def solveWithOpt(U1, b, kernels, steps):
     def linOpt(x):
         # x = x[:, jnp.newaxis, ...] # dummy channel axis
-        new_vect = linearOpt(x, w, bias)
+        # new_vect = linearOpt(x, w, bias)
+        new_vect = linearConvOpt(x, kernels)
         return new_vect
 
     def opt(x):
         return DDOpt(x, U1, kappa=0.276)
 
     x0 = jnp.zeros_like(b)
+    print(linOpt(x0).shape)
     # x_sol, _ = cg(opt, b, x0, maxiter=steps, tol=1e-8)
-    state = solve(opt, b, x0, steps, M=linOpt)
+    state, _ = cg(opt, b, x0, maxiter=steps, M=linOpt)
     # return x_sol
-    return state.x
+    return state
 
 
 U1 = np.load(
@@ -88,11 +90,13 @@ b = random_b(jax.random.PRNGKey(0), (200, 1, 8, 8, 2)).astype(jnp.complex128)
 w = jnp.tile(jnp.eye(128, 128), (200, 1, 1))
 bias = jnp.zeros(shape=(200, 128))
 
-vmap_solve = jax.vmap(solveWithOpt, in_axes=[0, 0, 0, 0, None], out_axes=0)
+kernels = jnp.ones(shape=(200, 8, 8, 4, 4))
+
+vmap_solve = jax.vmap(solveWithOpt, in_axes=[0, 0, 0, None], out_axes=0)
 res_l2norm = []
 for s in range(20, 500, 10):
     # x_sol = runPCG(operator=operator, b=b, precond=None)
-    state = vmap_solve(U1, b, w, bias, s)
+    state = vmap_solve(U1, b, kernels, s)
     state = state[:, 0, ...]
     # print(state.shape)
     # state  = solveWithOpt(U1[0], b[0], s)

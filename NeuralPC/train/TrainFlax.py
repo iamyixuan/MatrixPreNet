@@ -6,9 +6,10 @@ import jax.numpy as jnp
 import wandb
 from ..model.linearOpt import linearConvOpt
 from flax.training import train_state
-from ..utils.losses import PCG_loss
+from ..utils.losses import PCG_loss, ILULoss
 from functools import partial
 from tqdm import tqdm
+import os
 
 # from ..utils.dirac import DiracOperator
 
@@ -76,7 +77,10 @@ def average_gradient_norm(grads):
 
 
 def train_step(state: train_state.TrainState, batch: jnp.ndarray, diracOpt, model, key):
-    in_mat, kappa = batch
+    if os.environ.get("DATASET") == "ILU":
+        in_mat, M, kappa = batch
+    else:
+        in_mat, kappa = batch
     kappa = float(kappa[0])
 
     # diracOpt = partial(diracOpt, U1=in_mat, kappa=0.276)
@@ -87,19 +91,33 @@ def train_step(state: train_state.TrainState, batch: jnp.ndarray, diracOpt, mode
 
     U1_field = jnp.transpose(jnp.exp(1j * in_mat), axes=(0, 3, 1, 2))
 
-    gradient_fn = jax.value_and_grad(PCG_loss, has_aux=True)
-    (loss, updates), grads = jax.jit(gradient_fn, static_argnums=[2, 7, 8, 9])(
-        state.params,
-        batch_stats=state.batch_stats,
-        model=model,
-        U1=U1_field,
-        b=b,
-        in_mat=in_mat,
-        kappa=kappa,
-        steps=20,
-        operator=diracOpt,
-        train=True,
-    )
+    if os.environ.get("DATASET") == "ILU":
+        gradient_fn = jax.value_and_grad(ILULoss, has_aux=True)
+        (loss, updates), grads = jax.jit(gradient_fn, static_argnums=[3, 7])(
+            state.params,
+            batch_stats=state.batch_stats,
+            x=b,
+            model=model,
+            in_mat=in_mat,
+            m_mat=M,
+            kappa=kappa,
+            train=True,
+        )
+    else:
+        gradient_fn = jax.value_and_grad(PCG_loss, has_aux=True)
+        (loss, updates), grads = jax.jit(gradient_fn, static_argnums=[2, 7, 8, 9])(
+            state.params,
+            batch_stats=state.batch_stats,
+            model=model,
+            U1=U1_field,
+            b=b,
+            in_mat=in_mat,
+            kappa=kappa,
+            steps=20,
+            operator=diracOpt,
+            train=True,
+        )
+
     state = state.apply_gradients(grads=grads)
     state = state.replace(batch_stats=updates["batch_stats"])
 
@@ -107,7 +125,11 @@ def train_step(state: train_state.TrainState, batch: jnp.ndarray, diracOpt, mode
 
 
 def eval_step(state, batch, diracOpt, model, key):
-    in_mat, kappa = batch
+    if os.environ.get("DATASET") == "ILU":
+        in_mat, M, kappa = batch
+    else:
+        in_mat, kappa = batch
+
     kappa = float(kappa[0])
     # diracOpt = partial(diracOpt, U1=in_mat, kappa=0.276)
 
@@ -116,18 +138,30 @@ def eval_step(state, batch, diracOpt, model, key):
     b = random_b(key, shape=in_mat.shape)
     U1_field = jnp.transpose(jnp.exp(1j * in_mat), axes=(0, 3, 1, 2))
 
-    loss, updates = jax.jit(PCG_loss, static_argnums=[2, 7, 8, 9])(
-        params=state.params,
-        batch_stats=state.batch_stats,
-        model=model,
-        U1=U1_field,
-        b=b,
-        in_mat=in_mat,
-        kappa=kappa,
-        steps=20,
-        operator=diracOpt,
-        train=False,
-    )
+    if os.environ.get("DATASET") == "ILU":
+        loss, updates = jax.jit(ILULoss, static_argnums=[3, 7])(
+            state.params,
+            batch_stats=state.batch_stats,
+            x=b,
+            model=model,
+            in_mat=in_mat,
+            m_mat=M,
+            kappa=kappa,
+            train=False,
+        )
+    else:
+        loss, updates = jax.jit(PCG_loss, static_argnums=[2, 7, 8, 9])(
+            state.params,
+            batch_stats=state.batch_stats,
+            model=model,
+            U1=U1_field,
+            b=b,
+            in_mat=in_mat,
+            kappa=kappa,
+            steps=20,
+            operator=diracOpt,
+            train=False,
+        )
     return loss, key
 
 
@@ -141,7 +175,14 @@ def train_val(
         trainBatchLoss = []
         gradients = []
         for train_batch in tqdm(trainLoader):
-            batch = [train_batch[0].numpy(), train_batch[1].numpy()]
+            if os.environ["DATASET"] == "ILU":
+                batch = [
+                    train_batch[0].numpy(),
+                    train_batch[1].numpy(),
+                    train_batch[2].numpy(),
+                ]
+            else:
+                batch = [train_batch[0].numpy(), train_batch[1].numpy()]
             state, loss, trainKey, grads = train_step(
                 state=state, batch=batch, diracOpt=diracOpt, model=model, key=trainKey
             )
@@ -150,7 +191,14 @@ def train_val(
             # break # just for prelim results
         valBatchLoss = []
         for val_batch in valLoader:
-            Vbatch = [val_batch[0].numpy(), val_batch[1].numpy()]
+            if os.environ["DATASET"] == "ILU":
+                Vbatch = [
+                    val_batch[0].numpy(),
+                    val_batch[1].numpy(),
+                    val_batch[2].numpy(),
+                ]
+            else:
+                Vbatch = [val_batch[0].numpy(), val_batch[1].numpy()]
             vLoss, valKey = eval_step(state, Vbatch, diracOpt, model, valKey)
             valBatchLoss.append(vLoss)
             # break  # only eval one batch

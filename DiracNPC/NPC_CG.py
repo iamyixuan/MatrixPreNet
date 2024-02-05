@@ -55,7 +55,7 @@ if LOG:
     run = wandb.init(
         # Set the project where this run will be logged
         project="reconstructDiracConfig",
-        name="NN-LinearOpt-2",
+        name="NN-LinearOpt-ConvKernel",
         # Track hyperparameters and run metadata
         config={
             "learning_rate": learning_rate,

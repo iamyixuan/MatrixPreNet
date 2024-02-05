@@ -105,7 +105,46 @@ class Data(Dataset):
         return np.array(self.data[index]), self.kappa
 
 
-def create_dataLoader(data, batchSize, kappa, shuffle: bool):
-    dataset = Data(data, kappa)
+class ILUData(Dataset):
+    def __init__(self, data, M, kappa) -> None:
+        super().__init__()
+        self.data = data
+        self.M = M
+        self.kappa = kappa
+
+    def __len__(self):
+        return self.data.shape[0]
+
+    def __getitem__(self, index):
+        return np.array(self.data[index]), np.array(self.M[index]), self.kappa
+
+
+# Incomplete Chelosky dataset
+class ICData(Dataset):
+    def __init__(self, U1, z, r, kappa) -> None:
+        super().__init__()
+        self.U1 = U1
+        self.z_real = z.real
+        self.z_imag = z.imag
+        self.r_real = r.real
+        self.r_imag = r.imag
+        self.kappa = kappa
+
+    def __len__(self):
+        return self.z_real.shape[0]
+
+    def __getitem__(self, index):
+        z = (self.z_real[index], self.z_imag[index])
+        r = (self.r_real[index], self.r_imag[index])
+        U = self.U1[index]
+        return U, r, z, self.kappa
+
+def create_dataLoader(data, batchSize, kappa, shuffle: bool, dataset="CG"):
+    if dataset == "CG":
+        dataset = Data(data, kappa)
+    elif dataset == 'IC':
+        dataset = ICData(U1=data[0], z=data[1], r=data[2], kappa=kappa)
+    else:
+        dataset = ILUData(data[0], data[1], kappa)
     loader = DataLoader(dataset, batch_size=batchSize, shuffle=shuffle)
     return loader

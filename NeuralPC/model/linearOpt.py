@@ -48,7 +48,7 @@ def linearConvOpt(input, kernels):
     )
     out = output.squeeze()
     out = mergRealImag(out)
-    return out
+    return out[jnp.newaxis, ...]
 
 
 def linearOpt(input, w, b):

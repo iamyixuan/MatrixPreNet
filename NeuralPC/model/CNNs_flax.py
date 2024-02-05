@@ -132,7 +132,7 @@ class Encoder_Decoder(nn.Module):
     def __call__(self, x, train: bool):
         x = self.encoder(x, train=train)
         out = self.decoder(x, train=train)
-        out = self.linear(out.reshape(out.shape[0], -1))
+        # out = self.linear(out.reshape(out.shape[0], -1))
         return out
 
 

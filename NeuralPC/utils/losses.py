@@ -65,20 +65,23 @@ class Losses:
             raise Exception("Loss name not recognized!")
 
 
-def solveWithOpt(U1, b, w, bias, steps):
+def solveWithOpt(U1, b, kernels, steps):
     def linOpt(x):
-        new_vect = linearOpt(x, w, bias)
+        # new_vect = linearOpt(x, w, bias)
+        print(x.shape, kernels.shape)
+        new_vect = linearConvOpt(x, kernels)
         return new_vect
 
     def opt(x):
         return DDOpt(x, U1, kappa=0.276)
 
     x0 = jnp.zeros_like(b)
-    state = solve(opt, b, x0, steps, M=linOpt)
-    return state.x
+    print(x0.shape)
+    state, _ = cg(opt, b, x0, maxiter=steps, M=linOpt)
+    return state
 
 
-vmap_solve = jax.vmap(solveWithOpt, in_axes=[0, 0, 0, 0, None], out_axes=0)
+vmap_solve = jax.vmap(solveWithOpt, in_axes=[0, 0, 0, None], out_axes=0)
 
 
 # @partial(jit, static_argnums=(0, 5))
@@ -106,10 +109,10 @@ def PCG_loss(
             mutable=["batch_stats"],
             train=train,
         )
-        # kernels = jnp.reshape(kernels, (kernels.shape[:-1] + (4, 4)))
-        w, bias = kernels[:, :128], kernels[:, -128:]
-        w = jnp.tile(jnp.eye(128, 128), (kernels.shape[0], 1, 1))
-        x_sol = vmap_solve(U1_batch, b_batch, w, bias, steps)
+        kernels = jnp.reshape(kernels, (kernels.shape[:-1] + (4, 4)))
+        # w, bias = kernels[:, :128], kernels[:, -128:]
+        # w = jnp.tile(jnp.eye(128, 128), (kernels.shape[0], 1, 1))
+        x_sol = vmap_solve(U1_batch, b_batch, kernels, steps)
         x_sol = x_sol[:, 0, ...]  # remove the dummy dim.
         return x_sol, updates
 
@@ -125,3 +128,26 @@ def PCG_loss(
 def testLoss(NN, x):
     NN_v = jax.vmap(NN)
     return jnp.mean(jnp.abs(NN_v(x)) ** 2)
+
+
+def ILULoss(params, batch_stats, x, model, in_mat, m_mat, kappa, train=False):
+    kernels, updates = model.apply(
+        {"params": params, "batch_stats": batch_stats},
+        in_mat,
+        mutable=["batch_stats"],
+        train=train,
+    )
+    kernels = jnp.reshape(kernels, (kernels.shape[:-1] + (4, 4)))
+    net_matvect = jax.vmap(linearConvOpt, in_axes=[0, 0])(
+        x[:, jnp.newaxis, ...], kernels
+    )
+    true_matvect = jnp.einsum("bij, bj -> bi", m_mat, x.reshape(x.shape[0], -1))
+
+    loss = jnp.mean(
+        jnp.linalg.norm(
+            true_matvect - net_matvect.reshape(net_matvect.shape[0], -1), axis=1
+        )
+    )
+    return loss, updates
+
+    # generat ILU preconditioners

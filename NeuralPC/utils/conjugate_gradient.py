@@ -41,6 +41,8 @@ def solve_from(A, b, x0, max_iters=20, tol=1e-4, atol=0.0, M=_identity):
         gamma = jnp.vdot(r, z).astype(jnp.float32)
         beta = gamma / state.gamma
         p = z + beta * p
+        # check if any of the variables are nan
+        print("the residuals", jnp.min(jnp.abs(r)))
         return (
             PCGState(x=x, r=r, p=p, gamma=gamma, iterations=state.iterations + 1),
             None,
