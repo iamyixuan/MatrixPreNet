@@ -1,13 +1,14 @@
-import numpy as np
+import equinox as eqx
 import jax
 import jax.numpy as jnp
-import equinox as eqx
+import numpy as np
 import wandb
-from NeuralPC.utils.data import split_idx, create_dataLoader
-from NeuralPC.model.EqxModel import EncoderDecoder, train, change_model_dtype, random_b
+
+from NeuralPC.model.EqxModel import (EncoderDecoder, change_model_dtype,
+                                     random_b, train)
+from NeuralPC.utils.data import create_dataLoader, split_idx
 from NeuralPC.utils.dirac import DDOpt
 from NeuralPC.utils.losses import PCG_loss, testLoss
-
 
 data = np.load(
     "../../datasets/Dirac/precond_data/config.l8-N1600-b2.0-k0.276-unquenched.x.npy"
@@ -37,6 +38,7 @@ ValLoader = create_dataLoader(
 
 epochs = 10
 learning_rate = 1e-4
+
 
 model = EncoderDecoder(key=jax.random.PRNGKey(0))
 # ls = testLoss(model, data_exp)

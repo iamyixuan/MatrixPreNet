@@ -91,6 +91,13 @@ def split_idx(length, key):
     valIdx = idx[-int(0.4 * length) :]
     return trainIdx, valIdx
 
+def split_dataset(x, y):
+    trainIdx, valIdx = split_idx(x.shape[0], key=123)
+    train_x = x[trainIdx]
+    train_y = y[trainIdx]
+    val_x = x[valIdx]
+    val_y = y[valIdx]
+    return (train_x, train_y), (val_x, val_y)
 
 class Data(Dataset):
     def __init__(self, data, kappa) -> None:
@@ -138,6 +145,23 @@ class ICData(Dataset):
         r = (self.r_real[index], self.r_imag[index])
         U = self.U1[index]
         return U, r, z, self.kappa
+    
+
+class LinearMapData(Dataset):
+    def __init__(self, r, z) -> None:
+        super().__init__()
+        self.z_real = z.real
+        self.z_imag = z.imag
+        self.r_real = r.real
+        self.r_imag = r.imag
+
+    def __len__(self):
+        return self.z_real.shape[0]
+
+    def __getitem__(self, index):
+        z = (self.z_real[index], self.z_imag[index])
+        r = (self.r_real[index], self.r_imag[index])
+        return r, z
 
 def create_dataLoader(data, batchSize, kappa, shuffle: bool, dataset="CG"):
     if dataset == "CG":

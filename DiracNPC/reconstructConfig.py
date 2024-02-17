@@ -1,14 +1,13 @@
-import numpy as np
 import jax
 import jax.numpy as jnp
+import numpy as np
 import optax
 import wandb
 
-from NeuralPC.utils.data import split_idx, create_dataLoader
 from NeuralPC.model.CNNs_flax import Encoder_Decoder
-from NeuralPC.train.TrainFlax import train_val, init_train_state
+from NeuralPC.train.TrainFlax import init_train_state, train_val
+from NeuralPC.utils.data import create_dataLoader, split_idx
 
-f
 
 
 data = np.load(
