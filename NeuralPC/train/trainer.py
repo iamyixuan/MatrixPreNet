@@ -16,13 +16,13 @@ class Trainer:
     """
 
     def __init__(
-        self, net, optimizer_name, loss_name="MSE", patience=100, dual_train=False
+        self, net, optimizer_name, loss_fn, patience=100, dual_train=False
     ) -> None:
         self.net = net
         if optimizer_name == "Adam":
             self.optimizer = torch.optim.Adam
 
-        self.ls_fn = Losses(loss_name)()
+        self.ls_fn = loss_fn
         # self.ls_fn = precodition_loss()
 
         self.patience = patience
@@ -60,6 +60,7 @@ class Trainer:
         self.net.train()
         optimizer = self.optimizer(self.net.parameters(), lr=learning_rate)
         scheduler = ReduceLROnPlateau(optimizer, "min")
+
         train_loader = DataLoader(train, batch_size=batch_size)
         val_loader = DataLoader(val, batch_size=val.__len__())
 
@@ -70,8 +71,7 @@ class Trainer:
             else:
                 x_val, y_val = val
 
-            x_val, y_val = x_val.to(self.device), y_val[1].to(self.device)
-            # x_val = torch.tensor(x_val, requires_grad=True)
+            x_val = x_val.to(self.device)
             break
 
         print("Starts training...")

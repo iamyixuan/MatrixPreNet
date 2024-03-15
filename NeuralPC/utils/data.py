@@ -1,13 +1,15 @@
-import numpy as np
 import glob
+import os
 import pickle
 import random
-import os
-import torch
+
 import h5py
 import jax
-from torch.utils.data import Dataset, DataLoader
+import numpy as np
 import scipy.sparse.linalg as spla
+import torch
+from torch.utils.data import DataLoader, Dataset
+
 from .scaler import MinMaxScaler
 from .utils import split_idx
 
@@ -91,6 +93,14 @@ def split_idx(length, key):
     valIdx = idx[-int(0.4 * length) :]
     return trainIdx, valIdx
 
+def split_data_idx(length):
+    k = np.random.RandomState(0)
+    idx = k.permutation(np.arange(length))
+    trainIdx = idx[: int(0.6 * length)]
+    valIdx = idx[-int(0.4 * length) :]
+    return trainIdx, valIdx
+
+
 def split_dataset(x, y):
     trainIdx, valIdx = split_idx(x.shape[0], key=123)
     train_x = x[trainIdx]
@@ -98,6 +108,7 @@ def split_dataset(x, y):
     val_x = x[valIdx]
     val_y = y[valIdx]
     return (train_x, train_y), (val_x, val_y)
+
 
 class Data(Dataset):
     def __init__(self, data, kappa) -> None:
@@ -145,7 +156,20 @@ class ICData(Dataset):
         r = (self.r_real[index], self.r_imag[index])
         U = self.U1[index]
         return U, r, z, self.kappa
-    
+
+
+class U1Data(Dataset):
+    def __init__(self, U1) -> None:
+        super().__init__()
+        self.U1 = U1
+
+    def __len__(self):
+        return self.U1.shape[0]
+
+    def __getitem__(self, index):
+        U = self.U1[index]
+        return U
+
 
 class LinearMapData(Dataset):
     def __init__(self, r, z) -> None:
@@ -163,10 +187,11 @@ class LinearMapData(Dataset):
         r = (self.r_real[index], self.r_imag[index])
         return r, z
 
+
 def create_dataLoader(data, batchSize, kappa, shuffle: bool, dataset="CG"):
     if dataset == "CG":
         dataset = Data(data, kappa)
-    elif dataset == 'IC':
+    elif dataset == "IC":
         dataset = ICData(U1=data[0], z=data[1], r=data[2], kappa=kappa)
     else:
         dataset = ILUData(data[0], data[1], kappa)
