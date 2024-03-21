@@ -24,6 +24,8 @@ class NeuralPreconditioner(nn.Module):
         basis = torch.complex(self.basis_real, self.basis_imag)
         # x is a random vector that is used to create the
         output_matrix = []
+        # approximating the matrix form of the Dirac operator
+        # this ideally should produce the SVD of the matrix.
         for i in range(basis.shape[0]):
             output_matrix.append(
                 self.DDOpt(basis[i : i + 1], U1, kappa=0.276).reshape(U1.shape[0], -1)
@@ -43,11 +45,12 @@ class NeuralPreconditioner(nn.Module):
 
         # the output would be the weights for the linear combination of the resulting vectors
         # it should have the shape of 2*128 * 128, then reshape to B, 128, 128, 2 and then combine the channels to complex entries
+        x_real = x[..., : x.size(1) // 2]
+        x_imag = x[..., x.size(1) // 2 :]
 
-        x = x.reshape(x.shape[0], 128, 128, 2)
-        x_real = x[..., 0]
-        x_imag = x[..., 1]
-
+        # x = x.reshape(x.shape[0], 8, 8, 2, 2)  # to match the shape of U1
+        # x_real = x[..., 0]
+        # x_imag = x[..., 1]
         return torch.complex(x_real, x_imag)
 
 
@@ -62,6 +65,93 @@ class MatrixConditionNumber(nn.Module):
         min_s = S[-1]
 
         return max_s / min_s
+
+
+class ExplicitConitionNumberLoss(nn.Module):
+    def __init__(self, DDOpt):
+        super().__init__()
+        self.DDOpt = DDOpt
+        self.matrix_condition = MatrixConditionNumber()
+        self.matrix_getter = GetBatchMatrix(128)
+
+        self.M_form = "lower_tri"
+
+    def forward(self, net_out, U1):
+        def mat_vect(x):
+            x = self.DDOpt(x, U1, kappa=0.276)
+            x = self.M(x.reshape(x.size(0), -1), net_out)
+            return x.view(x.size(0), -1)
+
+        mat = self.matrix_getter.getBatch(U1.shape[0], mat_vect)
+
+        U, S, V = torch.linalg.svd(mat)
+        max_s = S[:, 0]
+        min_s = S[:, -1]
+        return torch.mean(max_s / min_s)
+
+    def M(self, net_out, v):
+        if self.M_form == "DD":
+            return self.DDOpt(net_out, v, kappa=0.276)
+        elif self.M_form == "lower_tri":
+            return self.lowerTriLinearMap(net_out, v)
+
+    def lowerTriLinearMap(self, v, net_out):
+        """Linear map by the lower tranangular matrix
+        The computation should support batch dimension.
+        """
+        num_entries = net_out.shape[1]
+        n = int((torch.sqrt(torch.tensor(1.0) + 8 * num_entries) - 1) / 2)
+
+        if v.shape[1] != n:
+            raise ValueError(
+                f"The vector size must match the matrix dimensions. Matrix size {n} but got vector size {v.size(1)}"
+            )
+
+        matrices = torch.zeros(v.size(0), n, n, device=net_out.device).cfloat()
+
+        # Fill in the lower triangular part of each matrix
+        indices = torch.tril_indices(row=n, col=n, offset=0, device=net_out.device)
+        matrices[:, indices[0], indices[1]] = net_out
+
+        # Perform batched matrix-vector multiplication
+        bmm = torch.bmm(matrices, v.unsqueeze(-1)).squeeze(-1)
+        return bmm
+
+
+class GetBatchMatrix(nn.Module):
+    def __init__(self, n) -> None:
+        self.n = n
+
+    def getBatch(self, B, mat_vec):
+        """
+        Get the matrix of the original system
+        """
+        A = torch.zeros((B, self.n, self.n)).cfloat()
+        for i in range(self.n):
+            A[:, :, i] = self._getColumn(A, i, mat_vec)
+        # for k in range(B):
+        #     A = self.getMatrix(mat_vec)
+        #     if k == 0:
+        #         batch = A.reshape(1, self.n, self.n)
+        #     else:
+        #         batch = np.concatenate([batch, A.reshape(1, self.n, self.n)], axis=0)
+        return A
+
+    def getMatrix(self, mat_vec):
+        """
+        Get the matrix of the original system
+        """
+        A = torch.zeros((self.n, self.n)).cfloat()
+        for i in range(self.n):
+            A = self._getColumn(A, i, mat_vec)
+        return A
+
+    def _getColumn(self, A, i, mat_vec):
+        e_i = torch.zeros(self.n).cfloat()
+        e_i[i] = 1
+        # A[:, i] = mat_vec(e_i.reshape(1, 8, 8, 2)).ravel()
+        B_col = mat_vec(e_i.reshape(1, 8, 8, 2))
+        return B_col.reshape(B_col.shape[0], -1)
 
 
 class ConditionNumberLoss(nn.Module):
@@ -159,7 +249,9 @@ class DDApprox(nn.Module):
 
 # calculate the matrix form of the Dirac operator
 # implemenent GetMatrix in pytorch
-class GetMatrix:
+
+
+class GetMatrixDDOpt(nn.Module):
     def __init__(self, DDOpt, kappa=0.276) -> None:
         self.kappa = kappa
         self.DDOpt = DDOpt
@@ -199,7 +291,7 @@ class ComplexMAEMSE(nn.Module):
 
 
 def getBatchMatrix(DDOpt, U1):
-    getter = GetMatrix(DDOpt)
+    getter = GetMatrixDDOpt(DDOpt)
     for i in range(U1.shape[0]):
         A = getter.getMatrix(U1[i : i + 1])
         if i == 0:
@@ -214,6 +306,7 @@ if __name__ == "__main__":
     from datetime import datetime
 
     import numpy as np
+    import yaml
     from torch.utils.data import DataLoader
     from tqdm import tqdm
 
@@ -221,17 +314,25 @@ if __name__ == "__main__":
     from NeuralPC.utils.dirac import DDOpt_torch
     from NeuralPC.utils.logger import Logger
 
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    with open("../../config.yaml") as f:
+        config = yaml.safe_load(f)
+
+    dataConfig = config["data"]
+    modelConfig = config["model"]
+    trainConfig = config["train"]
+
     now = datetime.now().strftime("%Y-%m-%d-%H")
 
-    data = np.load(
-        "/Users/yixuan.sun/Documents/projects/Preconditioners/datasets/Dirac/precond_data/config.l8-N1600-b2.0-k0.276-unquenched.x.npy"
+    U1_path = (
+        dataConfig["path"]
+        + "/precond_data/config.l8-N1600-b2.0-k0.276-unquenched.x.npy"
     )
-    U1_mat = np.load(
-        "/Users/yixuan.sun/Documents/projects/Preconditioners/datasets/Dirac/precond_data/U1_mat.npy",
-    )
+    U1_mat_path = dataConfig["path"] + "precond_data/U1_mat.npy"
 
+    data = np.load(U1_path)
+    U1_mat = np.load(U1_mat_path)
     U1_mat = torch.from_numpy(U1_mat).cfloat()
-    print(U1_mat[0])
 
     # data = data[:200]
     # expoential transform
@@ -249,76 +350,91 @@ if __name__ == "__main__":
     trainData = U1Data(U1_train)
     valData = U1Data(U1_val)
 
-    TrainLoader = DataLoader(trainData, batch_size=256, shuffle=True)
+    TrainLoader = DataLoader(
+        trainData, batch_size=trainConfig["batch_size"], shuffle=True
+    )
     ValLoader = DataLoader(valData, batch_size=valData.__len__())
 
-    num_basis = 128
+    num_basis = modelConfig["num_basis"]
 
-    hidden_layers = [2 * 128 * num_basis] + [1024] * 5 + [2 * 128 * 128]
-    # model = NeuralPreconditioner(
-    #     num_basis, DDOpt=DDOpt_torch, hidden_layers=hidden_layers
-    # )
-    model = DDApprox(num_basis, DDOpt=DDOpt_torch)
-    model.double()
+    hidden_layers = (
+        [2 * 128 * num_basis]
+        + modelConfig["hidden_layers"]
+        + [2 * modelConfig["out_size"]]
+    )
+    model = NeuralPreconditioner(
+        num_basis, DDOpt=DDOpt_torch, hidden_layers=hidden_layers
+    ).to(device)
+
+    # model = DDApprox(num_basis, DDOpt=DDOpt_torch)
+    # model.double()
     # loss_fn = ConditionNumberLoss(DDOpt=DDOpt_torch)
-    loss_fn = ComplexMSE()
+    # loss_fn = ComplexMSE()
+    loss_fn = ExplicitConitionNumberLoss(DDOpt_torch)
 
     # start of the training loop
     logger = Logger()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 
-    NUM_EP = 1000
+    NUM_EP = trainConfig["epochs"]
 
-    batch_size = 256
+    batch_size = trainConfig["batch_size"]
     numIter = U1_train.shape[0] // batch_size
+
     for ep in tqdm(range(NUM_EP)):
         model.train()
         runTrainLoss = []
-        # for x in TrainLoader:
+        for x in TrainLoader:
+            x = x.to(device)
+            model.zero_grad()
+
+            out = model(x)
+            trainBatchLoss = loss_fn(out, x)
+            with torch.autograd.set_detect_anomaly(True):
+                trainBatchLoss.backward(retain_graph=False)
+            optimizer.step()
+
+            runTrainLoss.append(trainBatchLoss.detach().cpu().item())
+        for x_val in ValLoader:
+            model.eval()
+            x_val = x_val.to(device)
+            out_val = model(x_val)
+            val_loss = loss_fn(out_val, x_val)
+
+        # new training
+        # for i in range(numIter):
         #     model.zero_grad()
-        #
+        #     x = U1_train[i * batch_size : (i + 1) * batch_size]
+        #     x_mat = U1_mat_train[i * batch_size : (i + 1) * batch_size]
         #     out = model(x)
-        #     mat = getBatchMatrix(DDOpt_torch, x)
-        #     trainBatchLoss = loss_fn(out, mat)
+        #     trainBatchLoss = loss_fn(out, x_mat)
         #     with torch.autograd.set_detect_anomaly(True):
         #         trainBatchLoss.backward(retain_graph=False)
         #     optimizer.step()
         #
         #     runTrainLoss.append(trainBatchLoss.detach().item())
-        # for x_val in ValLoader:
-        #     model.eval()
-        #     out_val = model(x_val)
-        #     mat_val = getBatchMatrix(DDOpt_torch, x_val)
-        #     val_loss = loss_fn(out_val, mat_val)
 
-        # new training
-        for i in range(numIter):
-            model.zero_grad()
-            x = U1_train[i * batch_size : (i + 1) * batch_size]
-            x_mat = U1_mat_train[i * batch_size : (i + 1) * batch_size]
-            out = model(x)
-            trainBatchLoss = loss_fn(out, x_mat)
-            with torch.autograd.set_detect_anomaly(True):
-                trainBatchLoss.backward(retain_graph=False)
-            optimizer.step()
-
-            runTrainLoss.append(trainBatchLoss.detach().item())
-
-        model.eval()
-        out_val = model(U1_val)
-        mat_val = U1_mat_val
-        val_loss = loss_fn(out_val, mat_val)
+        # model.eval()
+        # out_val = model(U1_val)
+        # mat_val = U1_mat_val
+        # val_loss = loss_fn(out_val, mat_val)
 
         logger.record("TrainLoss", np.mean(runTrainLoss))
-        logger.record("ValLoss", val_loss.item())
+        logger.record("ValLoss", val_loss.cpu().item())
 
         if ep % 10 == 0:
-            logger.record("learned_vector_real", model.basis_real.detach().numpy())
-            logger.record("learned_vector_imag", model.basis_imag.detach().numpy())
+            logger.record(
+                "learned_vector_real", model.basis_real.detach().cpu().numpy()
+            )
+            logger.record(
+                "learned_vector_imag", model.basis_imag.detach().cpu().numpy()
+            )
 
         print(
             f"Epoch {ep + 1}, Train Loss: {np.mean(runTrainLoss):.4f}, Val Loss: {val_loss.item():.4f}"
         )
 
-    with open(f"../../logs/{now}_DDApprox_MAEtrainLog.pkl", "wb") as f:
+    with open(
+        trainConfig["log_path"] + f"/{now}_explicitConNumLowerTri.pkl", "wb"
+    ) as f:
         pickle.dump(logger.logger, f)

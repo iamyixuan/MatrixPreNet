@@ -13,6 +13,7 @@ def plotTrainCurve(trainCurve, valCurve):
     ax.grid(True, linestyle="--", linewidth=0.5)
     ax.plot(trainCurve, label="Train")
     ax.plot(valCurve, label="Validation")
+    ax.set_yscale("log")
     ax.legend()
     ax.set_xlabel("Epoch")
     ax.set_ylabel("Loss")
@@ -21,7 +22,7 @@ def plotTrainCurve(trainCurve, valCurve):
 
 if __name__ == "__main__":
     with open(
-        "../../logs/2024-03-06-19_DDApprox_trainLog.pkl",
+        "../../logs/2024-03-19-19_DDApprox_MAEtrainLog.pkl",
         "rb",
     ) as f:
         log = pickle.load(f)
@@ -30,6 +31,6 @@ if __name__ == "__main__":
     valCurve = log["ValLoss"]
     fig = plotTrainCurve(trainCurve, valCurve)
     fig.savefig(
-        "../../figures/DDApprox_trainLog.pdf", format="pdf", bbox_inches="tight"
+        "../../figures/explicitConNum_DDStructure_trainLog.pdf", format="pdf", bbox_inches="tight"
     )
     plt.show()

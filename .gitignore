@@ -4,3 +4,4 @@ checkpoints/
 wandb/
 *.pyc
 *.npy
+*.pkl
