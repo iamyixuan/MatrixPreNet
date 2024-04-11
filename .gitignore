@@ -5,3 +5,5 @@ wandb/
 *.pyc
 *.npy
 *.pkl
+*.png
+*.pdf

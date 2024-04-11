@@ -8,6 +8,7 @@ from functools import partial
 from ..utils.conjugate_gradient import solve
 from ..model.linearOpt import linearConvOpt, linearOpt
 from ..utils.dirac import DDOpt
+from .conjugate_gradient import cg_batch
 
 
 class Losses:

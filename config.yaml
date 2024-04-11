@@ -1,7 +1,8 @@
 data:
   train_size: 800
   val_size: 200
-  path: "/home/yixuan.sun/projects/neuralPrecond/Dirac/"
+  # path: "/home/yixuan.sun/projects/neuralPrecond/Dirac/"
+  path: "/Users/yixuan.sun/Documents/Projects/Preconditioners/datasets/Dirac/"
 
 model:
   hidden_layers: [128, 128, 128, 128] 
@@ -10,7 +11,8 @@ model:
 
 train:
   batch_size: 32
-  epochs: 100
+  epochs: 20
   lr: 0.001
   log_path: "/home/yixuan.sun/projects/neuralPrecond/MatrixPreNet/logs/"
+  loss: "CG_loss"
 

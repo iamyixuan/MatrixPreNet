@@ -22,7 +22,7 @@ def plotTrainCurve(trainCurve, valCurve):
 
 if __name__ == "__main__":
     with open(
-        "../../logs/2024-03-19-19_DDApprox_MAEtrainLog.pkl",
+        "../../logs/2024-04-03-22_explicitConNumLowerTri_basisOrtho.pkl",
         "rb",
     ) as f:
         log = pickle.load(f)
@@ -31,6 +31,6 @@ if __name__ == "__main__":
     valCurve = log["ValLoss"]
     fig = plotTrainCurve(trainCurve, valCurve)
     fig.savefig(
-        "../../figures/explicitConNum_DDStructure_trainLog.pdf", format="pdf", bbox_inches="tight"
+        "../../figures/explicitConNum_lowerTri_basisOrtho_trainLog.pdf", format="pdf", bbox_inches="tight"
     )
     plt.show()
