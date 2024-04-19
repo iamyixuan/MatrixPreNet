@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from NeuralPC.utils.losses_torch import get_loss
+from NeuralPC.utils.losses_torch import getLoss
 
 
 class NeuralPreconditioner(nn.Module):
@@ -91,11 +91,11 @@ if __name__ == "__main__":
 
     data = np.load(U1_path)
     U1_mat = np.load(U1_mat_path)
-    U1_mat = torch.from_numpy(U1_mat).cfloat()
+    U1_mat = torch.from_numpy(U1_mat).cdouble()
 
     # data = data[:200]
     # expoential transform
-    U1 = torch.from_numpy(np.exp(1j * data)).cfloat()
+    U1 = torch.from_numpy(np.exp(1j * data))
 
     train_idx, val_idx = split_data_idx(U1.shape[0])
 
@@ -123,15 +123,15 @@ if __name__ == "__main__":
     )
     model = NeuralPreconditioner(
         num_basis, DDOpt=DDOpt_torch, hidden_layers=hidden_layers
-    ).to(device)
+    ).to(device).double()
 
     # model = DDApprox(num_basis, DDOpt=DDOpt_torch)
     # model.double()
     # loss_fn = ConditionNumberLoss(DDOpt=DDOpt_torch)
     # loss_fn = ComplexMSE()
-    loss_class = get_loss(trainConfig["loss"])
+    loss_class = getLoss(trainConfig["loss"])
     loss_fn = loss_class(DDOpt_torch)
-    loss_ortho = get_loss('BasisOrthoLoss')()
+    loss_ortho = getLoss('BasisOrthoLoss')()
 
     # start of the training loop
     logger = Logger()

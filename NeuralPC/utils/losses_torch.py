@@ -1,7 +1,8 @@
+from functools import partial
+
 import numpy as np
 import torch
 import torch.nn as nn
-from functools import partial
 
 from .conjugate_gradient import cg_batch
 
@@ -17,14 +18,15 @@ def getLoss(loss_name):
         return ComplexMAEMSE
     elif loss_name == "ConditionNumberLoss":
         return ConditionNumberLoss
-    elif loss_name == "ExplicitConitionNumberLoss":
-        return ExplicitConitionNumberLoss
+    elif loss_name == "K_Loss":
+        return K_Loss
     elif loss_name == "BasisOrthoLoss":
         return BasisOrthoLoss
     elif loss_name == "CG_loss":
         return CG_loss
     else:
         raise ValueError(f"Loss {loss_name} not found")
+
 
 class BasisOrthoLoss(nn.Module):
     def __init__(self):
@@ -56,7 +58,8 @@ class KconditionNum(nn.Module):
         super().__init__()
 
 
-class ExplicitConitionNumberLoss(nn.Module):
+class K_Loss(nn.Module):
+    '''K condition number loss'''
     def __init__(self, DDOpt):
         super().__init__()
         self.DDOpt = DDOpt
@@ -81,23 +84,9 @@ class ExplicitConitionNumberLoss(nn.Module):
         trace = self.trace_mat(U1, mat_vect)
         trace2 = self.trace_mat(U1, mat_vect, D=True)
 
-        # mat = self.matrix_getter.getBatch(U1.shape[0], L_mat_vect)
-        # print(mat.size(), "mat")
-        # det = self.det_L_mat(U1, L_mat_vect)
-        # x = x.repeat(U1.shape[0], 1, 1, 1)
         loss = trace / trace2  # (detrace2 + 1e-6)
-        # print(mat.size(), "mat")
-        #
-        # U, S, V = torch.linalg.svd(mat)
-        # max_s = S[:, 0]
-        # min_s = S[:, -1]
         return torch.mean(loss)
 
-    # def M(self, net_out, v):
-    #     if self.M_form == "DD":
-    #         return self.DDOpt(net_out, v, kappa=0.276)
-    #     elif self.M_form == "lower_tri":
-    #         return self.lower_tri_matvect(net_out, v)
     def trace_mat(self, U1, mat_vect, n=128, D=False):
         """
         mat_vect: matrix vector product
@@ -105,7 +94,7 @@ class ExplicitConitionNumberLoss(nn.Module):
         """
         diag = 0
         for i in range(n):
-            e = torch.zeros(U1.size(0), n).cfloat()
+            e = torch.zeros(U1.size(0), n).cdouble()
             e[:, i] = 1
             if D:
                 elem = (
@@ -123,12 +112,12 @@ class ExplicitConitionNumberLoss(nn.Module):
         mat_vect: matrix vector product
         n: size of the matrix
         """
-        diag = 1
+        log_diag = 0
         for i in range(n):
-            e = torch.zeros(U1.size(0), n).cfloat()
+            e = torch.zeros(U1.size(0), n).cdouble()
             e[:, i] = 1
-            diag *= mat_vect(e)[:, i].real
-        return diag**2
+            log_diag += torch.log(mat_vect(e)[:, i].real)
+        return torch.exp(2*log_diag)
 
     def upper_tri_mat(self, net_out, v):
         """Linear map by the lower tranangular matrix
@@ -142,7 +131,7 @@ class ExplicitConitionNumberLoss(nn.Module):
                 f"The vector size must match the matrix dimensions. Matrix size {n} but got vector size {v.size(1)}"
             )
 
-        matrices = torch.zeros(v.size(0), n, n, device=net_out.device).cfloat()
+        matrices = torch.zeros(v.size(0), n, n, device=net_out.device).cdouble()
 
         # Fill in the lower triangular part of each matrix
         indices = torch.tril_indices(row=n, col=n, offset=0, device=net_out.device)
@@ -357,21 +346,31 @@ def getBatchMatrix(DDOpt, U1):
 
 
 class CG_loss(nn.Module):
-    def __init__(self, DDOpt, U1, kappa=0.276):
+    def __init__(self, DDOpt, kappa=0.276, verbose=False):
         super().__init__()
-        self.DDOpt = partial(DDOpt, U1=U1, kappa=kappa)
+        self.DDOpt = DDOpt
+        self.kappa = kappa
+        self.verbose = verbose
 
-    def forward(self, net_out):
+    def forward(self, net_out, U1):
         def _matvect(x):
             x = x.reshape(x.size(0), -1)
             x = self.lower_tri_matvect(net_out, x)
             x = self.upper_tri_mat(net_out, x)
             return x.reshape(x.size(0), 8, 8, 2)
 
-        b = torch.rand(net_out.size(0), 8, 8, 2).cdouble()
-        x, info = cg_batch(self.DDOpt, b, M_bmm=_matvect, maxiter=100)
-        residual_norm = torch.norm(self.DDOpt(x) - b, dim=1)
-        return residual_norm
+        DDOpt = partial(self.DDOpt, U1=U1, kappa=self.kappa)
+
+        b = torch.rand(net_out.size(0), 8, 8, 2).cdouble().to(net_out.device)
+        x, info = cg_batch(DDOpt, b, M_bmm=_matvect, maxiter=20, verbose=self.verbose)
+        residuals = DDOpt(x) - b
+        residual_norm = torch.norm(
+            residuals.reshape(residuals.size(0), -1), dim=1
+        ).mean()
+        if self.verbose:
+            return residual_norm, info
+        else:
+            return residual_norm
 
     def upper_tri_mat(self, net_out, v):
         """Linear map by the lower triangular matrix
@@ -385,7 +384,9 @@ class CG_loss(nn.Module):
                 f"The vector size must match the matrix dimensions. Matrix size {n} but got vector size {v.size(1)}"
             )
 
-        matrices = torch.zeros(v.size(0), n, n, device=net_out.device).cfloat()
+        matrices = torch.zeros(
+            v.size(0), n, n, device=net_out.device, dtype=net_out.dtype
+        )
 
         # Fill in the lower triangular part of each matrix
         indices = torch.tril_indices(row=n, col=n, offset=0, device=net_out.device)

@@ -90,6 +90,8 @@ def cg_batch(
 
     also - the dot product should be for complex vectors!!!
     """
+
+    residual_hist = []
     K, x, t, m = B.shape
 
     if M_bmm is None:
@@ -152,14 +154,16 @@ def cg_batch(
         R_k = R_k1 - alpha[:, None, None, None] * A_bmm(P_k)
         end_iter = time.perf_counter()
 
-        residual_norm = torch.norm(A_bmm(X_k) - B, dim=1)
-
+        residual = B - A_bmm(X_k)
+        residual_norm = torch.norm(residual.reshape(residual.size(0), -1), dim=1).mean()
         if verbose:
+            residual_hist.append(residual_norm)
             print(
                 "%03d | %8.4e %4.2f"
                 % (
                     k,
-                    torch.max(residual_norm ),
+                    residual_norm,
+                
                     1.0 / (end_iter - start_iter),
                 )
             )
@@ -183,6 +187,9 @@ def cg_batch(
             )
 
     info = {"niter": k, "optimal": optimal}
+
+    if verbose:
+        info["residuals"] = residual_hist
 
     return X_k, info
 
