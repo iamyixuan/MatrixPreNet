@@ -61,7 +61,9 @@ if __name__ == "__main__":
         + [2 * modelConfig["out_size"]]
     )
     model = (
-        NeuralPreconditioner(num_basis, DDOpt=DDOpt_torch, hidden_layers=hidden_layers)
+        NeuralPreconditioner(
+            num_basis, DDOpt=DDOpt_torch, hidden_layers=hidden_layers
+        )
         .to(device)
         .double()
     )
@@ -123,7 +125,8 @@ if __name__ == "__main__":
         if best_obj_loss > loss_obj_val.item():
             torch.save(
                 model.state_dict(),
-                trainConfig["log_path"] + f"/best_LL_cg_loss_model.pth",
+                trainConfig["log_path"]
+                + f"/best_{trainConfig['model_name']}_model.pth",
             )
 
         print(
@@ -131,6 +134,6 @@ if __name__ == "__main__":
         )
 
     with open(
-        trainConfig["log_path"] + f"/{now}_LL_cg_ortho_loss.pkl", "wb"
+        trainConfig["log_path"] + f"/{now}_{trainConfig['log_name']}.pkl", "wb"
     ) as f:
         pickle.dump(logger.logger, f)

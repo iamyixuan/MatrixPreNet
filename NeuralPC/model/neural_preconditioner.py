@@ -24,7 +24,7 @@ class NeuralPreconditioner(nn.Module):
                 self.layers.append(nn.PReLU())
                 self.layers.append(nn.BatchNorm1d(hidden_layers[k + 1]))
             else:
-                self.layers.append(nn.ReLU())
+                self.layers.append(nn.Softplus())
 
     def forward(self, U1):
         basis = torch.complex(self.basis_real, self.basis_imag)

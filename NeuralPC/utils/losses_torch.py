@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 
 from .conjugate_gradient import cg_batch
+from .kappa_approximators import Lanczos
 
 
 def getLoss(loss_name):
@@ -24,8 +25,139 @@ def getLoss(loss_name):
         return BasisOrthoLoss
     elif loss_name == "CG_loss":
         return CG_loss
+    elif loss_name == "SpectrumLoss":
+        return SpectrumLoss
     else:
         raise ValueError(f"Loss {loss_name} not found")
+
+
+class SpectrumLoss(nn.Module):
+    def __init__(self, DDOpt):
+        super().__init__()
+        self.DDOpt = DDOpt
+        self.lanczos = Lanczos(m=10)
+
+        self.n = 128
+
+    def forward(self, net_out, U1):
+        def _matvect(x):
+            # preconditioned system is LL*D*D
+            x = x.reshape(x.size(0), 8, 8, 2)
+            x = self.DDOpt(x, U1, kappa=0.276)
+            # make sure it is LL*
+            x = x.reshape(x.size(0), -1)
+            x = self.upper_tri_mat(net_out, x)
+            x = self.lower_tri_matvect(net_out, x)
+            # output shape (B, 128)
+            return x
+
+        # random vector with norm 1
+        v = torch.randn((net_out.shape[0], self.n), dtype=U1.dtype)
+        v /= torch.norm(v, dim=1, keepdim=True)
+
+        T = self.lanczos.run(_matvect, v)
+        eigenvalues = torch.linalg.eigvals(
+            T
+        ).abs()  
+        max_eigen = eigenvalues.max(dim=1)[0] # only return the values not the indices
+        min_eigen = eigenvalues.min(dim=1)[0]
+        return torch.mean(max_eigen - min_eigen) + torch.mean(torch.relu(5 - min_eigen) ** 2)
+
+    def pc_spectrum(self, net_out, U1):
+        '''preconditioning system spectrum'''
+        def _matvect(x):
+            # preconditioned system is LL*D*D
+            x = x.reshape(x.size(0), 8, 8, 2)
+            x = self.DDOpt(x, U1, kappa=0.276)
+            # make sure it is LL*
+            x = x.reshape(x.size(0), -1)
+            x = self.upper_tri_mat(net_out, x)
+            x = self.lower_tri_matvect(net_out, x)
+            # output shape (B, 128)
+            return x
+
+        # random vector with norm 1
+        v = torch.randn((net_out.shape[0], self.n), dtype=U1.dtype)
+        v /= torch.norm(v, dim=1, keepdim=True)
+
+        T = self.lanczos.run(_matvect, v)
+        eigenvalues = torch.linalg.eigvals(
+            T
+        ).abs()  
+        return eigenvalues 
+
+    def org_spectrum(self, net_out, U1):
+        '''original system spectrum'''
+        def _matvect(x):
+            # preconditioned system is LL*D*D
+            x = x.reshape(x.size(0), 8, 8, 2)
+            x = self.DDOpt(x, U1, kappa=0.276)
+            # make sure it is LL*
+            x = x.reshape(x.size(0), -1)
+            # output shape (B, 128)
+            return x
+
+        # random vector with norm 1
+        v = torch.randn((net_out.shape[0], self.n), dtype=U1.dtype)
+        v /= torch.norm(v, dim=1, keepdim=True)
+
+        T = self.lanczos.run(_matvect, v)
+        eigenvalues = torch.linalg.eigvals(
+            T
+        ).abs()  
+        return eigenvalues 
+
+    def upper_tri_mat(self, net_out, v):
+        """Linear map by the lower triangular matrix
+        The computation should support batch dimension.
+        """
+        num_entries = net_out.shape[1]
+        n = int((torch.sqrt(torch.tensor(1.0) + 8 * num_entries) - 1) / 2)
+
+        if v.shape[1] != n:
+            raise ValueError(
+                f"The vector size must match the matrix dimensions. Matrix size {n} but got vector size {v.size(1)}"
+            )
+
+        matrices = torch.zeros(
+            v.size(0), n, n, device=net_out.device, dtype=net_out.dtype
+        )
+
+        # Fill in the lower triangular part of each matrix
+        indices = torch.tril_indices(
+            row=n, col=n, offset=0, device=net_out.device
+        )
+        matrices[:, indices[0], indices[1]] = net_out
+
+        # Perform batched matrix-vector multiplication
+        bmm = torch.bmm(
+            matrices.conj().transpose(-2, -1), v.unsqueeze(-1)
+        ).squeeze(-1)
+        return bmm
+
+    def lower_tri_matvect(self, net_out, v):
+        """
+        net_out: B, num_entries
+        v: B, 128
+        """
+        dim = v.size(1)
+        matvect = torch.zeros_like(v)
+
+        start_id = 0
+        for i in range(dim):
+            row_len = i + 1
+            matvect[:, i] = torch.einsum(
+                "bi, bi -> b",
+                net_out[:, start_id : start_id + row_len],
+                v[:, 0:row_len],
+            )
+            start_id += row_len
+
+        return matvect
+
+    
+
+
 
 
 class BasisOrthoLoss(nn.Module):
@@ -37,7 +169,9 @@ class BasisOrthoLoss(nn.Module):
         basis_imag = basis_imag.reshape(basis_imag.size(0), -1)
         basis = torch.complex(basis_real, basis_imag)
         dot_prod = torch.matmul(basis, basis.conj().T)
-        return torch.norm(dot_prod - torch.eye(basis.size(0), device=basis.device))
+        return torch.norm(
+            dot_prod - torch.eye(basis.size(0), device=basis.device)
+        )
 
 
 class MatrixConditionNumber(nn.Module):
@@ -59,7 +193,8 @@ class KconditionNum(nn.Module):
 
 
 class K_Loss(nn.Module):
-    '''K condition number loss'''
+    """K condition number loss"""
+
     def __init__(self, DDOpt):
         super().__init__()
         self.DDOpt = DDOpt
@@ -81,10 +216,22 @@ class K_Loss(nn.Module):
             x = self.lower_tri_matvect(net_out, x.reshape(x.size(0), -1))
             return x.view(x.size(0), -1)
 
+        # check if there is 0 in net_out
+        if torch.any(net_out.real == 0):
+            print("net_out contains 0")
+
         trace = self.trace_mat(U1, mat_vect)
         trace2 = self.trace_mat(U1, mat_vect, D=True)
+        LL_det = self.det_L_mat(U1, L_mat_vect)
+        """determinant values are across multiple orders of magnitude"""
+        print(LL_det, "sdfsdfad")
 
-        loss = trace / trace2  # (detrace2 + 1e-6)
+        loss = trace / (trace2 * LL_det)
+        print(loss, "asdfasdf")
+
+        # check if there is nan in the loss
+        if torch.any(torch.isnan(loss)):
+            print("loss contains nan")
         return torch.mean(loss)
 
     def trace_mat(self, U1, mat_vect, n=128, D=False):
@@ -116,8 +263,10 @@ class K_Loss(nn.Module):
         for i in range(n):
             e = torch.zeros(U1.size(0), n).cdouble()
             e[:, i] = 1
-            log_diag += torch.log(mat_vect(e)[:, i].real)
-        return torch.exp(2*log_diag)
+            log_diag_elem = torch.log(mat_vect(e)[:, i])
+            log_diag += log_diag_elem
+
+        return torch.abs(torch.exp(log_diag))
 
     def upper_tri_mat(self, net_out, v):
         """Linear map by the lower tranangular matrix
@@ -131,14 +280,20 @@ class K_Loss(nn.Module):
                 f"The vector size must match the matrix dimensions. Matrix size {n} but got vector size {v.size(1)}"
             )
 
-        matrices = torch.zeros(v.size(0), n, n, device=net_out.device).cdouble()
+        matrices = torch.zeros(
+            v.size(0), n, n, device=net_out.device
+        ).cdouble()
 
         # Fill in the lower triangular part of each matrix
-        indices = torch.tril_indices(row=n, col=n, offset=0, device=net_out.device)
+        indices = torch.tril_indices(
+            row=n, col=n, offset=0, device=net_out.device
+        )
         matrices[:, indices[0], indices[1]] = net_out
 
         # Perform batched matrix-vector multiplication
-        bmm = torch.bmm(matrices.conj().transpose(-2, -1), v.unsqueeze(-1)).squeeze(-1)
+        bmm = torch.bmm(
+            matrices.conj().transpose(-2, -1), v.unsqueeze(-1)
+        ).squeeze(-1)
         return bmm
 
     def lower_tri_matvect(self, net_out, v):
@@ -217,7 +372,9 @@ class ConditionNumberLoss(nn.Module):
     def power_method(self, U1, net_out, v, num_iter=100):
 
         lambda_max = self.get_largest_eigen(U1, net_out, v, num_iter)
-        lambda_min = self.get_smallest_eigen(U1, net_out, v, num_iter, lambda_max)
+        lambda_min = self.get_smallest_eigen(
+            U1, net_out, v, num_iter, lambda_max
+        )
 
         max_abs = torch.abs(lambda_max)
         min_abs = torch.abs(lambda_min)
@@ -282,7 +439,9 @@ class DDApprox(nn.Module):
         output_matrix = []
         for i in range(basis.shape[0]):
             output_matrix.append(
-                self.DDOpt(basis[i : i + 1], U1, kappa=0.276).reshape(U1.shape[0], -1)
+                self.DDOpt(basis[i : i + 1], U1, kappa=0.276).reshape(
+                    U1.shape[0], -1
+                )
             )  # each instance should be of shape B, 128
 
         # the formed matrix approximation should be of shape B, num_basis, 128
@@ -314,7 +473,9 @@ class GetMatrixDDOpt(nn.Module):
         n = A.shape[0]
         e_i = torch.zeros(n).float()
         e_i[i] = 1
-        A[:, i] = self.DDOpt(e_i.reshape(1, 8, 8, 2), U1=U1, kappa=self.kappa).ravel()
+        A[:, i] = self.DDOpt(
+            e_i.reshape(1, 8, 8, 2), U1=U1, kappa=self.kappa
+        ).ravel()
         return A
 
 
@@ -323,7 +484,7 @@ class ComplexMSE(nn.Module):
         super().__init__()
 
     def forward(self, x, y):
-        return torch.norm(x - y)
+        return torch.norm(x - y, dim=1).mean()
 
 
 class ComplexMAEMSE(nn.Module):
@@ -346,23 +507,31 @@ def getBatchMatrix(DDOpt, U1):
 
 
 class CG_loss(nn.Module):
-    def __init__(self, DDOpt, kappa=0.276, verbose=False):
+    def __init__(self, DDOpt, kappa=0.276, maxiter=20, verbose=False):
         super().__init__()
         self.DDOpt = DDOpt
         self.kappa = kappa
         self.verbose = verbose
+        self.maxiter = maxiter
 
     def forward(self, net_out, U1):
         def _matvect(x):
+            # make sure it is LL*
             x = x.reshape(x.size(0), -1)
-            x = self.lower_tri_matvect(net_out, x)
             x = self.upper_tri_mat(net_out, x)
+            x = self.lower_tri_matvect(net_out, x)
             return x.reshape(x.size(0), 8, 8, 2)
 
         DDOpt = partial(self.DDOpt, U1=U1, kappa=self.kappa)
 
         b = torch.rand(net_out.size(0), 8, 8, 2).cdouble().to(net_out.device)
-        x, info = cg_batch(DDOpt, b, M_bmm=_matvect, maxiter=20, verbose=self.verbose)
+        x, info = cg_batch(
+            DDOpt,
+            b,
+            M_bmm=_matvect,
+            maxiter=self.maxiter,
+            verbose=self.verbose,
+        )
         residuals = DDOpt(x) - b
         residual_norm = torch.norm(
             residuals.reshape(residuals.size(0), -1), dim=1
@@ -389,11 +558,15 @@ class CG_loss(nn.Module):
         )
 
         # Fill in the lower triangular part of each matrix
-        indices = torch.tril_indices(row=n, col=n, offset=0, device=net_out.device)
+        indices = torch.tril_indices(
+            row=n, col=n, offset=0, device=net_out.device
+        )
         matrices[:, indices[0], indices[1]] = net_out
 
         # Perform batched matrix-vector multiplication
-        bmm = torch.bmm(matrices.conj().transpose(-2, -1), v.unsqueeze(-1)).squeeze(-1)
+        bmm = torch.bmm(
+            matrices.conj().transpose(-2, -1), v.unsqueeze(-1)
+        ).squeeze(-1)
         return bmm
 
     def lower_tri_matvect(self, net_out, v):

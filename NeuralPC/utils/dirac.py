@@ -284,3 +284,16 @@ def DDOpt_torch(x, U1, kappa):
     D = Dirac_Matrix(U1, kappa=kappa)
     y = D.apply(D.apply(x), dagger=True)
     return y
+
+
+    # import pickle
+    # with open("data.pkl", "wb") as f:
+    #     pickle.dump(data, f)
+
+
+    
+
+
+
+
+

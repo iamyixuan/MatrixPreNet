@@ -38,8 +38,8 @@ if __name__ == "__main__":
 
     train_idx, val_idx = split_data_idx(U1.shape[0])
 
-    U1_train = U1[train_idx]
-    U1_mat_train = U1_mat[train_idx]
+    U1_train = U1[train_idx[:200]]
+    U1_mat_train = U1_mat[train_idx[:200]]
     U1_val = U1[val_idx]
     U1_mat_val = U1_mat[val_idx]
 

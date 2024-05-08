@@ -15,5 +15,7 @@ train:
   lr: 0.001
   # log_path: "/home/yixuan.sun/projects/neuralPrecond/MatrixPreNet/logs/"
   log_path: "/Users/yixuan.sun/Documents/projects/Preconditioners/MatrixPreNet/logs/"
-  loss: "CG_loss"
+  loss: "SpectrumLoss"
+  log_name: "LL_T_left_pc_spectrum_loss_penalized_5"
+  model_name: "LL_T_left_pc_spectrum_loss_penalized_5"
 

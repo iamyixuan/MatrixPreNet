@@ -36,10 +36,9 @@ if __name__ == "__main__":
     U1 = torch.from_numpy(np.exp(1j * data))
     train_idx, val_idx = split_data_idx(U1.shape[0])
 
+    data = U1Data(U1)
 
-    data = U1Data(U1[train_idx])
-
-    data_load = DataLoader(data, batch_size=32)
+    data_load = DataLoader(data, batch_size=data.__len__())
 
     num_basis = modelConfig["num_basis"]
 
@@ -49,27 +48,41 @@ if __name__ == "__main__":
         + [2 * modelConfig["out_size"]]
     )
     model = (
-        NeuralPreconditioner(num_basis, DDOpt=DDOpt_torch, hidden_layers=hidden_layers)
+        NeuralPreconditioner(
+            num_basis, DDOpt=DDOpt_torch, hidden_layers=hidden_layers
+        )
         .to(device)
         .double()
     )
     # load saved model
-    model.load_state_dict(torch.load("./logs/2024-04-18-16_ep20_LL_cg_loss.pth"))
+    model.load_state_dict(
+        torch.load(
+            "./logs/best_LL_T_left_pc_spectrum_loss_penalized_model.pth"
+        )
+    )
 
-    loss_class = getLoss(trainConfig["loss"])
-    loss_fn = loss_class(DDOpt_torch, verbose=True)
+    loss_class = getLoss("CG_loss")
+    loss_fn = loss_class(DDOpt_torch, maxiter=500, verbose=True)
     loss_ortho = getLoss("BasisOrthoLoss")()
+
+    spec_loss = getLoss("SpectrumLoss")(DDOpt_torch)
 
     # start of the training loop
     model.eval()
     for x in data_load:
         x = x.to(device)
         out = model(x)
-        loss_obj, info = loss_fn(out, x)
-        loss_basis_val = loss_ortho(model.basis_real, model.basis_imag)
-        print(loss_obj)
-        print(loss_basis_val)
-        break
+        # loss_obj, info = loss_fn(out, x)
+        # loss_basis_val = loss_ortho(model.basis_real, model.basis_imag)
+        loss = spec_loss(out, x)
+        print("loss:", loss.item())
+        org_e = spec_loss.org_spectrum(out, x)
+        pc_e = spec_loss.pc_spectrum(out, x)
 
-    # with open("./logs/npc_cg_solve.pkl", "wb") as f:
-    #     pickle.dump(info, f)
+    spectra = {
+        "org": org_e,
+        "pc": pc_e,
+    }
+
+    with open("./logs/spectra_org_pc_spectrum_loss_penalized.pkl", "wb") as f:
+        pickle.dump(spectra, f)
