@@ -5,15 +5,14 @@ import numpy as np
 import torch
 import yaml
 from torch.utils.data import DataLoader
-from tqdm import tqdm
 
 from NeuralPC.model.neural_preconditioner import NeuralPreconditioner
 from NeuralPC.utils.data import U1Data, split_data_idx
 from NeuralPC.utils.dirac import DDOpt_torch
-from NeuralPC.utils.logger import Logger
-from NeuralPC.utils.losses_torch import getLoss
+from NeuralPC.utils.losses_torch import GetBatchMatrix, getLoss
 
 if __name__ == "__main__":
+
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     with open("./config.yaml") as f:
         config = yaml.safe_load(f)
@@ -23,6 +22,7 @@ if __name__ == "__main__":
     trainConfig = config["train"]
 
     now = datetime.now().strftime("%Y-%m-%d-%H")
+    model_name = "best_LL_T_left_pc_true_condNum_loss_penalized_5_model.pth"
 
     U1_path = (
         dataConfig["path"]
@@ -57,7 +57,7 @@ if __name__ == "__main__":
     # load saved model
     model.load_state_dict(
         torch.load(
-            "./logs/best_LL_T_left_pc_spectrum_loss_penalized_model.pth"
+            f"./logs/{model_name}"
         )
     )
 
@@ -79,10 +79,21 @@ if __name__ == "__main__":
         org_e = spec_loss.org_spectrum(out, x)
         pc_e = spec_loss.pc_spectrum(out, x)
 
+        # also get the true SVD of the original system and the preconditioned system
+        # TODO: 1. matrix getter; 2. perform SVD; 3. get the spectrum
+        # I can implement this as additional method to the loss class
+        org_true_e = spec_loss.org_spectrum(out, x, True)
+        pc_true_e = spec_loss.pc_spectrum(out, x, True)
+        lower_L_e, L = spec_loss.lower_spectrum(out, x, True)
+
     spectra = {
         "org": org_e,
         "pc": pc_e,
+        "org_true": org_true_e,
+        "pc_true": pc_true_e,
+        "lower_L": lower_L_e,
+        "L": L,
     }
 
-    with open("./logs/spectra_org_pc_spectrum_loss_penalized.pkl", "wb") as f:
+    with open(f"./logs/{model_name[:-4]}-test-spectrum.pkl", "wb") as f:
         pickle.dump(spectra, f)

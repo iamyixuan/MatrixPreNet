@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-
+from torch.utils.data import Dataset
 
 class BaseDataLoader(ABC):
     def __init__(self, data_dir, batch_size, shuffle, validation_split):
@@ -18,3 +18,17 @@ class BaseDataLoader(ABC):
             return None
         else:
             return self.train_loader, self.valid_loader
+
+class BaseDataset(Dataset):
+    def __init__(self, x, y=None):
+        self.x = x
+        self.y = y
+
+    def __len__(self):
+        return self.x.shape[0]
+
+    def __getitem__(self, idx):
+        if self.y is None:
+            return self.x[idx]
+        else:
+            return self.x[idx], self.y[idx]

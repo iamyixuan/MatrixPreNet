@@ -1,6 +1,6 @@
 import torch
 
-from ..utils.pair_data import PairDataset, get_dataset
+from ..utils.pair_data import U1Data, get_dataset
 from ._base_trainer import BaseTrainer
 
 
@@ -32,7 +32,7 @@ class SupervisedTrainer(BaseTrainer):
                 validation_split=0.2,
             )
         else:
-            dataset = PairDataset(
+            dataset = U1Data(
                 data_dir,
                 batch_size,
                 shuffle=True,
@@ -48,10 +48,10 @@ class SupervisedTrainer(BaseTrainer):
             self.model.train()
             running_loss = 0.0
             for i, data in enumerate(train_loader, 0):
-                inputs, labels = data
-                inputs, labels = inputs.to(self.device), labels.to(self.device)
+                inputs = data
+                inputs = inputs.to(self.device)
                 optimizer.zero_grad()
-                outputs = self.model(labels) # labels are the inputs
+                outputs = self.model(inputs)
                 loss = self.criterion(outputs, inputs)  # learn the inverse map
                 loss.backward()
                 optimizer.step()

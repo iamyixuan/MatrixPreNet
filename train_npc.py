@@ -34,7 +34,9 @@ if __name__ == "__main__":
     U1_mat = np.load(U1_mat_path)
     U1_mat = torch.from_numpy(U1_mat).cdouble()
 
-    U1 = torch.from_numpy(np.exp(1j * data))
+    U1 = torch.from_numpy(np.exp(1j * data))[
+        :500
+    ]  # use small subset for prototyping
 
     train_idx, val_idx = split_data_idx(U1.shape[0])
 

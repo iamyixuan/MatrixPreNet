@@ -38,8 +38,9 @@ class SpectrumLoss(nn.Module):
         self.lanczos = Lanczos(m=10)
 
         self.n = 128
+        self.matrix_getter = GetBatchMatrix(self.n)
 
-    def forward(self, net_out, U1):
+    def forward(self, net_out, U1, use_true=False):
         def _matvect(x):
             # preconditioned system is LL*D*D
             x = x.reshape(x.size(0), 8, 8, 2)
@@ -51,20 +52,29 @@ class SpectrumLoss(nn.Module):
             # output shape (B, 128)
             return x
 
-        # random vector with norm 1
-        v = torch.randn((net_out.shape[0], self.n), dtype=U1.dtype)
-        v /= torch.norm(v, dim=1, keepdim=True)
+        if use_true:
+            mat = self.matrix_getter.getBatch(U1.shape[0], _matvect)
+            condition_num = torch.linalg.cond(mat)
+            return condition_num.mean()
+        else:
+            # random vector with norm 1
+            v = torch.randn((net_out.shape[0], self.n), dtype=U1.dtype)
+            v /= torch.norm(v, dim=1, keepdim=True)
 
-        T = self.lanczos.run(_matvect, v)
-        eigenvalues = torch.linalg.eigvals(
-            T
-        ).abs()  
-        max_eigen = eigenvalues.max(dim=1)[0] # only return the values not the indices
-        min_eigen = eigenvalues.min(dim=1)[0]
-        return torch.mean(max_eigen - min_eigen) + torch.mean(torch.relu(5 - min_eigen) ** 2)
+            T = self.lanczos.run(_matvect, v)
+            eigenvalues = torch.linalg.eigvals(T).abs()
+            max_eigen = eigenvalues.max(dim=1)[
+                0
+            ]  # only return the values not the indices
+            min_eigen = eigenvalues.min(dim=1)[0]
+            # return torch.mean(max_eigen - min_eigen) + torch.mean(
+            #     torch.relu(5 - min_eigen) ** 2
+            # )
+            return torch.mean(max_eigen**2) - torch.mean(min_eigen**2)
 
-    def pc_spectrum(self, net_out, U1):
-        '''preconditioning system spectrum'''
+    def pc_spectrum(self, net_out, U1, use_true=False):
+        """preconditioning system spectrum"""
+
         def _matvect(x):
             # preconditioned system is LL*D*D
             x = x.reshape(x.size(0), 8, 8, 2)
@@ -76,36 +86,60 @@ class SpectrumLoss(nn.Module):
             # output shape (B, 128)
             return x
 
-        # random vector with norm 1
-        v = torch.randn((net_out.shape[0], self.n), dtype=U1.dtype)
-        v /= torch.norm(v, dim=1, keepdim=True)
+        if use_true:
+            mat = self.matrix_getter.getBatch(U1.shape[0], _matvect)
+            eigenvalues = torch.linalg.eigvals(mat).abs()
+        else:
+            # random vector with norm 1
+            v = torch.randn((net_out.shape[0], self.n), dtype=U1.dtype)
+            v /= torch.norm(v, dim=1, keepdim=True)
 
-        T = self.lanczos.run(_matvect, v)
-        eigenvalues = torch.linalg.eigvals(
-            T
-        ).abs()  
-        return eigenvalues 
+            T = self.lanczos.run(_matvect, v)
+            eigenvalues = torch.linalg.eigvals(T).abs()
+        return eigenvalues
 
-    def org_spectrum(self, net_out, U1):
-        '''original system spectrum'''
+    def org_spectrum(self, net_out, U1, use_true=False):
+        """original system spectrum"""
+
         def _matvect(x):
-            # preconditioned system is LL*D*D
             x = x.reshape(x.size(0), 8, 8, 2)
             x = self.DDOpt(x, U1, kappa=0.276)
             # make sure it is LL*
             x = x.reshape(x.size(0), -1)
+            return x
+
+        if use_true:
+            mat = self.matrix_getter.getBatch(U1.shape[0], _matvect)
+            eigenvalues = torch.linalg.eigvals(mat).abs()
+        else:
+            # random vector with norm 1
+            v = torch.randn((net_out.shape[0], self.n), dtype=U1.dtype)
+            v /= torch.norm(v, dim=1, keepdim=True)
+
+            T = self.lanczos.run(_matvect, v)
+            eigenvalues = torch.linalg.eigvals(T).abs()
+        return eigenvalues
+
+    def lower_spectrum(self, net_out, U1, use_true=False):
+        """original system spectrum"""
+
+        def _matvect(x):
+            x = x.reshape(x.size(0), -1)
+            x = self.lower_tri_matvect(net_out, x)
             # output shape (B, 128)
             return x
 
-        # random vector with norm 1
-        v = torch.randn((net_out.shape[0], self.n), dtype=U1.dtype)
-        v /= torch.norm(v, dim=1, keepdim=True)
+        if use_true:
+            T = self.matrix_getter.getBatch(U1.shape[0], _matvect)
+            eigenvalues = torch.linalg.eigvals(T).abs()
+        else:
+            # random vector with norm 1
+            v = torch.randn((net_out.shape[0], self.n), dtype=U1.dtype)
+            v /= torch.norm(v, dim=1, keepdim=True)
 
-        T = self.lanczos.run(_matvect, v)
-        eigenvalues = torch.linalg.eigvals(
-            T
-        ).abs()  
-        return eigenvalues 
+            T = self.lanczos.run(_matvect, v)
+            eigenvalues = torch.linalg.eigvals(T).abs()
+        return eigenvalues, T
 
     def upper_tri_mat(self, net_out, v):
         """Linear map by the lower triangular matrix
@@ -154,10 +188,6 @@ class SpectrumLoss(nn.Module):
             start_id += row_len
 
         return matvect
-
-    
-
-
 
 
 class BasisOrthoLoss(nn.Module):
@@ -325,31 +355,25 @@ class GetBatchMatrix(nn.Module):
         """
         Get the matrix of the original system
         """
-        A = torch.zeros((B, self.n, self.n)).cfloat()
+        A = torch.zeros((B, self.n, self.n)).cdouble()
         for i in range(self.n):
             A[:, :, i] = self._getColumn(A, i, mat_vec)
-        # for k in range(B):
-        #     A = self.getMatrix(mat_vec)
-        #     if k == 0:
-        #         batch = A.reshape(1, self.n, self.n)
-        #     else:
-        #         batch = np.concatenate([batch, A.reshape(1, self.n, self.n)], axis=0)
         return A
 
     def getMatrix(self, mat_vec):
         """
         Get the matrix of the original system
         """
-        A = torch.zeros((self.n, self.n)).cfloat()
+        A = torch.zeros((self.n, self.n)).cdouble()
         for i in range(self.n):
             A = self._getColumn(A, i, mat_vec)
         return A
 
     def _getColumn(self, A, i, mat_vec):
-        e_i = torch.zeros(self.n).cfloat()
-        e_i[i] = 1
+        e_i = torch.zeros((A.shape[0], self.n)).cdouble()
+        e_i[:, i] = 1
         # A[:, i] = mat_vec(e_i.reshape(1, 8, 8, 2)).ravel()
-        B_col = mat_vec(e_i.reshape(1, 8, 8, 2))
+        B_col = mat_vec(e_i.reshape(A.shape[0], 8, 8, 2))
         return B_col.reshape(B_col.shape[0], -1)
 
 

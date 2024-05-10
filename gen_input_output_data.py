@@ -1,27 +1,26 @@
 import numpy as np
 import torch
+from tqdm import tqdm
 
 from NeuralPC.utils.dirac import DDOpt_torch as DDOpt
 
 if __name__ == "__main__":
-    # generate data 
+    # generate data
     dataPath = "/Users/yixuan.sun/Documents/projects/Preconditioners/datasets/Dirac/precond_data/config.l8-N1600-b2.0-k0.276-unquenched.x.npy"
-    U1 = np.load(dataPath)
+    U1 = np.load(dataPath)[0:1]
     U1 = torch.from_numpy(U1).to(torch.cdouble)
     U1 = torch.exp(1j * U1)
     print(U1.shape)
 
     def gen_x(size):
-        real =torch.randn(size, 8, 8, 2)
+        real = torch.randn(size, 8, 8, 2)
         imag = torch.randn(size, 8, 8, 2)
         return real + 1j * imag
 
-
-
     x = []
-    y =[]
+    y = []
 
-    for j in range(10):
+    for j in tqdm(range(128 * 10)):
         inputs = gen_x(U1.shape[0])
         x.append(inputs)
         y.append(DDOpt(inputs, U1, 0.276))
@@ -30,10 +29,9 @@ if __name__ == "__main__":
     y = torch.cat(y, dim=0)
     print(x.shape, y.shape)
 
-
     data = {"x": x, "y": y}
-    
+
     import pickle
-    with open("./data/linear_inv_data.pkl", "wb") as f:
+
+    with open("./data/linear_inv_data_singleU1.pkl", "wb") as f:
         pickle.dump(data, f)
-    
