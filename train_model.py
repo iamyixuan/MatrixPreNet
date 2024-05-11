@@ -11,7 +11,7 @@ def main(args):
         optimizer_nm=args.optimizer_nm,
         loss_fn=args.loss_fn,
         data_dir=args.data_dir,
-        data=args.data_name,
+        data_name=args.data_name,
         epochs=args.num_epochs,
         batch_size=args.batch_size,
         learning_rate=args.learning_rate,

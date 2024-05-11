@@ -12,7 +12,7 @@ python train_model.py\
     --optimizer_nm "Adam"\
     --loss_fn "ComplexMSE"\
     --data_dir "./data/linear_inv_data_singleU1.pkl"\
-    --data "linear_inverse_singleU1"\
+    --data_name "pair"\
     --num_epochs 1000\
     --batch_size 32\
     --learning_rate 0.0001

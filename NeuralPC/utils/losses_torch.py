@@ -31,7 +31,63 @@ def getLoss(loss_name):
         raise ValueError(f"Loss {loss_name} not found")
 
 
-class SpectrumLoss(nn.Module):
+class BaseLoss(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, x, y):
+        raise NotImplementedError
+
+    def upper_tri_mat(self, net_out, v):
+        """Linear map by the lower triangular matrix
+        The computation should support batch dimension.
+        """
+        num_entries = net_out.shape[1]
+        n = int((torch.sqrt(torch.tensor(1.0) + 8 * num_entries) - 1) / 2)
+
+        if v.shape[1] != n:
+            raise ValueError(
+                f"The vector size must match the matrix dimensions. Matrix size {n} but got vector size {v.size(1)}"
+            )
+
+        matrices = torch.zeros(
+            v.size(0), n, n, device=net_out.device, dtype=net_out.dtype
+        )
+
+        # Fill in the lower triangular part of each matrix
+        indices = torch.tril_indices(
+            row=n, col=n, offset=0, device=net_out.device
+        )
+        matrices[:, indices[0], indices[1]] = net_out
+
+        # Perform batched matrix-vector multiplication
+        bmm = torch.bmm(
+            matrices.conj().transpose(-2, -1), v.unsqueeze(-1)
+        ).squeeze(-1)
+        return bmm
+
+    def lower_tri_matvect(self, net_out, v):
+        """
+        net_out: B, num_entries
+        v: B, 128
+        """
+        dim = v.size(1)
+        matvect = torch.zeros_like(v)
+
+        start_id = 0
+        for i in range(dim):
+            row_len = i + 1
+            matvect[:, i] = torch.einsum(
+                "bi, bi -> b",
+                net_out[:, start_id : start_id + row_len],
+                v[:, 0:row_len],
+            )
+            start_id += row_len
+
+        return matvect
+
+
+class SpectrumLoss(BaseLoss):
     def __init__(self, DDOpt):
         super().__init__()
         self.DDOpt = DDOpt
@@ -141,54 +197,6 @@ class SpectrumLoss(nn.Module):
             eigenvalues = torch.linalg.eigvals(T).abs()
         return eigenvalues, T
 
-    def upper_tri_mat(self, net_out, v):
-        """Linear map by the lower triangular matrix
-        The computation should support batch dimension.
-        """
-        num_entries = net_out.shape[1]
-        n = int((torch.sqrt(torch.tensor(1.0) + 8 * num_entries) - 1) / 2)
-
-        if v.shape[1] != n:
-            raise ValueError(
-                f"The vector size must match the matrix dimensions. Matrix size {n} but got vector size {v.size(1)}"
-            )
-
-        matrices = torch.zeros(
-            v.size(0), n, n, device=net_out.device, dtype=net_out.dtype
-        )
-
-        # Fill in the lower triangular part of each matrix
-        indices = torch.tril_indices(
-            row=n, col=n, offset=0, device=net_out.device
-        )
-        matrices[:, indices[0], indices[1]] = net_out
-
-        # Perform batched matrix-vector multiplication
-        bmm = torch.bmm(
-            matrices.conj().transpose(-2, -1), v.unsqueeze(-1)
-        ).squeeze(-1)
-        return bmm
-
-    def lower_tri_matvect(self, net_out, v):
-        """
-        net_out: B, num_entries
-        v: B, 128
-        """
-        dim = v.size(1)
-        matvect = torch.zeros_like(v)
-
-        start_id = 0
-        for i in range(dim):
-            row_len = i + 1
-            matvect[:, i] = torch.einsum(
-                "bi, bi -> b",
-                net_out[:, start_id : start_id + row_len],
-                v[:, 0:row_len],
-            )
-            start_id += row_len
-
-        return matvect
-
 
 class BasisOrthoLoss(nn.Module):
     def __init__(self):
@@ -222,7 +230,7 @@ class KconditionNum(nn.Module):
         super().__init__()
 
 
-class K_Loss(nn.Module):
+class K_Loss(BaseLoss):
     """K condition number loss"""
 
     def __init__(self, DDOpt):
@@ -297,54 +305,6 @@ class K_Loss(nn.Module):
             log_diag += log_diag_elem
 
         return torch.abs(torch.exp(log_diag))
-
-    def upper_tri_mat(self, net_out, v):
-        """Linear map by the lower tranangular matrix
-        The computation should support batch dimension.
-        """
-        num_entries = net_out.shape[1]
-        n = int((torch.sqrt(torch.tensor(1.0) + 8 * num_entries) - 1) / 2)
-
-        if v.shape[1] != n:
-            raise ValueError(
-                f"The vector size must match the matrix dimensions. Matrix size {n} but got vector size {v.size(1)}"
-            )
-
-        matrices = torch.zeros(
-            v.size(0), n, n, device=net_out.device
-        ).cdouble()
-
-        # Fill in the lower triangular part of each matrix
-        indices = torch.tril_indices(
-            row=n, col=n, offset=0, device=net_out.device
-        )
-        matrices[:, indices[0], indices[1]] = net_out
-
-        # Perform batched matrix-vector multiplication
-        bmm = torch.bmm(
-            matrices.conj().transpose(-2, -1), v.unsqueeze(-1)
-        ).squeeze(-1)
-        return bmm
-
-    def lower_tri_matvect(self, net_out, v):
-        """
-        net_out: B, num_entries
-        v: B, 128
-        """
-        dim = v.size(1)
-        matvect = torch.zeros_like(v)
-
-        start_id = 0
-        for i in range(dim):
-            row_len = i + 1
-            matvect[:, i] = torch.einsum(
-                "bi, bi -> b",
-                net_out[:, start_id : start_id + row_len],
-                v[:, 0:row_len],
-            )
-            start_id += row_len
-
-        return matvect
 
 
 class GetBatchMatrix(nn.Module):
@@ -478,31 +438,6 @@ class DDApprox(nn.Module):
 # implemenent GetMatrix in pytorch
 
 
-class GetMatrixDDOpt(nn.Module):
-    def __init__(self, DDOpt, kappa=0.276) -> None:
-        self.kappa = kappa
-        self.DDOpt = DDOpt
-
-    def getMatrix(self, U1):
-        """
-        Get the matrix of the original system
-        """
-        n = 128
-        A = torch.zeros((n, n)).cfloat()
-        for i in range(n):
-            A = self._getEntry(A, U1, i)
-        return A
-
-    def _getEntry(self, A, U1, i):
-        n = A.shape[0]
-        e_i = torch.zeros(n).float()
-        e_i[i] = 1
-        A[:, i] = self.DDOpt(
-            e_i.reshape(1, 8, 8, 2), U1=U1, kappa=self.kappa
-        ).ravel()
-        return A
-
-
 class ComplexMSE(nn.Module):
     def __init__(self):
         super().__init__()
@@ -530,7 +465,7 @@ def getBatchMatrix(DDOpt, U1):
     return torch.from_numpy(batch).cfloat()
 
 
-class CG_loss(nn.Module):
+class CG_loss(BaseLoss):
     def __init__(self, DDOpt, kappa=0.276, maxiter=20, verbose=False):
         super().__init__()
         self.DDOpt = DDOpt
@@ -564,51 +499,3 @@ class CG_loss(nn.Module):
             return residual_norm, info
         else:
             return residual_norm
-
-    def upper_tri_mat(self, net_out, v):
-        """Linear map by the lower triangular matrix
-        The computation should support batch dimension.
-        """
-        num_entries = net_out.shape[1]
-        n = int((torch.sqrt(torch.tensor(1.0) + 8 * num_entries) - 1) / 2)
-
-        if v.shape[1] != n:
-            raise ValueError(
-                f"The vector size must match the matrix dimensions. Matrix size {n} but got vector size {v.size(1)}"
-            )
-
-        matrices = torch.zeros(
-            v.size(0), n, n, device=net_out.device, dtype=net_out.dtype
-        )
-
-        # Fill in the lower triangular part of each matrix
-        indices = torch.tril_indices(
-            row=n, col=n, offset=0, device=net_out.device
-        )
-        matrices[:, indices[0], indices[1]] = net_out
-
-        # Perform batched matrix-vector multiplication
-        bmm = torch.bmm(
-            matrices.conj().transpose(-2, -1), v.unsqueeze(-1)
-        ).squeeze(-1)
-        return bmm
-
-    def lower_tri_matvect(self, net_out, v):
-        """
-        net_out: B, num_entries
-        v: B, 128
-        """
-        dim = v.size(1)
-        matvect = torch.zeros_like(v)
-
-        start_id = 0
-        for i in range(dim):
-            row_len = i + 1
-            matvect[:, i] = torch.einsum(
-                "bi, bi -> b",
-                net_out[:, start_id : start_id + row_len],
-                v[:, 0:row_len],
-            )
-            start_id += row_len
-
-        return matvect
