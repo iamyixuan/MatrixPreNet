@@ -73,7 +73,11 @@ class precodition_loss(torch.nn.Module):
                 L_kappa = 0
             L_inv = 1 / (1 + torch.linalg.det(M[i]))
             L_approx = torch.mean(torch.pow(A[i] - M[i], 2))
-            L = self.alpha * L_kappa + self.beta * L_inv + self.gamma * L_approx
+            L = (
+                self.alpha * L_kappa
+                + self.beta * L_inv
+                + self.gamma * L_approx
+            )
             batch_ls.append(L)
         return torch.mean(torch.stack(batch_ls))
 
@@ -84,6 +88,7 @@ def split_idx(length, key):
     trainIdx = idx[: int(0.6 * length)]
     valIdx = idx[-int(0.4 * length) :]
     return trainIdx, valIdx
+
 
 def split_data_idx(length):
     k = np.random.RandomState(0)
@@ -161,6 +166,8 @@ class U1Data(Dataset):
     def __getitem__(self, index):
         U = self.U1[index]
         return U
+
+
 
 
 class LinearMapData(Dataset):

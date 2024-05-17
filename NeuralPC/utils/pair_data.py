@@ -6,11 +6,14 @@ from torch.utils.data import DataLoader, Dataset
 
 from ._base_data_loader import BaseDataLoader, BaseDataset
 
+
 def get_dataset(data_name):
     if data_name == "pair":
         return PairDataset
     elif data_name == "u1":
         return U1Data
+    elif data_name == "time_series":
+        return TimeSeriesData
     else:
         raise ValueError(f"Data loader for {data_name} not found")
 
@@ -74,7 +77,7 @@ class PairDataset(BaseDataLoader):
         return x
 
 
-class U1Data(BaseDataset):
+class U1Data(BaseDataLoader):
     def __init__(self, data_dir, batch_size, shuffle, validation_split):
         super(U1Data, self).__init__(
             data_dir, batch_size, shuffle, validation_split
@@ -103,20 +106,45 @@ class U1Data(BaseDataset):
         )
         return train_loader, val_loader
 
-    def split_validation(self):
-        assert (
-            self.validation_split > 0.0
-        ), "Validation split must be greater than 0"
 
-        data_size = self.x.shape[0]
-        train_size = int(data_size * (1 - self.validation_split))
-        idx = np.arange(data_size)
-        rd = np.random.RandomState(42)
-        idx = rd.permutation(idx)
+class TimeSeriesData(BaseDataLoader):
+    def __init__(
+        self,
+        data_dir,
+        batch_size,
+        shuffle,
+        validation_split,
+        hist_len=10,
+        horizon=1,
+        lstm=True,
+    ):
+        super().__init__(data_dir, batch_size, shuffle, validation_split)
+        self.hist_len = hist_len
+        self.horizon = horizon
+        self.lstm = lstm
 
-        train_idx = idx[:train_size]
-        val_idx = idx[train_size:]
-        return (
-            self.x[train_idx],
-            self.x[val_idx],
-        )
+        self.init()
+
+    def init(self):
+        with open(self.data_dir, "rb") as f:
+            data = pickle.load(f)
+        if not torch.is_tensor(data):
+            data = torch.tensor(data, dtype=torch.float32)
+        x = data[:, : self.hist_len, ...]
+        y = data[:, self.hist_len + self.horizon, ...]
+
+        if self.lstm:
+            x = x.reshape(x.shape[0], x.shape[1], -1)
+        else:
+            x = x.reshape(x.shape[0], -1)
+
+        y = y.reshape(y.shape[0], -1)
+
+        # separate real and imag parts
+        x_real = x.real
+        x_imag = x.imag
+        y_real = y.real
+        y_imag = y.imag
+
+        self.x = torch.cat([x_real, x_imag], dim=-1).float()
+        self.y = torch.cat([y_real, y_imag], dim=-1).float()

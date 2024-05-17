@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 
 class FNN(nn.Module):
-    def __init__(self, in_dim, out_dim, layer_sizes) -> None:
+    def __init__(self, in_dim, out_dim, layer_sizes=[128, 256, 128]) -> None:
         super(FNN, self).__init__()
         self.layers = nn.ModuleList()
         layer_sizes = [in_dim] + layer_sizes + [out_dim]
@@ -25,11 +25,15 @@ class CNNEncoder(nn.Module):
         super(CNNEncoder, self).__init__()
 
         # Encoder layers
-        self.conv1 = nn.Conv2d(in_channels, 32, kernel_size=3, stride=1, padding=1)
+        self.conv1 = nn.Conv2d(
+            in_channels, 32, kernel_size=3, stride=1, padding=1
+        )
         self.bn1 = nn.BatchNorm2d(32)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1)
         self.bn2 = nn.BatchNorm2d(64)
-        self.conv3 = nn.Conv2d(64, latent_channels, kernel_size=3, stride=2, padding=1)
+        self.conv3 = nn.Conv2d(
+            64, latent_channels, kernel_size=3, stride=2, padding=1
+        )
         self.bn3 = nn.BatchNorm2d(latent_channels)
 
     def forward(self, x):
@@ -48,7 +52,12 @@ class CNNDecoder(nn.Module):
 
         # Decoder layers
         self.deconv1 = nn.ConvTranspose2d(
-            latent_channels, 64, kernel_size=3, stride=2, padding=1, output_padding=1
+            latent_channels,
+            64,
+            kernel_size=3,
+            stride=2,
+            padding=1,
+            output_padding=1,
         )
         self.deconv2 = nn.ConvTranspose2d(
             64, 32, kernel_size=3, stride=2, padding=1, output_padding=1
@@ -89,7 +98,13 @@ class DiracCNN(nn.Module):
         self.layers.append(self.input)
 
 
-# Test
-input_matrix = torch.randn((1, 1, 64, 64))  # N=64 for this example
-model = CNNEncoderDecoder()
-output_matrix = model(input_matrix)
+class RNN(nn.Module):
+    def __init__(self, in_dim, out_dim, hidden_dim, n_layers=3):
+        super(RNN, self).__init__()
+        self.rnn = nn.LSTM(in_dim, hidden_dim, n_layers, batch_first=True)
+        self.fc = FNN(hidden_dim, out_dim)
+
+    def forward(self, x):
+        out, _ = self.rnn(x)
+        out = self.fc(out[:, -1, :])
+        return out

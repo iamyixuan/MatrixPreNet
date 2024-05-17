@@ -37,11 +37,28 @@ def get_trainer(trainer, **kwargs):
         if model_type == "neural_pc":
             from .models.neural_pc import NeuralPC
 
-            model = NeuralPC
+            model = NeuralPC()
         elif model_type == "linear_inverse":
             from ..model.linear_inv import LinearInverse
 
             model = LinearInverse(10)  # number of layers
+        elif model_type == "FNN":
+            from ..model.FNN import FNN
+
+            model_kwargs = {
+                "in_dim": kwargs["in_dim"],
+                "out_dim": kwargs["out_dim"],
+            }
+
+            model = FNN(**model_kwargs)
+        elif model_type == "RNN":
+            from ..model.models import RNN
+            model_kwargs = {
+                "in_dim": kwargs["in_dim"],
+                "hidden_dim": kwargs["hidden_dim"],
+                "out_dim": kwargs["out_dim"],
+            }
+            model = RNN(**model_kwargs)
         else:
             raise NotImplementedError
 

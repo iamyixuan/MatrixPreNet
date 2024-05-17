@@ -2,6 +2,7 @@ import torch
 
 from ..utils.pair_data import PairDataset, get_dataset
 from ._base_trainer import BaseTrainer
+from tqdm import tqdm
 
 
 class SupervisedTrainer(BaseTrainer):
@@ -21,6 +22,7 @@ class SupervisedTrainer(BaseTrainer):
 
         self.kwargs = kwargs
         self.criterion = criterion()
+
 
     def train(self, num_epochs, batch_size, learning_rate):
         data_dir = self.kwargs["data_dir"]
@@ -44,15 +46,15 @@ class SupervisedTrainer(BaseTrainer):
             self.model.parameters(), lr=self.kwargs["learning_rate"]
         )
 
-        for epoch in range(num_epochs):
+        for epoch in tqdm(range(num_epochs)):
             self.model.train()
             running_loss = 0.0
             for i, data in enumerate(train_loader, 0):
                 inputs, labels = data
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
                 optimizer.zero_grad()
-                outputs = self.model(labels) # labels are the inputs
-                loss = self.criterion(outputs, inputs)  # learn the inverse map
+                outputs = self.model(inputs)
+                loss = self.criterion(outputs, labels)
                 loss.backward()
                 optimizer.step()
                 running_loss += loss.item()

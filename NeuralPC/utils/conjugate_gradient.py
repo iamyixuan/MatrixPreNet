@@ -47,7 +47,9 @@ def solve_from(A, b, x0, max_iters=20, tol=1e-4, atol=0.0, M=_identity):
         # check if any of the variables are nan
         print("the residuals", jnp.min(jnp.abs(r)))
         return (
-            PCGState(x=x, r=r, p=p, gamma=gamma, iterations=state.iterations + 1),
+            PCGState(
+                x=x, r=r, p=p, gamma=gamma, iterations=state.iterations + 1
+            ),
             None,
         )
 
@@ -58,11 +60,15 @@ def solve_from(A, b, x0, max_iters=20, tol=1e-4, atol=0.0, M=_identity):
 
     dummy_inputs = jnp.arange(max_iters)
 
-    state, _ = lax.scan(body, init(), dummy_inputs)  # use lax.scan for differentiation
+    state, _ = lax.scan(
+        body, init(), dummy_inputs
+    )  # use lax.scan for differentiation
     return state
 
 
-solve_from_jit = jit(solve_from, static_argnames=("A", "max_iters", "tol", "atol", "M"))
+solve_from_jit = jit(
+    solve_from, static_argnames=("A", "max_iters", "tol", "atol", "M")
+)
 
 
 def solve(A, b, x0, max_iters=20, tol=1e-4, atol=0.0, M=_identity):
@@ -72,10 +78,15 @@ def solve(A, b, x0, max_iters=20, tol=1e-4, atol=0.0, M=_identity):
 
 # pytorch implementation
 
-
-
 def cg_batch(
-    A_bmm, B, M_bmm=None, X0=None, rtol=1e-8, atol=0.0, maxiter=None, verbose=False
+    A_bmm,
+    B,
+    M_bmm=None,
+    X0=None,
+    rtol=1e-8,
+    atol=0.0,
+    maxiter=None,
+    verbose=False,
 ):
     """Solves a batch of PD matrix linear systems using the preconditioned CG algorithm.
 
@@ -92,6 +103,7 @@ def cg_batch(
     """
 
     residual_hist = []
+    solution_hist = []
     K, x, t, m = B.shape
 
     if M_bmm is None:
@@ -155,7 +167,13 @@ def cg_batch(
         end_iter = time.perf_counter()
 
         residual = B - A_bmm(X_k)
-        residual_norm = torch.norm(residual.reshape(residual.size(0), -1), dim=1).mean()
+        residual_norm = torch.norm(
+            residual.reshape(residual.size(0), -1), dim=1
+        ).mean()
+        
+        # record X_k
+        solution_hist.append(X_k)
+
         if verbose:
             residual_hist.append(residual_norm)
             print(
@@ -163,7 +181,6 @@ def cg_batch(
                 % (
                     k,
                     residual_norm,
-                
                     1.0 / (end_iter - start_iter),
                 )
             )
@@ -171,6 +188,8 @@ def cg_batch(
         if (residual_norm <= stopping_matrix).all():
             optimal = True
             break
+
+
 
     end = time.perf_counter()
 
@@ -190,6 +209,8 @@ def cg_batch(
 
     if verbose:
         info["residuals"] = residual_hist
+        info["solutions"] = solution_hist
+        info["B"] = B
 
     return X_k, info
 
@@ -197,7 +218,13 @@ def cg_batch(
 class CG(torch.autograd.Function):
 
     def __init__(
-        self, A_bmm, M_bmm=None, rtol=1e-3, atol=0.0, maxiter=None, verbose=False
+        self,
+        A_bmm,
+        M_bmm=None,
+        rtol=1e-3,
+        atol=0.0,
+        maxiter=None,
+        verbose=False,
     ):
         self.A_bmm = A_bmm
         self.M_bmm = M_bmm
