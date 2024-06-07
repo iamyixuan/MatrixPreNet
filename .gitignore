@@ -8,3 +8,4 @@ wandb/
 *.pkl
 *.png
 *.pdf
+experiments/

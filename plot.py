@@ -59,14 +59,14 @@ class Plotter:
         fig_dim = (fig_width_in, fig_height_in)
 
         return fig_dim
-    
+
     def read_logger(self, path):
         import re
 
         train_loss = []
         val_loss = []
-        train_pattern = re.compile(r"Epoch \d+, loss: \d+")
-        val_pattern = re.compile(r"Validation loss: \d+")
+        train_pattern = re.compile(r"Epoch \d+, loss: \d+\.\d+")
+        val_pattern = re.compile(r"Validation loss: \d+\.\d+")
         with open(path, "r") as f:
             for line in f:
                 matches_train = train_pattern.findall(line)
@@ -114,6 +114,7 @@ class Plotter:
             ax.legend()
             if if_log:
                 ax.set_yscale("log")
+        ax.set_xlim(0, 3000)
         return fig
 
     def scatter_plot(self, true, pred):
@@ -131,10 +132,11 @@ class Plotter:
             ax.set_title(title)
 
         # add a colorbar and make the height the same as the figure
-        cbar = ax.figure.colorbar(ax.images[0], ax=ax, fraction=0.046, pad=0.04)
+        cbar = ax.figure.colorbar(
+            ax.images[0], ax=ax, fraction=0.046, pad=0.04
+        )
         cbar.ax.set_ylabel("entry absolute values")
         plt.show()
-
 
         return fig
 
@@ -209,22 +211,48 @@ class Plotter:
 
     def plot_spectrum(self, org_e, pc_e, **kwarg):
         fig, ax = plt.subplots()
+        cond_DD = org_e.max() / org_e.min()
+        cond_pc = pc_e.max() / pc_e.min()
         ax.set_box_aspect(1 / 3)
         ax.scatter(
             org_e,
             0.1 * torch.ones_like(org_e),
             marker="x",
             color="r",
-            label="original-Lanczos",
+            label=r"$D^{\dagger}D$",
         )
         ax.yaxis.set_visible(False)
         ax.scatter(
             pc_e,
-            0.3 * torch.ones_like(pc_e),
+            0.2 * torch.ones_like(pc_e),
             marker="x",
             color="b",
-            label="preconditioned-Lanczos",
+            label=r"$LD^{\dagger}DL^{\dagger}$",
         )
+
+        if kwarg.get("train_org_e") is not None:
+            ax.scatter(
+                kwarg["train_org_e"],
+                0.3 * torch.ones_like(kwarg["train_org_e"]),
+                marker=".",
+                color="r",
+                label="train-original",
+            )
+            ax.scatter(
+                kwarg["train_pc_e"],
+                0.4 * torch.ones_like(kwarg["train_pc_e"]),
+                marker=".",
+                color="b",
+                label="train-preconditioned",
+            )
+            cond_DD_train = max(
+                cond_DD,
+                kwarg["train_org_e"].max() / kwarg["train_org_e"].min(),
+            )
+            cond_pc_train = max(
+                cond_pc, kwarg["train_pc_e"].max() / kwarg["train_pc_e"].min()
+            )
+
         if kwarg.get("org_true_e") is not None:
             ax.scatter(
                 kwarg["org_true_e"],
@@ -241,7 +269,7 @@ class Plotter:
                 color="b",
                 label="preconditioned-true",
             )
-        
+
         if kwarg.get("lower_L") is not None:
             ax.scatter(
                 kwarg["lower_L"],
@@ -251,96 +279,66 @@ class Plotter:
                 label="lower_L",
             )
 
-
         # log scale for x
         ax.set_xscale("log")
         ax.set_ylim(0.0, 0.6)
+        ax.text(
+            1e-3,
+            0.54,
+            f"[val] Condition numbers: {cond_DD:.2f}, {cond_pc:.2f}",
+        )
+        ax.text(
+            1e-3,
+            0.51,
+            f"[train] Condition numbers: {cond_DD_train:.2f}, {cond_pc_train:.2f}",
+        )
         ax.legend(loc="upper center", bbox_to_anchor=(0.5, 1.25), ncol=2)
         plt.show()
         return fig
 
 
 if __name__ == "__main__":
+    import argparse
     import pickle
 
-    with open(
-        "./logs/2024-04-25-19_LL_T_left_pc_spectrum_loss_penalized.pkl", "rb"
-    ) as f:
-        logger = pickle.load(f)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--plot_type", type=str, help="plot type")
+    parser.add_argument("--file_path", type=str, help="file path")
+    args = parser.parse_args()
 
-    with open("./logs/default_cg_solve_20runs.pkl", "rb") as f:
-        info_list = pickle.load(f)
-
-    with open("./logs/npc_cg_solve.pkl", "rb") as f:
-        npc_info = pickle.load(f)
-
-    with open("./logs/spectrum_npc_cg_solve.pkl", "rb") as f:
-        spectrum_npc_info = pickle.load(f)
-
-    with open(
-        "./logs/best_LL_T_left_pc_true_condNum_loss_penalized_5_model-test-spectrum.pkl",
-        "rb",
-    ) as f:
-        spectra = pickle.load(f)
-
-    # generate random idx within 100
-
-    idx = np.random.randint(0, 100)
-    org_e = spectra["org"].detach()[idx]
-    pc_e = spectra["pc"].detach()[idx]
-    org_true_e = spectra["org_true"].detach()[idx]
-    pc_true_e = spectra["pc_true"].detach()[idx]
-    lower_L_e = spectra["lower_L"].detach()[idx]
-    mat = spectra["L"].detach().abs()[idx]
-
-    residual_hist = [info["residuals"] for info in info_list]
-    npc_residual_hist = [res.detach().numpy() for res in npc_info["residuals"]]
-    spectrum_npc_residual_hist = [
-        res.detach().numpy() for res in spectrum_npc_info["residuals"]
-    ]
     plotter = Plotter()
+    if args.plot_type == "train_curve":
+        logger = plotter.read_logger(args.file_path + "model-train.log")
+        train_curve = plotter.train_curve(logger, if_log=True)
+        train_curve.savefig(
+            f"{args.file_path}/train_curves_log.pdf",
+            format="pdf",
+            bbox_inches="tight",
+        )
+    elif args.plot_type == "spectrum":
+        with open(args.file_path + "val_pred.pkl", "rb") as f:
+            data = pickle.load(f)
 
-    linear_inv_logger_path = "./logs/train_logs/linear_inverse-linear_inverse_singleU1-1000-B32-lr0.0001.log"
+        DD = data["inputs"][0][0].squeeze()
+        pred = data["pred"][0][0].squeeze()
 
-    logger = plotter.read_logger(linear_inv_logger_path)
-    train_curve = plotter.train_curve(logger, if_log=False)
-    train_curve.savefig(
-        "./figures/linear_inverse_single-U1-train_curve.pdf",
-        format="pdf",
-        bbox_inches="tight",
-    )
+        train_inputs = data["train_inputs"][0][0].squeeze()
+        train_pred = data["train_pred"][0][0].squeeze()
+        train_precond = torch.matmul(
+            torch.matmul(DD, train_pred), train_pred.conj().T
+        )
+        train_org_e = torch.linalg.eigvals(DD).real
+        train_pc_e = torch.linalg.eigvals(train_precond).real
 
-    # spec_fig = plotter.plot_spectrum(
-    #     org_e, pc_e, org_true_e=org_true_e, pc_true_e=pc_true_e,  lower_L=lower_L_e
-    # )
-    # mat_fig = plotter.vis_matrix(mat)
-    # spec_fig.savefig(
-    #     "./figures/spectrum-condNum_loss_penalized_true_spectrum_log.pdf",
-    #     format="pdf",
-    #     bbox_inches="tight",
-    # )
-    # mat_fig.savefig(
-    #     "./figures/spectrum_loss-condNum-L_mat.pdf",
-    #     format="pdf",
-    #     bbox_inches="tight",
-    # )
+        precond = torch.matmul(torch.matmul(DD, pred), pred.conj().T)
+        org_e = torch.linalg.eigvals(DD).real
+        pc_e = torch.linalg.eigvals(precond).real
 
-    # fig = plotter.plot_cg_convergence(
-    #     residual_hist, npc_residual_hist, spectrum_npc_residual_hist,
-    #     npc_names=["npc", "spectrum_npc"],
-    #     log_scale=True
-    # )
-    # train_curve = plotter.train_curve(logger, if_log=True)
-
-    # train_curve.savefig(
-    #     "./figures/LL_spectrum_penalized_train_curve.png",
-    #     format="png",
-    #     dpi=150,
-    #     bbox_inches="tight",
-    # )
-    # fig.savefig(
-    #     "./figures/npc_cg_spectrum_convergence.png",
-    #     format="png",
-    #     dpi=150,
-    #     bbox_inches="tight",
-    # )
+        fig = plotter.plot_spectrum(
+            org_e, pc_e, train_org_e=train_org_e, train_pc_e=train_pc_e
+        )
+        fig.savefig(
+            f"{args.file_path}/spectrum.pdf",
+            format="pdf",
+            bbox_inches="tight",
+        )

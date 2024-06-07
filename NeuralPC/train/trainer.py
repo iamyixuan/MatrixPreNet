@@ -1,14 +1,15 @@
-import torch
 import os
-import numpy as np
 from datetime import datetime
-from tqdm import tqdm
-from torch.utils.data import DataLoader
-from ..utils.losses import Losses
-from ..utils.logger import Logger
-from ..utils.data import precodition_loss
-from torch.optim.lr_scheduler import ReduceLROnPlateau
 
+import numpy as np
+import torch
+from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.utils.data import DataLoader
+from tqdm import tqdm
+
+from ..utils.data import precodition_loss
+from ..utils.logger import Logger
+from ..utils.losses import Losses
 
 
 class Trainer:
@@ -126,4 +127,4 @@ class Trainer:
                 self.net.load_state_dict(torch.load(checkpoint))
             with torch.no_grad():
                 out = self.net(x)
-        return [i.numpy() for i in y], out.numpy(), x.numpy()
+        return out.numpy(), x.numpy()

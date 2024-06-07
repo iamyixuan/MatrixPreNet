@@ -1,10 +1,22 @@
 import numpy as np
 from functools import partial
 import torch
+from scipy.linalg import cholesky
 from tqdm import tqdm
 
 from NeuralPC.utils.conjugate_gradient import cg_batch
 from NeuralPC.utils.dirac import DDOpt_torch as DDOpt
+from NeuralPC.utils.losses_torch import GetBatchMatrix
+
+
+
+# choleksy decomposition
+def cholesky(A):
+    # convert to numpy
+    mask = A.abs() == 0
+    L = torch.cholesky(A)
+    L[mask] = 0
+    return L
 
 if __name__ == "__main__":
     # generate data
@@ -41,15 +53,24 @@ if __name__ == "__main__":
     # run CG solve on the system and save the data every stepk
     # for i inrange(10):gt
     opt = partial(DDOpt, U1=U1, kappa=0.276)
-    B = gen_x(U1.shape[0])
-    x, info = cg_batch(
-        opt,
-        B,
-        verbose=True,
-    )
-    solutions = torch.stack(info["solutions"], dim=1)
-    import pickle
-    with open("./data/DD_CG_solutions.pkl", "wb") as f:
-        pickle.dump(solutions, f)
+    matrix_getter = GetBatchMatrix(128)
+    dd_matrices = matrix_getter.getBatch(U1.shape[0], opt)
+    torch.save(dd_matrices, "./data/DD_matrices.pt")
 
-    print(solutions.shape)
+
+
+
+
+
+    # B = gen_x(U1.shape[0])
+    # x, info = cg_batch(
+    #     opt,
+    #     B,
+    #     verbose=True,
+    # )
+    # solutions = torch.stack(info["solutions"], dim=1)
+    # import pickle
+    # with open("./data/DD_CG_solutions.pkl", "wb") as f:
+    #     pickle.dump(solutions, f)
+    #
+    # print(solutions.shape)

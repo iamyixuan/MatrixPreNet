@@ -6,7 +6,7 @@ from .losses_torch import getLoss
 def get_trainer(trainer, **kwargs):
 
     if kwargs.get("loss_fn") is not None:
-        loss_fn = getLoss(kwargs["loss_fn"])
+        loss_fn = getLoss(kwargs["loss_fn"], **kwargs)
     else:
         loss_fn = getLoss("MSELoss")
 
@@ -43,7 +43,7 @@ def get_trainer(trainer, **kwargs):
 
             model = LinearInverse(10)  # number of layers
         elif model_type == "FNN":
-            from ..model.FNN import FNN
+            from ..model.models import FNN
 
             model_kwargs = {
                 "in_dim": kwargs["in_dim"],
@@ -59,6 +59,14 @@ def get_trainer(trainer, **kwargs):
                 "out_dim": kwargs["out_dim"],
             }
             model = RNN(**model_kwargs)
+        elif model_type == "CNN":
+            from ..model.ConvNet import ConvPrecondNet
+            model_kwargs = {
+                "in_ch": kwargs["in_ch"],
+                "out_ch": kwargs["out_ch"],
+                "kernel_size": kwargs["kernel_size"],
+            }
+            model = ConvPrecondNet(**model_kwargs)
         else:
             raise NotImplementedError
 
@@ -67,6 +75,9 @@ def get_trainer(trainer, **kwargs):
 
         print(optimizer)
         return SupervisedTrainer(model, optimizer, loss_fn, **kwargs)
+    elif trainer == "unsupervised":
+        from ..train import UnsupervisedTrainer
+        return UnsupervisedTrainer(model, optimizer, loss_fn, **kwargs)
     else:
         raise NotImplementedError
 

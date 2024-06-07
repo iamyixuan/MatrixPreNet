@@ -8,7 +8,7 @@ from .conjugate_gradient import cg_batch
 from .kappa_approximators import Lanczos
 
 
-def getLoss(loss_name):
+def getLoss(loss_name, **kwargs):
     if loss_name == "MSE":
         return nn.MSELoss
     elif loss_name == "MAE":
@@ -27,8 +27,138 @@ def getLoss(loss_name):
         return CG_loss
     elif loss_name == "SpectrumLoss":
         return SpectrumLoss
+    elif loss_name == "ConvComplexLoss":
+        if "kind" in kwargs:
+            kind = kwargs.get("kind", "LAL")
+        return ConvComplexLoss(kind)
+    elif loss_name == "MatConditionNumberLoss":
+        if "mask" in kwargs and "blackbox" in kwargs:
+            mask = torch.load("./data/DD_L_sparse_masks.pt")
+            blackbox = kwargs.get("blackbox", False)
+            return MatConditionNumberLoss(mask=mask, blackbox=blackbox)
+        else:
+            raise ValueError("Mask not provided")
+    elif loss_name == "KconditionLoss":
+        if "mask" in kwargs:
+            mask = torch.load("./data/DD_L_sparse_masks.pt")
+            return KconditionLoss(mask=mask)
+        else:
+            raise ValueError("Mask not provided")
     else:
         raise ValueError(f"Loss {loss_name} not found")
+
+
+class ConvComplexLoss(nn.Module):
+    def __init__(self, kind="LLDD"):
+        super().__init__()
+        self.kind = kind
+
+    def forward(self, DD, L):
+        preconditioned = self.precond_opt(DD, L)
+        condition_num = torch.linalg.cond(preconditioned)
+        return condition_num.mean()
+
+    def precond_opt(self, DD, L):
+        L = L.squeeze()
+        DD = DD.squeeze()
+        L_T = L.conj().transpose(-2, -1)
+        if self.kind == "LAL":
+            return torch.bmm(L, torch.bmm(DD, L_T))
+        elif self.kind == "LLDD":
+            return torch.bmm(L, torch.bmm(L_T, DD))
+        else:
+            raise ValueError(f"kind {self.kind} not found")
+
+
+class KconditionLoss(nn.Module):
+    def __init__(self, mask=None):
+        super().__init__()
+        self.mask = mask
+        if self.mask is not None:
+            # broadcast the mask to the batch dimension
+            self.maskDD = self.mask["DD"]
+            self.maskL = self.mask["L"]
+
+    def forward(self, DD_entries, L_entries):
+        mat, LL, DD = self.precond_mat(DD_entries, L_entries)
+        trace_precond = torch.diagonal(mat, dim1=-2, dim2=-1).sum(dim=-1)
+        trace_DD = torch.diagonal(DD, dim1=-2, dim2=-1).sum(dim=-1)
+        # check if LL diagonal is 0
+        det_LL = torch.log(torch.diagonal(LL, dim1=-2, dim2=-1).real).sum(
+            dim=-1
+        )
+
+        return torch.mean(trace_precond / trace_DD / det_LL).real
+
+    def precond_mat(self, DD_entries, L_entries):
+        # making L*DDL
+        DD = self.reconstruct_mat(DD_entries, self.maskDD)
+        L = self.reconstruct_mat(L_entries, self.maskL)
+        # make sure the diagonal entries of L is greater than 1e-3
+        diag_mask = torch.eye(L.size(-1), device=L.device, dtype=torch.bool)
+        diag_elem = torch.maximum(
+            L[:, diag_mask].real,
+            torch.ones_like(L[:, diag_mask], dtype=torch.float) * 1e-3,
+        )
+        L[:, diag_mask] = diag_elem.to(L.dtype)
+
+        preconditioned = torch.bmm(L.conj().transpose(-2, -1), DD)
+        preconditioned = torch.bmm(preconditioned, L)
+        LL = torch.bmm(L.conj().transpose(-2, -1), L)
+        return preconditioned, LL, DD
+
+    def reconstruct_mat(self, entries, mask):
+        M = torch.zeros(
+            (entries.size(0), mask.size(-1), mask.size(-1)),
+            device=entries.device,
+            dtype=entries.dtype,
+        )
+        M[:, mask] = entries
+        return M
+
+
+class MatConditionNumberLoss(nn.Module):
+    def __init__(self, mask=None, blackbox=False):
+        super().__init__()
+        self.mask = mask
+        self.blackbox = blackbox
+        print("Use blackbox:", self.blackbox)
+        if self.mask is not None:
+            # broadcast the mask to the batch dimension
+            self.maskDD = self.mask["DD"]
+            self.maskL = self.mask["L"]
+
+    def forward(self, DD_entries, L_entries):
+        mat = self.precond_mat(DD_entries, L_entries)
+        if self.blackbox:
+            with torch.no_grad():
+                cond_num = torch.linalg.cond(mat)
+                loss = torch.mean(cond_num, dim=0)
+            return loss.detach().clone().requires_grad_(True)
+        else:
+            # cond_num = torch.linalg.cond(mat)
+            U, S, V = torch.linalg.svd(mat)
+            cond_num = S[..., 0] / S[..., 5]
+            return torch.mean(cond_num, dim=0)
+
+    def precond_mat(self, DD_entries, L_entries):
+        # make LL_inv@DD matrix
+        DD = self.reconstruct_mat(DD_entries, self.maskDD)
+        L = self.reconstruct_mat(L_entries, self.maskL)
+
+        LL = torch.bmm(L, L.conj().transpose(-2, -1))
+        # LL_inv = torch.linalg.inv(LL)
+        preconditioned = torch.bmm(LL, DD)
+        return preconditioned
+
+    def reconstruct_mat(self, entries, mask):
+        M = torch.zeros(
+            (entries.size(0), mask.size(-1), mask.size(-1)),
+            device=entries.device,
+            dtype=entries.dtype,
+        )
+        M[:, mask] = entries
+        return M
 
 
 class BaseLoss(nn.Module):

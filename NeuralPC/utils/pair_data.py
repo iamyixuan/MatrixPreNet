@@ -14,6 +14,10 @@ def get_dataset(data_name):
         return U1Data
     elif data_name == "time_series":
         return TimeSeriesData
+    elif data_name == "DD_matrix":
+        return DDMatrixData
+    elif data_name == "DD_IC":
+        return DD_ICData
     else:
         raise ValueError(f"Data loader for {data_name} not found")
 
@@ -51,30 +55,78 @@ class PairDataset(BaseDataLoader):
         )
         return train_loader, val_loader
 
-    def split_validation(self):
-        assert (
-            self.validation_split > 0.0
-        ), "Validation split must be greater than 0"
-
-        data_size = self.x.shape[0]
-        train_size = int(data_size * (1 - self.validation_split))
-        idx = np.arange(data_size)
-        rd = np.random.RandomState(42)
-        idx = rd.permutation(idx)
-
-        train_idx = idx[:train_size]
-        val_idx = idx[train_size:]
-        return (
-            self.x[train_idx],
-            self.y[train_idx],
-            self.x[val_idx],
-            self.y[val_idx],
-        )
-
     def transform(self, x):
         if len(x.shape) != 2:
             x = x.reshape(x.shape[0], -1)
         return x
+
+
+class DDMatrixData(BaseDataLoader):
+    def __init__(
+        self,
+        data_dir,
+        batch_size,
+        shuffle,
+        validation_split,
+        double_precision=False,
+    ):
+        super(DDMatrixData, self).__init__(
+            data_dir, batch_size, shuffle, validation_split
+        )
+        self.double_precision = double_precision
+        self.init()
+
+    def init(self):
+        # load data here
+        if self.double_precision:
+            dd_matrix = torch.load(self.data_dir).cdouble()
+        else:
+            dd_matrix = torch.load(self.data_dir).cfloat()
+        assert dd_matrix.dim() == 3, "DD matrix must be 3D"
+        self.x = self.transform(dd_matrix)
+        self.y = None
+
+    def transform(self, x):
+        if len(x.shape) != 4:
+            # add channel dimension
+            x = x.unsqueeze(1)
+        return x
+
+
+class DD_ICData(BaseDataLoader):
+    def __init__(
+        self,
+        data_dir,
+        batch_size,
+        shuffle,
+        validation_split,
+        double_precision=False,
+    ):
+        super(DD_ICData, self).__init__(
+            data_dir, batch_size, shuffle, validation_split
+        )
+        self.double_precision = double_precision
+        self.init()
+
+    def init(self):
+        # load data here
+        data = torch.load(self.data_dir)
+        dd_matrix = data["A"]
+        L_IC = data["L_IC"]
+        self.x = self.transform(dd_matrix)
+        self.y = self.transform(L_IC)
+
+    def transform(self, x):
+        x = torch.stack(x)
+        mask = x[0].abs() != 0
+        x = x[:, mask]
+        if self.double_precision:
+            return x.cdouble()
+        else:
+            return x.cfloat()
+
+
+
 
 
 class U1Data(BaseDataLoader):

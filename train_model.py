@@ -1,10 +1,20 @@
 import argparse
+import pickle
 
 from NeuralPC.utils import get_trainer
 from plot import Plotter
 
 
 def main(args):
+    model_kwargs = {
+        "in_dim": args.in_dim,
+        "out_dim": args.out_dim,
+        "hidden_dim": args.hidden_dim,
+        "in_ch": args.in_ch,
+        "out_ch": args.out_ch,
+        "kernel_size": args.kernel_size,
+    }
+    loss_kwargs = {'kind': 'LAL', 'mask': 'True', 'blackbox': False}
     trainer = get_trainer(
         args.trainer,
         model_type=args.model_type,
@@ -15,25 +25,37 @@ def main(args):
         epochs=args.num_epochs,
         batch_size=args.batch_size,
         learning_rate=args.learning_rate,
-        in_dim=args.in_dim,
-        out_dim=args.out_dim,
-        hidden_dim=args.hidden_dim,
+        additional_info=args.additional_info,
+        **model_kwargs,
+        **loss_kwargs,
     )
 
-    trainer.train(args.num_epochs, args.batch_size, args.learning_rate)
+    log_path = f"./experiments/{args.model_type}-{args.data_name}-{args.num_epochs}-B{args.batch_size}-lr{args.learning_rate}-{args.additional_info}/"
 
-    # plot training curve
-    plotter = Plotter()
+    if args.train == "True":
 
-    log_path = f"./logs/train_logs/{args.model_type}-{args.data_name}-{args.num_epochs}-B{args.batch_size}-lr{args.learning_rate}/"
+        trainer.train(args.num_epochs, args.batch_size, args.learning_rate)
 
-    logger = plotter.read_logger(log_path + "model-train.log")
-    train_curve = plotter.train_curve(logger, if_log=False)
-    train_curve.savefig(
-        f"{log_path}/train_curves.pdf",
-        format="pdf",
-        bbox_inches="tight",
-    )
+        # plot training curve
+        plotter = Plotter()
+
+        logger = plotter.read_logger(log_path + "model-train.log")
+        train_curve = plotter.train_curve(logger, if_log=False)
+        train_curve.savefig(
+            f"{log_path}/train_curves.pdf",
+            format="pdf",
+            bbox_inches="tight",
+        )
+
+        # save predictions
+        val_pred = trainer.predict()
+        with open(f"{log_path}/val_pred.pkl", "wb") as f:
+            pickle.dump(val_pred, f)
+    else:
+        if args.model_path is not None:
+            val_pred = trainer.predict(args.model_path)
+            with open(f"{log_path}/val_pred.pkl", "wb") as f:
+                pickle.dump(val_pred, f)
 
 
 if __name__ == "__main__":
@@ -47,11 +69,21 @@ if __name__ == "__main__":
     parser.add_argument("--num_epochs", type=int, help="Number of epochs")
     parser.add_argument("--batch_size", type=int, help="Batch size")
     parser.add_argument("--learning_rate", type=float, help="Learning rate")
+    parser.add_argument("--additional_info", type=str, help="Additional info")
 
     # model specific arguments
     parser.add_argument("--in_dim", type=int, help="Input dimension")
     parser.add_argument("--out_dim", type=int, help="Output dimension")
     parser.add_argument("--hidden_dim", type=int, help="Hidden dimension")
+    parser.add_argument("--in_ch", type=int, help="input channel")
+    parser.add_argument("--out_ch", type=int, help="output channel")
+    parser.add_argument(
+        "--kernel_size", type=int, help="convolution kernel size"
+    )
+
+    # train or predict
+    parser.add_argument("--train", type=str, help="train or predict")
+    parser.add_argument("--model_path", type=str, help="model path")
 
     args = parser.parse_args()
     main(args)

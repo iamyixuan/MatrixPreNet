@@ -73,3 +73,40 @@ class SupervisedTrainer(BaseTrainer):
                     loss = self.criterion(outputs, labels)
                     val_loss += loss.item()
                 self.log(f"Validation loss: {val_loss}")
+
+    def predict(self, checkpoint=None):
+        if checkpoint is not None:
+            self.model.load_state_dict(torch.load(checkpoint))
+
+        dataset = get_dataset(self.kwargs["data_name"])(
+            self.kwargs["data_dir"],
+            self.kwargs["batch_size"],
+            shuffle=True,
+            validation_split=0.2,
+        )
+        train_loader, val_loader = dataset.get_data_loader()
+        pred_results = {
+            "true": [],
+            "pred": [],
+            "train_true": [],
+            "train_pred": [],
+            "inputs": [],
+            "train_inputs": [],
+        }
+        with torch.no_grad():
+            for x, y in val_loader:
+                self.model.eval()
+                x = x.to(self.device)
+                y = y.to(self.device)
+                out = self.model(x)
+                pred_results["pred"].append(out.cpu())
+                pred_results["true"].append(y.cpu())
+                pred_results["inputs"].append(x.cpu())
+            for x, y in train_loader:
+                x = x.to(self.device)
+                y = y.to(self.device)
+                out = self.model(x)
+                pred_results["train_pred"].append(out.cpu())
+                pred_results["train_true"].append(y.cpu())
+                pred_results["train_inputs"].append(x.cpu())
+        return pred_results
