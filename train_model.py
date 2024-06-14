@@ -14,7 +14,7 @@ def main(args):
         "out_ch": args.out_ch,
         "kernel_size": args.kernel_size,
     }
-    loss_kwargs = {'kind': 'LAL', 'mask': 'True', 'blackbox': False}
+    loss_kwargs = {'kind': 'LAL', 'mask': 'True'}
     trainer = get_trainer(
         args.trainer,
         model_type=args.model_type,

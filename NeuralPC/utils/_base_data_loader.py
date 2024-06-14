@@ -30,6 +30,11 @@ class BaseDataLoader(ABC):
             batch_size=self.batch_size,
             shuffle=self.shuffle,
         )
+        # train_loader = DataLoader(
+        #     train_data,
+        #     batch_size=train_data.__len__(),
+        #     shuffle=False,
+        # )
         val_loader = DataLoader(
             val_data,
             batch_size=val_data.__len__(),

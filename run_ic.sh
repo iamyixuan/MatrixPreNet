@@ -14,7 +14,7 @@ python train_model.py\
     --trainer "unsupervised"\
     --model_type "FNN"\
     --optimizer_nm "Adam"\
-    --loss_fn   "KconditionLoss"\
+    --loss_fn   "MatConditionNumberLoss"\
     --data_dir "./data/DD_mat_IC_L.pt"\
     --data_name "DD_IC"\
     --in_dim 1792\
@@ -27,4 +27,4 @@ python train_model.py\
     --out_ch 1\
     --kernel_size 7\
     --model_path $model_path\
-    --additional_info "KCondLoss-2"\
+    --additional_info "test-2"\

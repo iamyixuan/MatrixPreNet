@@ -44,9 +44,14 @@ class PairDataset(BaseDataLoader):
         x_train, y_train, x_val, y_val = self.split_validation()
         train_data = BaseDataset(x_train, y_train)
         val_data = BaseDataset(x_val, y_val)
+        # train_loader = DataLoader(
+        #     train_data,
+        #     batch_size=self.batch_size,
+        #     shuffle=self.shuffle,
+        # )
         train_loader = DataLoader(
             train_data,
-            batch_size=self.batch_size,
+            batch_size=train_data.__len__(),
             shuffle=self.shuffle,
         )
         val_loader = DataLoader(

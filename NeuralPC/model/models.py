@@ -4,23 +4,25 @@ import torch.nn.functional as F
 
 
 class FNN(nn.Module):
-    def __init__(self, in_dim, out_dim, layer_sizes=[1024]*5) -> None:
+    def __init__(self, in_dim, out_dim, activation,layer_sizes=[1024]*3) -> None:
         super(FNN, self).__init__()
         self.layers = nn.ModuleList()
         layer_sizes = [in_dim] + layer_sizes + [out_dim]
         for k in range(len(layer_sizes) - 2):
             self.layers.append(nn.Linear(layer_sizes[k], layer_sizes[k + 1]))
-            self.layers.append(nn.Softplus())
+            # self.layers.append(nn.BatchNorm1d(layer_sizes[k + 1]))
+            self.layers.append(activation)
 
         self.layers.append(nn.Linear(layer_sizes[-2], layer_sizes[-1]))
-        self.layers.append(nn.Softplus())
+        # self.layers.append(nn.BatchNorm1d(layer_sizes[-1]))
+        # self.layers.append(nn.Softplus())
+        self.scale = nn.Parameter(torch.tensor(1e-3))
 
     def forward(self, x):
         for layer in self.layers:
             x_real = layer(x.real)
             x_imag = layer(x.imag)
             x = x_real + 1j * x_imag
-        assert x.real.any() > 0 and x.imag.any() > 0
         return x
 
 

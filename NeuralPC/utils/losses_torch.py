@@ -32,10 +32,9 @@ def getLoss(loss_name, **kwargs):
             kind = kwargs.get("kind", "LAL")
         return ConvComplexLoss(kind)
     elif loss_name == "MatConditionNumberLoss":
-        if "mask" in kwargs and "blackbox" in kwargs:
+        if "mask" in kwargs:
             mask = torch.load("./data/DD_L_sparse_masks.pt")
-            blackbox = kwargs.get("blackbox", False)
-            return MatConditionNumberLoss(mask=mask, blackbox=blackbox)
+            return MatConditionNumberLoss(mask=mask)
         else:
             raise ValueError("Mask not provided")
     elif loss_name == "KconditionLoss":
@@ -118,33 +117,30 @@ class KconditionLoss(nn.Module):
 
 
 class MatConditionNumberLoss(nn.Module):
-    def __init__(self, mask=None, blackbox=False):
+    def __init__(self, mask=None):
         super().__init__()
         self.mask = mask
-        self.blackbox = blackbox
-        print("Use blackbox:", self.blackbox)
         if self.mask is not None:
             # broadcast the mask to the batch dimension
             self.maskDD = self.mask["DD"]
             self.maskL = self.mask["L"]
 
-    def forward(self, DD_entries, L_entries):
-        mat = self.precond_mat(DD_entries, L_entries)
-        if self.blackbox:
-            with torch.no_grad():
-                cond_num = torch.linalg.cond(mat)
-                loss = torch.mean(cond_num, dim=0)
-            return loss.detach().clone().requires_grad_(True)
-        else:
-            # cond_num = torch.linalg.cond(mat)
-            U, S, V = torch.linalg.svd(mat)
-            cond_num = S[..., 0] / S[..., 5]
-            return torch.mean(cond_num, dim=0)
+    def forward(self, DD_entries, L_entries, scale):
+        mat = self.precond_mat(DD_entries, L_entries, scale)
+        # cond_num = torch.linalg.cond(mat)
+        U, S, V = torch.linalg.svd(mat)
+        cond_num = S[..., 0] / S[..., -1]
+        return torch.mean(cond_num, dim=0)
 
-    def precond_mat(self, DD_entries, L_entries):
+    def precond_mat(self, DD_entries, L_entries, scale):
         # make LL_inv@DD matrix
         DD = self.reconstruct_mat(DD_entries, self.maskDD)
-        L = self.reconstruct_mat(L_entries, self.maskL)
+        epsilon = self.reconstruct_mat(L_entries, self.maskL) * scale
+        identity = torch.eye(
+            epsilon.size(-1), device=epsilon.device
+        ).unsqueeze(0)
+        identity = identity.repeat(epsilon.size(0), 1, 1)
+        L = epsilon + identity
 
         LL = torch.bmm(L, L.conj().transpose(-2, -1))
         # LL_inv = torch.linalg.inv(LL)
@@ -152,6 +148,8 @@ class MatConditionNumberLoss(nn.Module):
         return preconditioned
 
     def reconstruct_mat(self, entries, mask):
+        assert mask.size(-1) == 128
+        assert mask.size(-1) == mask.size(-2)
         M = torch.zeros(
             (entries.size(0), mask.size(-1), mask.size(-1)),
             device=entries.device,

@@ -1,0 +1,92 @@
+calls:
+- max_evals: 20
+  timeout: null
+search:
+  acq_func: UCB
+  acq_optimizer: auto
+  evaluator:
+    num_workers: 1
+    type: SerialEvaluator
+  filter_duplicated: true
+  filter_failures: mean
+  initial_point_generator: random
+  initial_points:
+  - activation: relu
+    batch_size: 32
+    hidden_dim: 64
+    lr: 0.001
+    num_epochs: 200
+    num_layers: 3
+  kappa: 1.96
+  kwargs: {}
+  log_dir: .
+  max_failures: 100
+  moo_lower_bounds: null
+  moo_scalarization_strategy: Chebyshev
+  moo_scalarization_weight: null
+  multi_point_strategy: cl_max
+  n_initial_points: 10
+  n_jobs: 1
+  n_points: 10000
+  objective_scaler: auto
+  problem:
+    conditions: []
+    forbiddens: []
+    hyperparameters:
+    - choices:
+      - relu
+      - tanh
+      - sigmoid
+      - softplus
+      - prelu
+      default: relu
+      name: activation
+      type: categorical
+      weights: null
+    - default: 32
+      log: false
+      lower: 1
+      name: batch_size
+      q: null
+      type: uniform_int
+      upper: 256
+    - default: 64
+      log: false
+      lower: 16
+      name: hidden_dim
+      q: null
+      type: uniform_int
+      upper: 1024
+    - default: 0.001
+      log: true
+      lower: 0.0001
+      name: lr
+      q: null
+      type: uniform_float
+      upper: 0.1
+    - default: 200
+      log: false
+      lower: 100
+      name: num_epochs
+      q: null
+      type: uniform_int
+      upper: 1000
+    - default: 3
+      log: false
+      lower: 1
+      name: num_layers
+      q: null
+      type: uniform_int
+      upper: 10
+    json_format_version: 0.4
+    python_module_version: 0.6.1
+  random_state: null
+  scheduler: null
+  stopper: null
+  surrogate_model: RF
+  sync_communication: false
+  type: CBO
+  update_prior: false
+  update_prior_quantile: 0.1
+  verbose: 1
+  xi: 0.001

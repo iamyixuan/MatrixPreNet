@@ -1,4 +1,5 @@
 import torch
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from tqdm import tqdm
 
 from ..utils.pair_data import U1Data, get_dataset
@@ -44,18 +45,24 @@ class UnsupervisedTrainer(BaseTrainer):
         optimizer = self.optimizer(
             self.model.parameters(), lr=self.kwargs["learning_rate"]
         )
+        scheduler = CosineAnnealingLR(optimizer, T_max=num_epochs)
 
         best_loss = 1e10
         pbar = tqdm(range(num_epochs), desc="Training")
         for epoch in pbar:
             self.model.train()
             running_loss = 0.0
-            for i, data in enumerate(train_loader, 0):
-                inputs, _ = data
-                inputs = inputs.to(self.device)
+            for i, train_data in enumerate(train_loader, 0):
+                train_inputs, _ = train_data
+                train_inputs = train_inputs.to(self.device)
                 optimizer.zero_grad()
-                outputs = self.model(inputs)
-                loss = self.criterion(inputs, outputs)  # learn the inverse map
+                train_outputs = self.model(train_inputs)
+                # print(torch.norm(outputs, dim=0).mean(), "outputs norm")
+                # print(torch.norm(inputs, dim=0).mean(), "inputs norm")
+                # assert False
+                loss = self.criterion(
+                    train_inputs, train_outputs, scale=self.model.scale
+                )  # learn the inverse map
                 loss.backward()
                 optimizer.step()
                 running_loss += loss.item()
@@ -71,18 +78,26 @@ class UnsupervisedTrainer(BaseTrainer):
                 # if i > 10:
                 #     assert False
             train_loss = running_loss / i
+            scheduler.step()
             self.log(f"Epoch {epoch+1}, loss: {train_loss}")
             running_loss = 0.0
+
+            scale_after_training = self.model.scale.item()
 
             self.model.eval()
             with torch.no_grad():
                 val_loss = 0.0
-                for i, data in enumerate(self.val_loader, 0):
-                    inputs, _ = data
-                    inputs = inputs.to(self.device)
-                    outputs = self.model(inputs)
-                    loss = self.criterion(inputs, outputs)
-                    val_loss += loss.item()
+                for i, val_data in enumerate(self.val_loader, 0):
+                    val_inputs, _ = val_data
+                    val_inputs = val_inputs.to(self.device)
+                    val_outputs = self.model(val_inputs)
+
+                    val_ls = self.criterion(
+                        val_inputs, val_outputs, scale=self.model.scale
+                    )
+
+                    assert scale_after_training == self.model.scale.item()
+                    val_loss += val_ls.item()
                 self.log(f"Validation loss: {val_loss}")
 
                 if val_loss < best_loss:
@@ -92,6 +107,7 @@ class UnsupervisedTrainer(BaseTrainer):
                 {
                     "train_loss": f"{train_loss:.3f}",
                     "val_loss": f"{val_loss:.3f}",
+                    "scale": f"{self.model.scale.item():.3f}",
                 }
             )
 
