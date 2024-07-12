@@ -15,7 +15,6 @@ search:
     batch_size: 32
     hidden_dim: 64
     lr: 0.001
-    num_epochs: 200
     num_layers: 3
   kappa: 1.96
   kwargs: {}
@@ -64,13 +63,6 @@ search:
       q: null
       type: uniform_float
       upper: 0.1
-    - default: 200
-      log: false
-      lower: 100
-      name: num_epochs
-      q: null
-      type: uniform_int
-      upper: 1000
     - default: 3
       log: false
       lower: 1

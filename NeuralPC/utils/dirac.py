@@ -1,8 +1,8 @@
 import numpy as np
 from .gamma import gamma_factory
 import torch
-import jax.numpy as jnp
-import jax
+# import jax.numpy as jnp
+# import jax
 
 
 class Dirac_Matrix:
@@ -140,7 +140,7 @@ def example(dataPath):
 # JAX implementation of the class
 # ----------------------------
 
-
+'''
 class Dirac_Matrix_Jax:
     def __init__(self, U, kappa):
         self.n_dim = 2
@@ -274,7 +274,7 @@ def DDOpt(x, U1, kappa):
     D = Dirac_Matrix_Jax(U1, kappa=kappa)
     y = D.apply(D.apply(x), dagger=True)
     return y
-
+'''
 def DDOpt_torch(x, U1, kappa):
     """
     U1 shape (B, L, L, 2)

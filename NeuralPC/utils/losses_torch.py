@@ -27,6 +27,8 @@ def getLoss(loss_name, **kwargs):
         return CG_loss
     elif loss_name == "SpectrumLoss":
         return SpectrumLoss
+    elif loss_name == "CNNMatCondNumberLoss":
+        return CNNMatCondNumberLoss()
     elif loss_name == "ConvComplexLoss":
         if "kind" in kwargs:
             kind = kwargs.get("kind", "LAL")
@@ -37,6 +39,7 @@ def getLoss(loss_name, **kwargs):
             return MatConditionNumberLoss(mask=mask)
         else:
             raise ValueError("Mask not provided")
+
     elif loss_name == "KconditionLoss":
         if "mask" in kwargs:
             mask = torch.load("./data/DD_L_sparse_masks.pt")
@@ -157,6 +160,31 @@ class MatConditionNumberLoss(nn.Module):
         )
         M[:, mask] = entries
         return M
+
+
+class CNNMatCondNumberLoss(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, DD_mat, L_epsilon, scale):
+        mat = self.precond_mat(DD_mat, L_epsilon, scale)
+        # cond_num = torch.linalg.cond(mat)
+        U, S, V = torch.linalg.svd(mat)
+        cond_num = S[..., 0] / S[..., -1]
+        return torch.mean(cond_num, dim=0)
+
+    def precond_mat(self, DD_mat, L_epsilon, scale):
+        # make LL_inv@DD matrix
+        identity = torch.eye(
+            L_epsilon.size(-1), device=L_epsilon.device
+        ).unsqueeze(0)
+        identity = identity.repeat(L_epsilon.size(0), 1, 1)
+        L = scale * L_epsilon + identity
+
+        LL = torch.bmm(L, L.conj().transpose(-2, -1))
+        # LL_inv = torch.linalg.inv(LL)
+        preconditioned = torch.bmm(LL, DD_mat)
+        return preconditioned
 
 
 class BaseLoss(nn.Module):

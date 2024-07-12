@@ -1,5 +1,6 @@
-import numpy as np
 from functools import partial
+
+import numpy as np
 import torch
 from scipy.linalg import cholesky
 from tqdm import tqdm
@@ -9,7 +10,6 @@ from NeuralPC.utils.dirac import DDOpt_torch as DDOpt
 from NeuralPC.utils.losses_torch import GetBatchMatrix
 
 
-
 # choleksy decomposition
 def cholesky(A):
     # convert to numpy
@@ -17,6 +17,7 @@ def cholesky(A):
     L = torch.cholesky(A)
     L[mask] = 0
     return L
+
 
 if __name__ == "__main__":
     # generate data
@@ -55,12 +56,8 @@ if __name__ == "__main__":
     opt = partial(DDOpt, U1=U1, kappa=0.276)
     matrix_getter = GetBatchMatrix(128)
     dd_matrices = matrix_getter.getBatch(U1.shape[0], opt)
-    torch.save(dd_matrices, "./data/DD_matrices.pt")
-
-
-
-
-
+    data = {'U1': U1, 'DD_mat': dd_matrices}
+    torch.save(data, "./data/U1_DD_matrices.pt")
 
     # B = gen_x(U1.shape[0])
     # x, info = cg_batch(
@@ -71,6 +68,6 @@ if __name__ == "__main__":
     # solutions = torch.stack(info["solutions"], dim=1)
     # import pickle
     # with open("./data/DD_CG_solutions.pkl", "wb") as f:
-    #     pickle.dump(solutions, f)
+    #     p{ickle.dump(solutions, f)
     #
     # print(solutions.shape)

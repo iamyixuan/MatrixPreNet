@@ -4,7 +4,9 @@ import torch.nn.functional as F
 
 
 class FNN(nn.Module):
-    def __init__(self, in_dim, out_dim, activation,layer_sizes=[1024]*3) -> None:
+    def __init__(
+        self, in_dim, out_dim, activation, layer_sizes=[1024] * 3
+    ) -> None:
         super(FNN, self).__init__()
         self.layers = nn.ModuleList()
         layer_sizes = [in_dim] + layer_sizes + [out_dim]
@@ -25,6 +27,82 @@ class FNN(nn.Module):
             x = x_real + 1j * x_imag
         return x
 
+
+class PrecondCNN(nn.Module):
+    def __init__(
+        self,
+        in_dim,
+        out_dim,
+        hidden_dim,
+        n_layers_gauge=3,
+        n_layers_precond=3,
+        kernel_size=3,
+    ):
+        super(PrecondCNN, self).__init__()
+        self.gauge_layers = nn.ModuleList()
+        self.precond_layers = nn.ModuleList()
+        self.scale = nn.Parameter(torch.tensor(1e-3))
+
+        for k in range(n_layers_gauge):
+            if k == 0:
+                self.gauge_layers.append(
+                    nn.Conv2d(
+                        in_dim,
+                        hidden_dim,
+                        kernel_size=kernel_size,
+                        padding="same",
+                    )
+                )
+            else:
+                self.gauge_layers.append(
+                    nn.Conv2d(
+                        hidden_dim,
+                        hidden_dim,
+                        kernel_size=kernel_size,
+                        padding="same",
+                    )
+                )
+
+            self.gauge_layers.append(nn.BatchNorm2d(hidden_dim))
+            self.gauge_layers.append(nn.ReLU())
+
+        for k in range(n_layers_precond):
+            self.precond_layers.append(
+                nn.Conv2d(
+                    hidden_dim,
+                    hidden_dim,
+                    kernel_size=kernel_size,
+                    padding="same",
+                )
+            )
+            self.precond_layers.append(nn.BatchNorm2d(hidden_dim))
+            self.precond_layers.append(nn.ReLU())
+
+        self.output = nn.Conv2d(
+            hidden_dim, out_dim, kernel_size=kernel_size, padding="same"
+        )
+
+    def forward(self, x):
+        scale_factor = x.size(-1)
+        for gauge_layer in self.gauge_layers:
+            x_real = gauge_layer(x.real)
+            x_imag = gauge_layer(x.imag)
+            x = x_real + 1j * x_imag
+
+        x = nn.functional.interpolate(
+            x.real, scale_factor=2 * scale_factor
+        ) + 1j * nn.functional.interpolate(
+            x.imag, scale_factor=2 * scale_factor
+        )
+
+        for precond_layer in self.precond_layers:
+            x_real = precond_layer(x.real)
+            x_imag = precond_layer(x.imag)
+            x = x_real + 1j * x_imag
+
+        out = self.output(x.real) + 1j * self.output(x.imag)
+        out = torch.tril(out.squeeze())
+        return out
 
 
 class CNNEncoder(nn.Module):

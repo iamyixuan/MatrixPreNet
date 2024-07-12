@@ -18,6 +18,8 @@ def get_dataset(data_name):
         return DDMatrixData
     elif data_name == "DD_IC":
         return DD_ICData
+    elif data_name == "U1_DD":
+        return U1_DD_data
     else:
         raise ValueError(f"Data loader for {data_name} not found")
 
@@ -131,7 +133,34 @@ class DD_ICData(BaseDataLoader):
             return x.cfloat()
 
 
+class U1_DD_data(BaseDataLoader):
+    def __init__(
+        self,
+        data_dir,
+        batch_size,
+        shuffle,
+        validation_split,
+        double_precision=False,
+    ):
+        super(U1_DD_data, self).__init__(
+            data_dir, batch_size, shuffle, validation_split
+        )
+        self.double_precision = double_precision
+        self.init()
 
+    def init(self):
+        # load data here
+        data = torch.load(self.data_dir)
+        U1 = data["U1"]
+        DD_mat = data["DD_mat"]
+        self.x = self.transform(U1)
+        self.y = self.transform(DD_mat)
+
+    def transform(self, x):
+        if self.double_precision:
+            return x.cdouble()
+        else:
+            return x.cfloat()
 
 
 class U1Data(BaseDataLoader):

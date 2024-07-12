@@ -1,8 +1,8 @@
 import numpy as np
-from tqdm import tqdm
 import torch
 from deephyper.evaluator import RunningJob, profile
 from torch.optim.lr_scheduler import CosineAnnealingLR
+from tqdm import tqdm
 
 from NeuralPC.model import FNN
 from NeuralPC.utils.losses_torch import getLoss
@@ -53,7 +53,7 @@ def run(job: RunningJob):
 
     # specify optimizer and loss function
     optimizer = torch.optim.Adam(model.parameters(), lr=config["lr"])
-    scheduler = CosineAnnealingLR(optimizer, T_max=config["num_epochs"])
+    scheduler = CosineAnnealingLR(optimizer, T_max=200)
     loss_name = "MatConditionNumberLoss"
     loss_fn = getLoss(loss_name, mask=True)
 
@@ -64,14 +64,14 @@ def run(job: RunningJob):
     # use GPU if available
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
-    for epoch in tqdm(range(config["num_epochs"])):
+    for epoch in tqdm(range(200)):
         model.train()
         running_loss = 0
         for i, (X, y) in enumerate(train_loader):
             X, y = X.to(device), y.to(device)
             optimizer.zero_grad()
             y_pred = model(X)
-            loss = loss_fn(X, y_pred, scale=model.scale) # unsupervised loss
+            loss = loss_fn(X, y_pred, scale=model.scale)  # unsupervised loss
             loss.backward()
             running_loss += loss.item()
             optimizer.step()
@@ -87,14 +87,14 @@ def run(job: RunningJob):
                 y_pred = model(X)
                 val_loss += loss_fn(X, y_pred, scale=model.scale)
             val_loss /= len(val_loader)
-            val_losses.append(val_loss)
+            val_losses.append(val_loss.cpu().numpy())
 
     metadata = {
         "train_losses": train_losses,
         "val_losses": val_losses,
     }
 
-    final_loss = val_losses[-1].item()
+    final_loss = val_losses[-1]
     return {"objective": -final_loss, "metadata": metadata}
 
 
@@ -129,11 +129,11 @@ if __name__ == "__main__":
         "batch_size",
         default_value=32,
     )  # batch size
-    problem.add_hyperparameter(
-        (100, 1000),
-        "num_epochs",
-        default_value=200,
-    )  # number of epochs
+    # problem.add_hyperparameter(
+    #     (100, 1000),
+    #     "num_epochs",
+    #     default_value=200,
+    # )  # number of epochs
 
     evaluator = Evaluator.create(run)
     search = CBO(
@@ -142,4 +142,4 @@ if __name__ == "__main__":
         initial_points=[problem.default_configuration],
         verbose=1,
     )
-    results = search.search(max_evals=20)
+    results = search.search(max_evals=100)

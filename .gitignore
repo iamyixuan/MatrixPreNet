@@ -7,5 +7,5 @@ wandb/
 *.npy
 *.pkl
 *.png
-*.pdf
 experiments/
+*.csv

@@ -2,29 +2,25 @@
 
 set -e
 
-source ~/.zshrc
-
-conda activate ml
-
 train="True"
-model_path="./experiments/FNN-DD_IC-3000-B128-lr0.0001-kappaLoss/model.pth"
+model_path="./experiments/FNN-DD_IC-3000-B8-lr0.0049460803423949-train-best-config/"
 
 python train_model.py\
     --train $train\
     --trainer "unsupervised"\
-    --model_type "FNN"\
+    --model_type "PrecondCNN"\
     --optimizer_nm "Adam"\
-    --loss_fn   "MatConditionNumberLoss"\
-    --data_dir "./data/DD_mat_IC_L.pt"\
-    --data_name "DD_IC"\
+    --loss_fn   "CNNMatCondNumberLoss"\
+    --data_dir "./data/U1_DD_matrices.pt"\
+    --data_name "U1_DD"\
     --in_dim 1792\
     --out_dim 960\
     --num_epochs 3000\
     --batch_size 128\
     --learning_rate 0.001\
-    --hidden_dim 256\
-    --in_ch 1\
+    --hidden_dim 32\
+    --in_ch 2\
     --out_ch 1\
-    --kernel_size 7\
+    --kernel_size 3\
     --model_path $model_path\
-    --additional_info "test-2"\
+    --additional_info "U1_mat_kappa"\

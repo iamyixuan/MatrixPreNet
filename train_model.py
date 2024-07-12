@@ -5,16 +5,18 @@ from NeuralPC.utils import get_trainer
 from plot import Plotter
 
 
-def main(args):
+def main(args, config):
     model_kwargs = {
         "in_dim": args.in_dim,
         "out_dim": args.out_dim,
         "hidden_dim": args.hidden_dim,
+        "n_layers": config["n_layers"],
         "in_ch": args.in_ch,
         "out_ch": args.out_ch,
         "kernel_size": args.kernel_size,
+        "activation": config["activation"],
     }
-    loss_kwargs = {'kind': 'LAL', 'mask': 'True'}
+    loss_kwargs = {"kind": "LAL", "mask": "True"}
     trainer = get_trainer(
         args.trainer,
         model_type=args.model_type,
@@ -23,14 +25,14 @@ def main(args):
         data_dir=args.data_dir,
         data_name=args.data_name,
         epochs=args.num_epochs,
-        batch_size=args.batch_size,
-        learning_rate=args.learning_rate,
+        batch_size=config["batch_size"],
+        learning_rate=config["lr"],
         additional_info=args.additional_info,
         **model_kwargs,
         **loss_kwargs,
     )
 
-    log_path = f"./experiments/{args.model_type}-{args.data_name}-{args.num_epochs}-B{args.batch_size}-lr{args.learning_rate}-{args.additional_info}/"
+    log_path = f"./experiments/{args.model_type}-{args.data_name}-{args.num_epochs}-B{config['batch_size']}-lr{config['lr']}-{args.additional_info}/"
 
     if args.train == "True":
 
@@ -54,8 +56,17 @@ def main(args):
     else:
         if args.model_path is not None:
             val_pred = trainer.predict(args.model_path)
-            with open(f"{log_path}/val_pred.pkl", "wb") as f:
+            with open(f"{log_path}val_pred.pkl", "wb") as f:
                 pickle.dump(val_pred, f)
+
+        plotter = Plotter()
+        logger = plotter.read_logger(log_path + "model-train.log")
+        train_curve = plotter.train_curve(logger, if_log=False)
+        train_curve.savefig(
+            f"{log_path}/train_curves.pdf",
+            format="pdf",
+            bbox_inches="tight",
+        )
 
 
 if __name__ == "__main__":
@@ -80,10 +91,28 @@ if __name__ == "__main__":
     parser.add_argument(
         "--kernel_size", type=int, help="convolution kernel size"
     )
+    parser.add_argument(
+        "--n_layers", type=int, default=3, help="number of layers"
+    )
 
     # train or predict
     parser.add_argument("--train", type=str, help="train or predict")
     parser.add_argument("--model_path", type=str, help="model path")
 
     args = parser.parse_args()
-    main(args)
+
+    # import pandas as pd
+    #
+    # df = pd.read_csv("./results.csv")
+    # df_sorted = df.sort_values("objective", ascending=False)
+    # df_sorted = df_sorted.rename(columns=lambda x: x.replace("p:", ""))
+    #
+    # config = df_sorted.iloc[0].to_dict()
+    config = {
+        "n_layers": args.n_layers,
+        "batch_size": args.batch_size,
+        "lr": 0.001,
+        "activation": "relu",
+    }
+
+    main(args, config)

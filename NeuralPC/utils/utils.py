@@ -1,6 +1,22 @@
 import numpy as np
+import torch
 
 from .losses_torch import getLoss
+
+
+def get_activation(activation):
+    if activation == "relu":
+        return torch.nn.ReLU()
+    elif activation == "tanh":
+        return torch.nn.Tanh()
+    elif activation == "sigmoid":
+        return torch.nn.Sigmoid()
+    elif activation == "softplus":
+        return torch.nn.Softplus()
+    elif activation == "prelu":
+        return torch.nn.PReLU()
+    else:
+        raise ValueError(f"Activation {activation} not supported")
 
 
 def get_trainer(trainer, **kwargs):
@@ -48,11 +64,25 @@ def get_trainer(trainer, **kwargs):
             model_kwargs = {
                 "in_dim": kwargs["in_dim"],
                 "out_dim": kwargs["out_dim"],
+                "activation": get_activation(kwargs["activation"]),
+                "layer_sizes": kwargs["num_layers"] * [kwargs["hidden_dim"]],
             }
 
             model = FNN(**model_kwargs)
+        elif model_type == "PrecondCNN":
+            from ..model.models import PrecondCNN
+            model_kwargs = {
+                "in_dim": kwargs["in_ch"],
+                "out_dim": kwargs["out_ch"],
+                "hidden_dim": kwargs["hidden_dim"],
+                "kernel_size": kwargs["kernel_size"],
+                "n_layers_gauge": kwargs["n_layers"],
+                "n_layers_precond": kwargs["n_layers"],
+            }
+            model = PrecondCNN(**model_kwargs)
         elif model_type == "RNN":
             from ..model.models import RNN
+
             model_kwargs = {
                 "in_dim": kwargs["in_dim"],
                 "hidden_dim": kwargs["hidden_dim"],
@@ -61,6 +91,7 @@ def get_trainer(trainer, **kwargs):
             model = RNN(**model_kwargs)
         elif model_type == "CNN":
             from ..model.ConvNet import ConvPrecondNet
+
             model_kwargs = {
                 "in_ch": kwargs["in_ch"],
                 "out_ch": kwargs["out_ch"],
@@ -73,10 +104,10 @@ def get_trainer(trainer, **kwargs):
     if trainer == "supervised":
         from ..train import SupervisedTrainer
 
-        print(optimizer)
         return SupervisedTrainer(model, optimizer, loss_fn, **kwargs)
     elif trainer == "unsupervised":
         from ..train import UnsupervisedTrainer
+
         return UnsupervisedTrainer(model, optimizer, loss_fn, **kwargs)
     else:
         raise NotImplementedError

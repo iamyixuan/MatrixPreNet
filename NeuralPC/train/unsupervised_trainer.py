@@ -53,15 +53,16 @@ class UnsupervisedTrainer(BaseTrainer):
             self.model.train()
             running_loss = 0.0
             for i, train_data in enumerate(train_loader, 0):
-                train_inputs, _ = train_data
+                train_inputs, dd_mat = train_data
                 train_inputs = train_inputs.to(self.device)
+                dd_mat = dd_mat.to(self.device)
                 optimizer.zero_grad()
                 train_outputs = self.model(train_inputs)
                 # print(torch.norm(outputs, dim=0).mean(), "outputs norm")
                 # print(torch.norm(inputs, dim=0).mean(), "inputs norm")
                 # assert False
                 loss = self.criterion(
-                    train_inputs, train_outputs, scale=self.model.scale
+                    dd_mat, train_outputs, scale=self.model.scale
                 )  # learn the inverse map
                 loss.backward()
                 optimizer.step()
@@ -88,12 +89,13 @@ class UnsupervisedTrainer(BaseTrainer):
             with torch.no_grad():
                 val_loss = 0.0
                 for i, val_data in enumerate(self.val_loader, 0):
-                    val_inputs, _ = val_data
+                    val_inputs, dd_mat_val = val_data
                     val_inputs = val_inputs.to(self.device)
+                    dd_mat_val = dd_mat_val.to(self.device)
                     val_outputs = self.model(val_inputs)
 
                     val_ls = self.criterion(
-                        val_inputs, val_outputs, scale=self.model.scale
+                        dd_mat_val, val_outputs, scale=self.model.scale
                     )
 
                     assert scale_after_training == self.model.scale.item()
@@ -113,7 +115,7 @@ class UnsupervisedTrainer(BaseTrainer):
 
     def predict(self, checkpoint=None):
         if checkpoint is not None:
-            self.model.load_state_dict(torch.load(checkpoint))
+            self.model.load_state_dict(torch.load(checkpoint + "model.pth"))
 
         dataset = get_dataset(self.kwargs["data_name"])(
             self.kwargs["data_dir"],
@@ -129,6 +131,7 @@ class UnsupervisedTrainer(BaseTrainer):
             "train_pred": [],
             "true": [],
             "train_true": [],
+            "scale": self.model.scale.item(),
         }
         with torch.no_grad():
             for data in val_loader:
