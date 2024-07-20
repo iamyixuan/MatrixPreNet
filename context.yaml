@@ -1,19 +1,21 @@
 calls:
-- max_evals: 20
+- max_evals: 100
   timeout: null
 search:
-  acq_func: UCB
+  acq_func: UCBd
   acq_optimizer: auto
+  acq_optimizer_freq: 10
   evaluator:
     num_workers: 1
     type: SerialEvaluator
   filter_duplicated: true
-  filter_failures: mean
+  filter_failures: min
   initial_point_generator: random
   initial_points:
   - activation: relu
     batch_size: 32
     hidden_dim: 64
+    kernel_size: 3
     lr: 0.001
     num_layers: 3
   kappa: 1.96
@@ -31,6 +33,7 @@ search:
   problem:
     conditions: []
     forbiddens: []
+    format_version: 0.4
     hyperparameters:
     - choices:
       - relu
@@ -38,44 +41,53 @@ search:
       - sigmoid
       - softplus
       - prelu
-      default: relu
+      default_value: relu
+      meta: null
       name: activation
       type: categorical
       weights: null
-    - default: 32
+    - default_value: 32
       log: false
       lower: 1
+      meta: null
       name: batch_size
-      q: null
       type: uniform_int
       upper: 256
-    - default: 64
+    - default_value: 64
       log: false
       lower: 16
+      meta: null
       name: hidden_dim
-      q: null
       type: uniform_int
       upper: 1024
-    - default: 0.001
-      log: true
-      lower: 0.0001
-      name: lr
-      q: null
-      type: uniform_float
-      upper: 0.1
-    - default: 3
+    - default_value: 3
       log: false
       lower: 1
+      meta: null
+      name: kernel_size
+      type: uniform_int
+      upper: 9
+    - default_value: 0.001
+      log: true
+      lower: 0.0001
+      meta: null
+      name: lr
+      type: uniform_float
+      upper: 0.1
+    - default_value: 3
+      log: false
+      lower: 1
+      meta: null
       name: num_layers
-      q: null
       type: uniform_int
       upper: 10
-    json_format_version: 0.4
-    python_module_version: 0.6.1
+    name: null
+    python_module_version: 1.0.1
   random_state: null
   scheduler: null
   stopper: null
-  surrogate_model: RF
+  surrogate_model: ET
+  surrogate_model_kwargs: null
   sync_communication: false
   type: CBO
   update_prior: false

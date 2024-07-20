@@ -9,11 +9,11 @@ def main(args, config):
     model_kwargs = {
         "in_dim": args.in_dim,
         "out_dim": args.out_dim,
-        "hidden_dim": args.hidden_dim,
+        "hidden_dim": config['hidden_dim'],
         "n_layers": config["n_layers"],
         "in_ch": args.in_ch,
         "out_ch": args.out_ch,
-        "kernel_size": args.kernel_size,
+        "kernel_size": config['kernel_size'],
         "activation": config["activation"],
     }
     loss_kwargs = {"kind": "LAL", "mask": "True"}
@@ -113,6 +113,8 @@ if __name__ == "__main__":
         "batch_size": args.batch_size,
         "lr": 0.001,
         "activation": "relu",
+        "hidden_dim": args.hidden_dim,
+        "kernel_size": args.kernel_size,
     }
 
     main(args, config)

@@ -76,6 +76,7 @@ def get_trainer(trainer, **kwargs):
                 "out_dim": kwargs["out_ch"],
                 "hidden_dim": kwargs["hidden_dim"],
                 "kernel_size": kwargs["kernel_size"],
+                "activation": get_activation(kwargs["activation"]),
                 "n_layers_gauge": kwargs["n_layers"],
                 "n_layers_precond": kwargs["n_layers"],
             }

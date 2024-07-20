@@ -23,4 +23,4 @@ python train_model.py\
     --out_ch 1\
     --kernel_size 3\
     --model_path $model_path\
-    --additional_info "U1_mat_kappa"\
+    --additional_info "U1_mat_kappa_2"\

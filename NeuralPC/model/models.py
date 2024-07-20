@@ -34,6 +34,7 @@ class PrecondCNN(nn.Module):
         in_dim,
         out_dim,
         hidden_dim,
+        activation,
         n_layers_gauge=3,
         n_layers_precond=3,
         kernel_size=3,
@@ -43,6 +44,7 @@ class PrecondCNN(nn.Module):
         self.precond_layers = nn.ModuleList()
         self.scale = nn.Parameter(torch.tensor(1e-3))
 
+        self.activation = activation
         for k in range(n_layers_gauge):
             if k == 0:
                 self.gauge_layers.append(
@@ -64,7 +66,7 @@ class PrecondCNN(nn.Module):
                 )
 
             self.gauge_layers.append(nn.BatchNorm2d(hidden_dim))
-            self.gauge_layers.append(nn.ReLU())
+            self.gauge_layers.append(self.activation)
 
         for k in range(n_layers_precond):
             self.precond_layers.append(
@@ -76,7 +78,7 @@ class PrecondCNN(nn.Module):
                 )
             )
             self.precond_layers.append(nn.BatchNorm2d(hidden_dim))
-            self.precond_layers.append(nn.ReLU())
+            self.precond_layers.append(self.activation)
 
         self.output = nn.Conv2d(
             hidden_dim, out_dim, kernel_size=kernel_size, padding="same"
