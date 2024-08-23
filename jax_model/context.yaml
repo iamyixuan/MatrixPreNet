@@ -1,0 +1,113 @@
+calls:
+- max_evals: 100
+  timeout: null
+search:
+  acq_func: UCBd
+  acq_optimizer: auto
+  acq_optimizer_freq: 10
+  evaluator:
+    num_workers: 1
+    type: SerialEvaluator
+  filter_duplicated: true
+  filter_failures: min
+  initial_point_generator: random
+  initial_points:
+  - activation: relu
+    batch_size: 32
+    hidden_dim: 64
+    kernel_size: 3
+    loss: conditionNumber
+    lr: 0.001
+    n_layers_gauge: 3
+    n_layers_precond: 3
+  kappa: 1.96
+  kwargs: {}
+  log_dir: .
+  max_failures: 100
+  moo_lower_bounds: null
+  moo_scalarization_strategy: Chebyshev
+  moo_scalarization_weight: null
+  multi_point_strategy: cl_max
+  n_initial_points: 10
+  n_jobs: 1
+  n_points: 10000
+  objective_scaler: auto
+  problem:
+    conditions: []
+    forbiddens: []
+    format_version: 0.4
+    hyperparameters:
+    - choices:
+      - relu
+      - swish
+      - sigmoid
+      - softplus
+      - prelu
+      default_value: relu
+      meta: null
+      name: activation
+      type: categorical
+      weights: null
+    - default_value: 32
+      log: false
+      lower: 1
+      meta: null
+      name: batch_size
+      type: uniform_int
+      upper: 256
+    - default_value: 64
+      log: false
+      lower: 16
+      meta: null
+      name: hidden_dim
+      type: uniform_int
+      upper: 128
+    - default_value: 3
+      log: false
+      lower: 1
+      meta: null
+      name: kernel_size
+      type: uniform_int
+      upper: 9
+    - choices:
+      - conditionNumber
+      - inversion
+      default_value: conditionNumber
+      meta: null
+      name: loss
+      type: categorical
+      weights: null
+    - default_value: 0.001
+      log: true
+      lower: 0.0001
+      meta: null
+      name: lr
+      type: uniform_float
+      upper: 0.1
+    - default_value: 3
+      log: false
+      lower: 1
+      meta: null
+      name: n_layers_gauge
+      type: uniform_int
+      upper: 10
+    - default_value: 3
+      log: false
+      lower: 1
+      meta: null
+      name: n_layers_precond
+      type: uniform_int
+      upper: 10
+    name: null
+    python_module_version: 1.2.0
+  random_state: null
+  scheduler: null
+  stopper: null
+  surrogate_model: ET
+  surrogate_model_kwargs: null
+  sync_communication: false
+  type: CBO
+  update_prior: false
+  update_prior_quantile: 0.1
+  verbose: 1
+  xi: 0.001

@@ -1,0 +1,25 @@
+double_precision: True
+
+model:
+  num_heads: 3
+  in_feat: 1
+  out_feat: 1
+  num_layers: 3
+  num_dense_layers: 2 
+  dense_h_dim: 64
+
+data:
+  path: "../data/U1_DD_matrices.pt"
+  batch_size: 32
+  num_workers: 4
+  train_size: 0.8
+
+
+train:
+  optimizer: "adam"
+  loss_name: "ConditionNumberLoss"
+  lr: 0.001
+  epochs: 100
+  save_model: True
+
+
