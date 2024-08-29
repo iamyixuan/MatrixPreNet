@@ -4,15 +4,23 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 import optax
-from .losses import condition_number_loss
 from torch.utils.data import DataLoader
+
+from .losses import condition_number_loss
 
 logger = logging.getLogger(__name__)
 
 
 def get_optimizer(optimizer_config, learning_rate):
     if optimizer_config == "adam":
-        return optax.adam(learning_rate)
+        schedule = optax.warmup_cosine_decay_schedule(
+            init_value=0,
+            peak_value=learning_rate,
+            warmup_steps=100,
+            decay_steps=5000,
+            end_value=1e-6,
+        )
+        return optax.adam(schedule)
     elif optimizer_config == "sgd":
         return optax.sgd(learning_rate)
     else:
@@ -36,14 +44,14 @@ def train(
     loss_fn = eqx.filter_jit(loss_fn)
     opt_state = optim.init(eqx.filter(model, eqx.is_array))
 
-    @eqx.filter_jit
+    # @eqx.filter_jit
     def update_step(model, x, DD, opt_state):
         loss, grads = eqx.filter_value_and_grad(loss_fn)(model, x, DD)
         updates, opt_state = optim.update(grads, opt_state)
         model = eqx.apply_updates(model, updates)
         return model, opt_state, loss
 
-    @eqx.filter_jit
+    # @eqx.filter_jit
     def val_step(model, x, DD):
         return loss_fn(model, x, DD)
 
@@ -53,11 +61,10 @@ def train(
         for i, (x, DD) in enumerate(trainloader):
             x = jnp.array(x)
             DD = jnp.array(DD)
-            print(x.shape, DD.shape)
             model, opt_state, loss = update_step(model, x, DD, opt_state)
             running_loss += loss
 
-        for x_val, DD_val in valloader.load_data():
+        for x_val, DD_val in valloader:
             x_val = jnp.array(x_val)
             DD_val = jnp.array(DD_val)
             val_loss = val_step(model, x_val, DD_val)
@@ -65,14 +72,14 @@ def train(
         if val_loss < best_loss:
             best_loss = val_loss
             eqx.tree_serialise_leaves(
-                f"./logs/{configs['log_dir']}/best_model.eqx", model
+                f"./logs/{configs['logname']}/best_model.eqx", model
             )
 
         print(f"train Loss: {running_loss / (i + 1)}")
-        print(f"scale: {model.scale}")
+        print(f"scale: {model.alpha}")
         print(f"val Loss: {val_loss}")
         logger.info(
-            f"train Loss: {running_loss / (i + 1)}, val Loss: {val_loss}"
+            f"train Loss: {running_loss / (i + 1)}, val Loss: {val_loss}, scale: {model.alpha}"
         )
         # print(f"Time taken: {time.time() - current_time}")
     return model

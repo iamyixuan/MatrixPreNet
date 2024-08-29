@@ -1,15 +1,21 @@
 import jax
 import jax.numpy as jnp
+
 from .DDOpt import DiracGamma
 
 
 def condition_number_loss(model, U1, DD_mat):
-    gammas = jax.vmap(model)(U1, DD_mat)
-    Mopt = DiracGamma(U1, gammas)
+    U1_flatten = U1.reshape(U1.shape[0], -1)[..., None]
+    gammas = jax.vmap(model)(U1_flatten, DD_mat)
+    Mopt = DiracGamma(U1.transpose((0, 3, 1, 2)), gammas)
     # need to construct the matrix of opt
     M_prime = construct_matrix(Mopt, U1.shape[0])
-    M_inv = model.scale * M_prime + jnp.identity(M_prime.shape[-1])[None, ...]
-    precond_sys = jnp.matmul(M_inv, DD_mat)
+    M_prime = jnp.einsum(
+        "bij, bjk -> bik", M_prime, M_prime.conj().transpose((0, 2, 1))
+    )
+    # jax.debug.print("Norm: {} | Submatrix: {}", jnp.linalg.norm(M_prime[0]), M_prime[0][:5, :5])
+    M_inv = model.alpha * M_prime + jnp.identity(M_prime.shape[-1])[None, ...]
+    precond_sys = jnp.einsum("bij, bjk -> bik", M_inv, DD_mat)
     cond_number = jnp.linalg.cond(precond_sys)
     return jnp.mean(cond_number)
 
@@ -17,13 +23,15 @@ def condition_number_loss(model, U1, DD_mat):
 def construct_matrix(opt, B, n=128):
     identity = jnp.identity(n)
     B_identity = jnp.repeat(identity[None, ...], B, axis=0)
-    X = int(jnp.sqrt(n / 2))
-    T = int(jnp.sqrt(n / 2))
+    # X = jnp.sqrt(n // 2).astype(int).item()
+    # T = jnp.sqrt(n // 2).astype(int).item()
     columns = []
     for i in range(B_identity.shape[1]):
         e_i = B_identity[:, :, i]
-        e_i = e_i.reshape(B, X, T, 2)
-        columns.append(opt.apply(e_i))
+        e_i = e_i.reshape(B, 8, 8, 2)
+        columns.append(
+            opt.apply(e_i, dagger=False)
+        )  # dagger False, need to mulitply with its conjugate transpose
     M = jnp.stack(columns, axis=1).reshape(B, n, n)
     return M
 
@@ -32,7 +40,7 @@ if __name__ == "__main__":
 
     class Model:
         def __init__(self, scale):
-            self.scale = scale
+            self.alpha = scale
 
         def __call__(self, U1, DD_mat):
             return jnp.ones((3, 2, 2))

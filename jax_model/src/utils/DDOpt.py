@@ -193,6 +193,9 @@ class Dirac_Matrix:
 
 class DiracGamma:
     def __init__(self, U, gammas, kappa=0.276):
+        """
+        gammas: the network output of shape (B, 2 * n_multiplies, 2, 2)
+        """
         self.n_dim = 2
         self.time_index = 2
 
@@ -200,10 +203,15 @@ class DiracGamma:
         self.kappa = kappa
 
         self.lattice_shape = U.shape[2:]
-        self.gammas = gammas
+        self.gammas = gammas.reshape(
+            gammas.shape[0], gammas.shape[1] // 2, 2, 2, 2
+        )  # shape (B, n_multiplies, 2, 2, 2)
+
+        # TODO!! with multiple gamma matrices, we need to modify the gamma5 later
         self.gamma5 = 1j * jnp.einsum(
-            "bij, bjk->bik", self.gammas[:, 0], self.gammas[:, 1]
+            "bnij, bnjk->bnik", self.gammas[:, :, 0], self.gammas[:, :, 1]
         )
+
         self.identity = jnp.eye(self.n_dim, dtype=U.dtype)
         self.identity = jnp.repeat(
             self.identity[None, ...], U.shape[0], axis=0
@@ -214,7 +222,7 @@ class DiracGamma:
         x = self._normalize_vector_shape(x)
 
         def true_x(_):
-            return jnp.einsum("bij, b...j->b...i", self.gamma5, x)
+            return jnp.einsum("bnij, b...j->b...i", self.gamma5, x)
 
         def false_x(_):
             return x
@@ -235,21 +243,23 @@ class DiracGamma:
             backward_U = backward_U[..., jnp.newaxis]
             backward_x = backward_U * backward_x
 
-            H = H + jnp.einsum(
-                "bij, b...j->b...i",
-                self.identity - self.gammas[:, mu],
-                forward_x,
-            )
-            H = H + jnp.einsum(
-                "bij, b...j->b...i",
-                self.identity + self.gammas[:, mu],
-                backward_x,
-            )
+            # we can add an inner loop here over multiple (multiply of n_dim) gamma matrices
+            for j in range(self.gammas.shape[1]):
+                H = H + jnp.einsum(
+                    "bij, b...j->b...i",
+                    self.identity - self.gammas[:, j, mu],
+                    forward_x,
+                )
+                H = H + jnp.einsum(
+                    "bij, b...j->b...i",
+                    self.identity + self.gammas[:, j, mu],
+                    backward_x,
+                )
 
         y = x - (self.kappa * H)
 
         def true_fun(_):
-            return jnp.einsum("bij, b...j->b...i", self.gamma5, y)
+            return jnp.einsum("bnij, b...j->b...i", self.gamma5, y)
 
         def false_fun(_):
             return y
@@ -297,10 +307,10 @@ if __name__ == "__main__":
     x = jax.random.normal(key, (B, 8, 8, 2), dtype=jnp.complex64)
     opt = DiracGamma(U, gammas)
 
-    out = opt.apply(x)
+    out = opt.apply(x, dagger=True)
 
     opt_true = Dirac_Matrix(U, 0.276)
-    out_true = opt_true.apply(x)
+    out_true = opt_true.apply(x, dagger=True)
 
     print(jnp.allclose(out, out_true))
 

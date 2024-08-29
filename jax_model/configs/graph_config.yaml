@@ -1,12 +1,13 @@
 double_precision: True
 
 model:
-  num_heads: 3
+  num_heads: 2 # heads need to be a factor of out_feat
   in_feat: 1
-  out_feat: 1
+  out_feat: 4
   num_layers: 3
-  num_dense_layers: 2 
-  dense_h_dim: 64
+  num_dense_layers: 3
+  dense_h_dim: 8
+  n_multiples: 10
 
 data:
   path: "../data/U1_DD_matrices.pt"
@@ -18,8 +19,8 @@ data:
 train:
   optimizer: "adam"
   loss_name: "ConditionNumberLoss"
-  lr: 0.001
-  epochs: 100
+  lr: 0.005
+  epochs: 1000
   save_model: True
 
 

@@ -1,8 +1,34 @@
 import re
-
+import numpy as np
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 
+
+def set_figuresize(fig, width, height, golden_ratio=False):
+    if golden_ratio:
+        width = height * (1 + np.sqrt(5)) / 2
+    fig.set_figwidth(width)
+    fig.set_figheight(height)
+
+    # set font size based on figure size
+    if width >= 10:
+        font_size = 16
+    elif width >= 8:
+        font_size = 14
+    else:
+        font_size = 12
+    plt.rcParams.update({"font.size": font_size})
+    plt.rcParams.update({"axes.labelsize": font_size})
+
+    # set line width based on figure size
+    if width >= 10:
+        line_width = 3
+    elif width >= 8:
+        line_width = 2.5
+    else:
+        line_width = 1.5
+    plt.rcParams.update({"lines.linewidth": line_width})
+    return fig
 
 def read_log(file_path):
     train_loss = []
@@ -24,7 +50,7 @@ def read_log(file_path):
 def plot_train(train_loss, val_loss):
     x = jnp.arange(1, len(train_loss) + 1)
     fig, ax = plt.subplots()
-    ax.set_box_aspect(1 / 1.62)
+    fig = set_figuresize(fig, 1, 4, golden_ratio=True)
     ax.plot(x, train_loss, label="train loss")
     ax.plot(x, val_loss, label="val loss")
     ax.set_xlabel("Epoch")
@@ -33,11 +59,17 @@ def plot_train(train_loss, val_loss):
     return fig
 
 
-path = "./logs/10_5_16_32_conditionNumber/train_logs.txt"
-train_loss, val_loss = read_log(path)
-fig = plot_train(train_loss, val_loss)
-fig.savefig(
-    "/Users/yixuan.sun/Documents/projects/Preconditioners/docs/updates/figs/precondCNN_cond_traincurve.png",
-    dpi=500,
-    bbox_inches="tight",
-)
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--log_path", type=str, default=None)
+    args = parser.parse_args()
+    train_loss, val_loss = read_log(args.log_path)
+    fig = plot_train(train_loss, val_loss)
+    fig.savefig(
+        args.log_path.replace(".log", ".png"),
+        dpi=500,
+        bbox_inches="tight",
+    )

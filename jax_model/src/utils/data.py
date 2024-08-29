@@ -50,4 +50,5 @@ class U1DDataset(Dataset):
         return len(self.U1)
 
     def __getitem__(self, idx):
-        return self.U1[idx], self.DD_mat[idx]
+        U1 = self.U1[idx]
+        return U1, self.DD_mat[idx]

@@ -19,7 +19,7 @@ class GATLayer(eqx.Module):
 
     def __call__(self, x, adj_matrix):
         num_nodes = x.shape[0]
-        node_feats = self.projection(x.T)
+        node_feats = jax.vmap(self.projection)(x)  # element-wise
         node_feats = node_feats.reshape(num_nodes, self.num_heads, -1)
 
         logit_parent = (
@@ -35,9 +35,9 @@ class GATLayer(eqx.Module):
 
         # Mask out nodes that do not have an edge between them
         attn_logits = jnp.where(
-            adj_matrix[..., None] != 0.0,
+            jnp.abs(adj_matrix[..., None]) != 0.0,
             attn_logits,
-            jnp.ones_like(attn_logits) * (-9e15),
+            jnp.ones_like(attn_logits) * 0.0,
         )
         attn_probs = jax.nn.softmax(attn_logits, axis=1)
         node_feats = jnp.einsum("ijh,jhc->ihc", attn_probs, node_feats)
@@ -67,6 +67,7 @@ class GraphPrecond(eqx.Module):
     graphnet: eqx.Module
     dense_layers: list
     alpha: jnp.ndarray
+    n_multiples: int
 
     def __init__(
         self,
@@ -76,8 +77,14 @@ class GraphPrecond(eqx.Module):
         num_layers,
         num_dense_layers,
         dense_h_dim,
+        n_multiples,
         key,
     ):
+
+        self.n_multiples = (
+            n_multiples  # number of sets of gamma matrix equivalent
+        )
+
         self.graphnet = GAT(num_heads, in_feat, out_feat, num_layers, key)
         self.dense_layers = []
         self.alpha = jnp.array([0.0])
@@ -93,9 +100,10 @@ class GraphPrecond(eqx.Module):
                     eqx.nn.Linear(dense_h_dim, dense_h_dim, key=key)
                 )
             self.dense_layers.append(eqx.nn.PReLU())
-            # self.dense_layers.append(eqx.nn.BatchNorm(out_feat))
 
-        self.dense_layers.append(eqx.nn.Linear(out_feat, 12, key=key))
+        self.dense_layers.append(
+            eqx.nn.Linear(dense_h_dim, 2 ** 3 * self.n_multiples, key=key)
+        )
 
     def __call__(self, x, adj_matrix):
         x = self.graphnet(x, adj_matrix)
@@ -107,7 +115,7 @@ class GraphPrecond(eqx.Module):
             x_real = layer(x_real)
             x_imag = layer(x_imag)
         x = x_real + 1j * x_imag
-        x = x.reshape(3, 2, 2)
+        x = x.reshape(2 * self.n_multiples, 2, 2)
         return x
 
 
@@ -115,20 +123,17 @@ if __name__ == "__main__":
     # test
     key = jax.random.PRNGKey(0)
 
-    node_feats = jnp.arange(8, dtype=jnp.complex64).reshape((1, 4, 2))
-    adj_matrix = jnp.array(
-        [[[1, 1, 0, 0], [1, 1, 1, 1], [0, 1, 1, 1], [0, 1, 1, 1]]]
-    ).astype(jnp.float32)
-
-    gat = GAT(2, 2, 4, 10, key)
+    node_feats = jax.random.normal(key, (32, 128, 1)).astype(jnp.complex64)
+    adj_matrix = jax.random.normal(key, (32, 128, 128)).astype(jnp.complex64)
 
     graph_precond = GraphPrecond(
         num_heads=2,
-        in_feat=2,
-        out_feat=4,
+        in_feat=1,
+        out_feat=16,
         num_layers=10,
         num_dense_layers=2,
         dense_h_dim=4,
+        n_multiples=128,
         key=key,
     )
 
