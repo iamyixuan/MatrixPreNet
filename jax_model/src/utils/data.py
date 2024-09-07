@@ -52,3 +52,14 @@ class U1DDataset(Dataset):
     def __getitem__(self, idx):
         U1 = self.U1[idx]
         return U1, self.DD_mat[idx]
+
+
+class U1DDMaskDataset(U1DDataset):
+    def __init__(self, datapath, mode):
+        super().__init__(datapath, mode)
+
+        self.mask = self.DD_mat[0] != 0.0
+
+    def __getitem__(self, idx):
+        U1, DD_mat = super().__getitem__(idx)
+        return U1, DD_mat, self.mask

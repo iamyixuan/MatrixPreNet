@@ -1,37 +1,47 @@
+import logging
+
 import equinox as eqx
 import jax
 import jax.numpy as jnp
 import optax
 import torch
+from torch.utils.data import DataLoader, Dataset
+
+logger = logging.getLogger(__name__)
 
 
-class DataLoader:
+class U1DDDataset(Dataset):
     def __init__(self, datapath, mode, batch_size=None):
         self.mode = mode
         data = torch.load(datapath)
-        data = data.numpy()
-        data_nnz = data[data != 0.0].reshape(data.shape[0], -1)
-        train_idx, val_idx = self.split_idx(len(data), 0.8)
+        U1 = data["U1"].numpy()
+        DD = data["DD_mat"].numpy()
+        self.mask = DD[0, :, :] != 0.0
+        train_idx, val_idx = self.split_idx(U1.shape[0], 0.8)
         if mode == "train":
-            self.data = data[train_idx]
-            self.data_nnz = data_nnz[train_idx]
-            self.batch_size = batch_size
-            self.mask = self.data[:batch_size] != 0.0
+            U1 = U1[train_idx]
+            self.U1 = U1.reshape(U1.shape[0], -1)
+            self.DD = DD[train_idx]
         elif mode == "val":
-            self.data = data[val_idx]
-            self.data_nnz = data_nnz[val_idx]
-            self.batch_size = len(val_idx)
-            self.mask = self.data[: len(val_idx)] != 0.0
+            U1 = U1[val_idx]
+            self.U1 = U1.reshape(U1.shape[0], -1)
+            self.DD = DD[val_idx]
+
+        print(
+            "Initializing dataset - U1 {} DD {}".format(
+                self.U1.shape, self.DD.shape
+            )
+        )
 
     def split_idx(self, n, split):
         idx = jax.random.permutation(jax.random.PRNGKey(0), n)
         return idx[: int(n * split)], idx[int(n * split) :]
 
-    def load_data(self):
-        for i in range(0, len(self.data), self.batch_size):
-            yield self.data_nnz[i : i + self.batch_size], self.data[
-                i : i + self.batch_size
-            ]
+    def __len__(self):
+        return self.U1.shape[0]
+
+    def __getitem__(self, idx):
+        return self.U1[idx], self.DD[idx], self.mask
 
 
 class ComplexLinear(eqx.Module):
@@ -93,8 +103,8 @@ class PrecondFNN(eqx.Module):
         return x
 
 
-def condition_number_loss(model, DD_nnz, DD, mask):
-    nnzL = jax.vmap(model)(DD_nnz).squeeze()
+def condition_number_loss(model, U1, DD, mask):
+    nnzL = jax.vmap(model)(U1).squeeze()
     L = jnp.zeros_like(DD)
     L = L.at[mask].set(nnzL.flatten())
     # L = jnp.where((DD != 0.0), nnzL.flatten(), 0.0)
@@ -103,7 +113,6 @@ def condition_number_loss(model, DD_nnz, DD, mask):
     precond_sys = jnp.matmul(LL_t, DD)
     cond_number = jnp.linalg.cond(precond_sys)
     return jnp.mean(cond_number)
-
 
 
 def train(
@@ -123,41 +132,56 @@ def train(
     opt_state = optim.init(eqx.filter(model, eqx.is_array))
 
     @eqx.filter_jit
-    def update_step(model, DD_nnz, DD, mask, opt_state):
-        loss, grads = eqx.filter_value_and_grad(loss_fn)(
-            model, DD_nnz, DD, mask
-        )
+    def update_step(model, U1, DD, mask, opt_state):
+        loss, grads = eqx.filter_value_and_grad(loss_fn)(model, U1, DD, mask)
         updates, opt_state = optim.update(grads, opt_state)
         model = eqx.apply_updates(model, updates)
         return model, opt_state, loss
 
+    best_loss = 1e6
     for _ in range(configs["num_epochs"]):
         running_loss = 0.0
-        tmask = trainloader.mask.tolist()
-        tmask = jnp.nonzero(jnp.array(tmask))
-        for i, (DD_nnz, DD) in enumerate(trainloader.load_data()):
+        for i, (U1, DD, tmask) in enumerate(trainloader):
+            U1 = jnp.asarray(U1)
+            DD = jnp.asarray(DD)
+            tmask = jnp.nonzero(jnp.array(tmask))
             model, opt_state, loss = update_step(
-                model, DD_nnz, DD, tmask, opt_state
+                model, U1, DD, tmask, opt_state
             )
             running_loss += loss
 
-        vmask = valloader.mask.tolist()
-        vmask = jnp.nonzero(jnp.array(vmask))
-        for DD_nnz, DD_val in valloader.load_data():
-            val_loss = loss_fn(model, DD_nnz, DD_val, vmask)
+        for U1_val, DD_val, vmask in valloader:
+            U1_val = jnp.asarray(U1_val)
+            DD_val = jnp.asarray(DD_val)
+
+            vmask = jnp.nonzero(jnp.array(vmask))
+            val_loss = loss_fn(model, U1_val, DD_val, vmask)
+
+        if val_loss < best_loss:
+            best_loss = val_loss
+            best_model = model
 
         print(f"train Loss: {running_loss / (i + 1)}")
         print(f"scale: {model.scale}")
         print(f"val Loss: {val_loss}")
-    return model
+
+        logger.info(
+            f"train Loss: {running_loss / (i + 1)}, val Loss: {val_loss}, scale: {model.scale.item()}"
+        )
+
+    return best_model
 
 
 def main(data_path):
+    logging.basicConfig(
+        filename="./logs/U1_FNN_M/log.txt", level=logging.INFO, filemode="w"
+    )
+
     key = jax.random.PRNGKey(0)
     key, subkey = jax.random.split(key)
     model = PrecondFNN(
         key=subkey,
-        in_dim=1792,
+        in_dim=128,
         out_dim=1792,
         activation=eqx.nn.PReLU(),
         layer_sizes=[1024] * 3,
@@ -167,11 +191,11 @@ def main(data_path):
     # data_path = (
     #     "/home/seswar/Desktop/Academics/Code/nnprecond/datasets/DD_matrices.pt"
     # )
+    trainset = U1DDDataset(data_path, mode="train")
+    valset = U1DDDataset(data_path, mode="val")
 
-    trainloader = DataLoader(
-        data_path, mode="train", batch_size=config["batch_size"]
-    )
-    valloader = DataLoader(data_path, mode="val")
+    trainloader = DataLoader(trainset, batch_size=config["batch_size"])
+    valloader = DataLoader(valset, batch_size=valset.__len__())
 
     model = train(
         model,
@@ -181,8 +205,9 @@ def main(data_path):
         "conditionNumber",
         config,
     )
+    eqx.tree_serialise_leaves("./logs/U1_FNN_M/model.eqx", model)
 
 
 if __name__ == "__main__":
-    data_path = "/Users/yixuan.sun/Documents/projects/Preconditioners/MatrixPreNet/data/DD_matrices.pt"
+    data_path = "/Users/yixuan.sun/Documents/projects/Preconditioners/MatrixPreNet/data/U1_DD_matrices.pt"
     main(data_path)

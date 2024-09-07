@@ -36,6 +36,17 @@ def construct_matrix(opt, B, n=128):
     return M
 
 
+def condition_number_loss_with_mask(model, U1, DD, mask):
+    nnzL = jax.vmap(model)(U1, DD).squeeze()
+    L = jnp.zeros_like(DD)
+    L = L.at[mask].set(nnzL.flatten())
+    # L = jnp.where((DD != 0.0), nnzL.flatten(), 0.0)
+    L = model.alpha * L + jnp.eye(L.shape[-1])
+    LL_t = jnp.matmul(L, L.conj().transpose((0, 2, 1)))
+    precond_sys = jnp.matmul(LL_t, DD)
+    cond_number = jnp.linalg.cond(precond_sys)
+    return jnp.mean(cond_number)
+
 if __name__ == "__main__":
 
     class Model:
