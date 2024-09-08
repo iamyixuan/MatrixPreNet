@@ -25,20 +25,24 @@ class MPEdgeNodeBlock(eqx.Module):
             in_node_feat, out_node_feat, key=keys[0]
         )
         self.projection_edge = eqx.nn.Linear(
-            in_edge_feat, out_edge_feat, key=keys[0]
+            in_edge_feat, out_edge_feat, key=keys[1]
         )
         self.edge_mlp = []
         self.node_mlp = []
 
-        key = keys[1]
+        key = keys[2]
+        out_node_feat = out_node_feat * 2 + out_edge_feat
+        out_edge_feat = out_edge_feat  + 2 * out_node_feat
+
+        print(out_node_feat, out_edge_feat, "out_node_feat, out_edge_feat")
         for i in range(num_mlp):
             _, key = jax.random.split(key, 2)
             self.edge_mlp.append(
-                eqx.nn.Linear(out_edge_feat, out_edge_feat, key=key[0])
+                eqx.nn.Linear(out_edge_feat, out_edge_feat, key=key)
             )
             self.edge_mlp.append(eqx.nn.PReLU())
             self.node_mlp.append(
-                eqx.nn.Linear(out_node_feat, out_node_feat, key=key[1])
+                eqx.nn.Linear(out_node_feat, out_node_feat, key=key)
             )
             self.node_mlp.append(eqx.nn.PReLU())
 
@@ -49,34 +53,70 @@ class MPEdgeNodeBlock(eqx.Module):
         edge_feats: (E, feat_edge_dim)
         node_feats: (N, feat_node_dim)
         """
-        num_nodes = node_feats.shape[0]
-        num_edges = edge_feats.shape[0]
-        node_feats = jax.vmap(self.projection_node)(node_feats)
-        edge_feats = jax.vmap(self.projection_edge)(edge_feats)
-        edge_feats = edge_feats.reshape(num_edges, -1)
-        node_feats = node_feats.reshape(num_nodes, -1)
-        for layer in self.edge_mlp:
-            edge_feats = layer(edge_feats)
+
+        # separate real and imaginary parts
+        node_feats_real = node_feats.real
+        node_feats_imag = node_feats.imag
+        edge_feats_real = edge_feats.real
+        edge_feats_imag = edge_feats.imag
+
+        # project node and edge features to high dims
+        node_feats_real = jax.vmap(self.projection_node)(node_feats_real)
+        node_feats_imag = jax.vmap(self.projection_node)(node_feats_imag)
+        edge_feats_real = jax.vmap(self.projection_edge)(edge_feats_real)
+        edge_feats_imag = jax.vmap(self.projection_edge)(edge_feats_imag)
+
+        prj_node_feats = node_feats_real + 1j * node_feats_imag
+        prj_edge_feats = edge_feats_real + 1j * edge_feats_imag
+
+        # aggregate node and edge features for message passing
+        agg_node_feats = self.aggregate_node_feat(
+            prj_node_feats, prj_edge_feats, adj_matrix
+        )
+        agg_node_feats_real = agg_node_feats.real
+        agg_node_feats_imag = agg_node_feats.imag
+
+        # update node features
         for layer in self.node_mlp:
-            node_feats = layer(node_feats)
-        return node_feats, edge_feats
+            print(agg_node_feats_real.shape, "agg_node_feats_real shape")
+            agg_node_feats_real = jax.vmap(layer)(agg_node_feats_real)
+            agg_node_feats_imag = jax.vmap(layer)(agg_node_feats_imag)
+        agg_node_feats = agg_node_feats_real + 1j * agg_node_feats_imag
+
+        # aggregate edge features and updated node features
+        agg_edge_feats = self.aggregate_edge_feat(
+            agg_node_feats, prj_edge_feats, adj_matrix
+        )
+        agg_edge_feats_real = agg_edge_feats.real
+        agg_edge_feats_imag = agg_edge_feats.imag
+
+        # update edge features
+        for layer in self.edge_mlp:
+            print(agg_edge_feats_real.shape, "agg_edge_feats_real shape")
+            agg_edge_feats_real = jax.vmap(layer)(agg_edge_feats_real)
+            agg_edge_feats_imag = jax.vmap(layer)(agg_edge_feats_imag)
+        agg_edge_feats = agg_edge_feats_real + 1j * agg_edge_feats_imag
+        return agg_node_feats, agg_edge_feats
 
     def aggregate_node_feat(self, node_feats, edge_feats, adj_matrix):
         node_feat_sum = adj_matrix @ node_feats
+        print(node_feat_sum.shape, "node_feat_sum shape")
         indices = adj_matrix.indices
-        row_idx = indices[0, :]
-        col_idx = indices[1, :]
+        row_idx = indices[:, 0]
+        print(edge_feats.shape, row_idx.shape, "edge_feats shape")
         edge_feat_sum = jax.ops.segment_sum(edge_feats, row_idx)
+        print(edge_feat_sum.shape, "edge_feat_sum shape")
         aggreated_feat = jnp.concatenate(
             [node_feats, node_feat_sum, edge_feat_sum], axis=1
         )
+        print(aggreated_feat.shape, "aggreated_feat shape")
         return aggreated_feat
 
     def aggregate_edge_feat(self, node_feats, edge_feats, adj_matrix):
         indices = adj_matrix.indices
-        row_idx = indices[0, :]
-        col_idx = indices[1, :]
-        v_i = node_feats[row_idx] # shape (E, feat_node_dim)
+        row_idx = indices[:, 0]
+        col_idx = indices[:, 1]
+        v_i = node_feats[row_idx]  # shape (E, feat_node_dim)
         v_j = node_feats[col_idx]
         aggregated_edge_feat = jnp.concatenate([edge_feats, v_i, v_j], axis=1)
         return aggregated_edge_feat
@@ -254,22 +294,30 @@ class GATPrecond(eqx.Module):
 
 
 if __name__ == "__main__":
+    from jax.experimental import sparse
+
     # test
     key = jax.random.PRNGKey(0)
 
     node_feats = jax.random.normal(key, (32, 128, 1)).astype(jnp.complex64)
-    adj_matrix = jax.random.normal(key, (32, 128, 128)).astype(jnp.complex64)
+    adj_matrix = jax.random.normal(key, (128, 128)).astype(jnp.complex64)
+    adj_matrix = sparse.BCOO.fromdense(adj_matrix)
+    edge_feats = jax.random.normal(
+        key, (32, len(adj_matrix.indices), 1)
+    ).astype(jnp.complex64)
 
-    graph_precond = GATPrecond(
-        num_heads=2,
-        in_feat=1,
-        out_feat=16,
-        num_layers=10,
-        num_dense_layers=2,
-        dense_h_dim=4,
-        num_nnzs=1798,
+    print(node_feats.shape, adj_matrix.shape, edge_feats.shape)
+
+    graph_precond = MPEdgeNodeBlock(
+        in_node_feat=1,
+        out_node_feat=16,
+        in_edge_feat=1,
+        out_edge_feat=16,
+        num_mlp=3,
         key=key,
     )
 
-    out = jax.vmap(graph_precond)(node_feats, adj_matrix)
+    out = jax.vmap(graph_precond, in_axes=(0, 0, None))(
+        node_feats, edge_feats, adj_matrix
+    )
     print(out.shape)
