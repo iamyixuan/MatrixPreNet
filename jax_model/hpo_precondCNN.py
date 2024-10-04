@@ -4,7 +4,7 @@ import jax.numpy as jnp
 import optax
 from deephyper.evaluator import RunningJob, profile
 from precondCNN import (DataLoader, PrecondCNN, condition_number_loss,
-                        inversion_loss)
+                        inversion_loss
 
 
 def get_activation(activation):

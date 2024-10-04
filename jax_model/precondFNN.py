@@ -1,8 +1,12 @@
+import logging
+
 import equinox as eqx
 import jax
 import jax.numpy as jnp
 import optax
 import torch
+
+logger = logging.getLogger(__name__)
 
 
 class DataLoader:
@@ -105,7 +109,6 @@ def condition_number_loss(model, DD_nnz, DD, mask):
     return jnp.mean(cond_number)
 
 
-
 def train(
     model: PrecondFNN,
     trainloader: DataLoader,
@@ -149,6 +152,9 @@ def train(
         print(f"train Loss: {running_loss / (i + 1)}")
         print(f"scale: {model.scale}")
         print(f"val Loss: {val_loss}")
+        logger.info(
+            f"train Loss: {running_loss / (i + 1)}, val Loss: {val_loss}, scale: {model.scale}"
+        )
     return model
 
 
@@ -184,5 +190,12 @@ def main(data_path):
 
 
 if __name__ == "__main__":
+    log_dir = "./logs/FNN_U1/"
+    os.makedirs(log_dir, exist_ok=True)
+    logging.basicConfig(
+        level=logging.INFO,
+        filename=f"{log_dir}/train.log",
+        filemode="w",
+    )
     data_path = "/Users/yixuan.sun/Documents/projects/Preconditioners/MatrixPreNet/data/DD_matrices.pt"
     main(data_path)

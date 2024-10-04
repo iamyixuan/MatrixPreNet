@@ -31,20 +31,27 @@ class MPEdgeNodeBlock(eqx.Module):
         self.node_mlp = []
 
         key = keys[2]
-        out_node_feat = out_node_feat * 2 + out_edge_feat
-        out_edge_feat = out_edge_feat  + 2 * out_node_feat
+        h_node_feat = out_node_feat * 2 + out_edge_feat
+        h_edge_feat = out_edge_feat + 2 * out_node_feat
 
         print(out_node_feat, out_edge_feat, "out_node_feat, out_edge_feat")
         for i in range(num_mlp):
             _, key = jax.random.split(key, 2)
             self.edge_mlp.append(
-                eqx.nn.Linear(out_edge_feat, out_edge_feat, key=key)
+                eqx.nn.Linear(h_edge_feat, h_edge_feat, key=key)
             )
             self.edge_mlp.append(eqx.nn.PReLU())
             self.node_mlp.append(
-                eqx.nn.Linear(out_node_feat, out_node_feat, key=key)
+                eqx.nn.Linear(h_node_feat, h_node_feat, key=key)
             )
             self.node_mlp.append(eqx.nn.PReLU())
+
+        self.edge_mlp.append(
+            eqx.nn.Linear(h_edge_feat, out_edge_feat, key=key)
+        )
+        self.node_mlp.append(
+            eqx.nn.Linear(h_node_feat, out_node_feat, key=key)
+        )
 
     def __call__(self, node_feats, edge_feats, adj_matrix):
         """adj matrix uses sparse representation here
@@ -78,7 +85,6 @@ class MPEdgeNodeBlock(eqx.Module):
 
         # update node features
         for layer in self.node_mlp:
-            print(agg_node_feats_real.shape, "agg_node_feats_real shape")
             agg_node_feats_real = jax.vmap(layer)(agg_node_feats_real)
             agg_node_feats_imag = jax.vmap(layer)(agg_node_feats_imag)
         agg_node_feats = agg_node_feats_real + 1j * agg_node_feats_imag
@@ -92,7 +98,6 @@ class MPEdgeNodeBlock(eqx.Module):
 
         # update edge features
         for layer in self.edge_mlp:
-            print(agg_edge_feats_real.shape, "agg_edge_feats_real shape")
             agg_edge_feats_real = jax.vmap(layer)(agg_edge_feats_real)
             agg_edge_feats_imag = jax.vmap(layer)(agg_edge_feats_imag)
         agg_edge_feats = agg_edge_feats_real + 1j * agg_edge_feats_imag
@@ -100,16 +105,12 @@ class MPEdgeNodeBlock(eqx.Module):
 
     def aggregate_node_feat(self, node_feats, edge_feats, adj_matrix):
         node_feat_sum = adj_matrix @ node_feats
-        print(node_feat_sum.shape, "node_feat_sum shape")
         indices = adj_matrix.indices
         row_idx = indices[:, 0]
-        print(edge_feats.shape, row_idx.shape, "edge_feats shape")
         edge_feat_sum = jax.ops.segment_sum(edge_feats, row_idx)
-        print(edge_feat_sum.shape, "edge_feat_sum shape")
         aggreated_feat = jnp.concatenate(
             [node_feats, node_feat_sum, edge_feat_sum], axis=1
         )
-        print(aggreated_feat.shape, "aggreated_feat shape")
         return aggreated_feat
 
     def aggregate_edge_feat(self, node_feats, edge_feats, adj_matrix):
@@ -120,6 +121,55 @@ class MPEdgeNodeBlock(eqx.Module):
         v_j = node_feats[col_idx]
         aggregated_edge_feat = jnp.concatenate([edge_feats, v_i, v_j], axis=1)
         return aggregated_edge_feat
+
+
+class MPNodeEdgeModel(eqx.Module):
+    MPBlock: list
+    alpha: jnp.ndarray 
+
+    def __init__(self, num_mp_blocks, node_dim, edge_dim, hn_dim, he_dim, key):
+        self.MPBlock = []
+        self.alpha = jnp.array([0.0])
+        for i in range(num_mp_blocks):
+            _, key = jax.random.split(key, 2)
+            if i == 0:
+                self.MPBlock.append(
+                    MPEdgeNodeBlock(
+                        in_node_feat=node_dim,
+                        out_node_feat=hn_dim,
+                        in_edge_feat=edge_dim,
+                        out_edge_feat=he_dim,
+                        num_mlp=3,
+                        key=key,
+                    )
+                )
+            elif i < num_mp_blocks - 1:
+                self.MPBlock.append(
+                    MPEdgeNodeBlock(
+                        in_node_feat=hn_dim,
+                        out_node_feat=hn_dim,
+                        in_edge_feat=he_dim,
+                        out_edge_feat=he_dim,
+                        num_mlp=3,
+                        key=key,
+                    )
+                )
+            else:
+                self.MPBlock.append(
+                    MPEdgeNodeBlock(
+                        in_node_feat=hn_dim,
+                        out_node_feat=1,
+                        in_edge_feat=he_dim,
+                        out_edge_feat=1,
+                        num_mlp=3,
+                        key=key,
+                    )
+                )
+
+    def __call__(self, node_feats, edge_feats, adj_matrix):
+        for block in self.MPBlock:
+            node_feats, edge_feats = block(node_feats, edge_feats, adj_matrix)
+        return node_feats, edge_feats
 
 
 class GATLayer(eqx.Module):
@@ -308,16 +358,18 @@ if __name__ == "__main__":
 
     print(node_feats.shape, adj_matrix.shape, edge_feats.shape)
 
-    graph_precond = MPEdgeNodeBlock(
-        in_node_feat=1,
-        out_node_feat=16,
-        in_edge_feat=1,
-        out_edge_feat=16,
-        num_mlp=3,
-        key=key,
-    )
+    # graph_precond = MPEdgeNodeBlock(
+    #     in_node_feat=1,
+    #     out_node_feat=16,
+    #     in_edge_feat=1,
+    #     out_edge_feat=16,
+    #     num_mlp=3,
+    #     key=key,
+    # )
 
-    out = jax.vmap(graph_precond, in_axes=(0, 0, None))(
+    graph_precond = MPNodeEdgeModel(3, 1, 1, 8, 8, key)
+
+    node, edge = eqx.filter_jit(jax.vmap(graph_precond, in_axes=(0, 0, None)))(
         node_feats, edge_feats, adj_matrix
     )
-    print(out.shape)
+    print(node.shape, edge.shape, "node, edge")

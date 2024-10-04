@@ -3,8 +3,8 @@ calls:
   timeout: null
 search:
   acq_func: UCBd
-  acq_optimizer: auto
-  acq_optimizer_freq: 10
+  acq_optimizer: mixedga
+  acq_optimizer_freq: 1
   evaluator:
     num_workers: 1
     type: SerialEvaluator
@@ -14,12 +14,13 @@ search:
   initial_points:
   - activation: relu
     batch_size: 32
+    dropout_rate: 0.0
     hidden_dims: 64
     lr: 0.001
     num_layers: 3
-  kappa: 1.96
+  kappa: 5.0
   kwargs: {}
-  log_dir: .
+  log_dir: hpo_precondFNN
   max_failures: 100
   moo_lower_bounds: null
   moo_scalarization_strategy: Chebyshev
@@ -28,7 +29,7 @@ search:
   n_initial_points: 10
   n_jobs: 1
   n_points: 10000
-  objective_scaler: auto
+  objective_scaler: identity
   problem:
     conditions: []
     forbiddens: []
@@ -52,6 +53,13 @@ search:
       name: batch_size
       type: uniform_int
       upper: 256
+    - default_value: 0.0
+      log: false
+      lower: 0.0
+      meta: null
+      name: dropout_rate
+      type: uniform_float
+      upper: 0.5
     - default_value: 64
       log: false
       lower: 16
@@ -76,7 +84,10 @@ search:
     name: null
     python_module_version: 1.2.0
   random_state: null
-  scheduler: null
+  scheduler:
+    kappa_final: 0.0001
+    period: 50
+    type: periodic-exp-decay
   stopper: null
   surrogate_model: ET
   surrogate_model_kwargs: null
@@ -84,5 +95,5 @@ search:
   type: CBO
   update_prior: false
   update_prior_quantile: 0.1
-  verbose: 1
+  verbose: 0
   xi: 0.001

@@ -11,7 +11,7 @@ model:
 
 data:
   path: "../data/U1_DD_matrices.pt"
-  batch_size: 32
+  batch_size: 128
   num_workers: 4
   train_size: 0.8
 
@@ -19,8 +19,8 @@ data:
 train:
   optimizer: "adam"
   loss_name: "ConditionNumberLoss"
-  lr: 0.0005
-  epochs: 1000
+  lr: 0.0001
+  epochs: 100
   save_model: True
 
 

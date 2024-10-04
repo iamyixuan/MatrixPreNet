@@ -1,17 +1,14 @@
 double_precision: True
 
 model:
-  num_heads: 2 # heads need to be a factor of out_feat
-  in_feat: 1
-  out_feat: 4
-  num_layers: 3
-  num_dense_layers: 3
-  dense_h_dim: 3
-  n_multiples: 2
+  num_mp_blocks: 2
+  node_dim: 1
+  edge_dim: 1
+  hn_dim: 8
+  he_dim: 8
 
 data:
   path: "../data/U1_DD_matrices.pt"
-  batch_size: 128
   num_workers: 4
   train_size: 0.8
 
@@ -21,6 +18,7 @@ train:
   loss_name: "ConditionNumberLoss"
   lr: 0.0001
   epochs: 100
+  batch_size: 128
   save_model: True
 
 

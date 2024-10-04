@@ -6,6 +6,9 @@ import jax
 import jax.numpy as jnp
 import optax
 import torch
+from src.utils.DDOpt import Dirac_Matrix
+from src.utils.losses import (construct_matrix, inverse_loss,
+                              inverse_loss_multiU)
 from torch.utils.data import DataLoader, Dataset
 
 logger = logging.getLogger(__name__)
@@ -21,11 +24,11 @@ class U1DDDataset(Dataset):
         train_idx, val_idx = self.split_idx(U1.shape[0], 0.8)
         if mode == "train":
             U1 = U1[train_idx]
-            self.U1 = U1.reshape(U1.shape[0], -1)
+            self.U1 = U1  # .reshape(U1.shape[0], -1)
             self.DD = DD[train_idx]
         elif mode == "val":
             U1 = U1[val_idx]
-            self.U1 = U1.reshape(U1.shape[0], -1)
+            self.U1 = U1  # .reshape(U1.shape[0], -1)
             self.DD = DD[val_idx]
 
         print(
@@ -60,6 +63,7 @@ class ComplexLinear(eqx.Module):
 class PrecondFNN(eqx.Module):
     layers: list
     scale: jnp.ndarray
+    dropout: eqx.nn.Dropout
 
     def __init__(
         self,
@@ -67,6 +71,7 @@ class PrecondFNN(eqx.Module):
         in_dim,
         out_dim,
         activation,
+        dropout_rate=0.1,
         layer_sizes=[256] * 3,
     ):
         layer_sizes = [in_dim] + layer_sizes + [out_dim]
@@ -96,22 +101,29 @@ class PrecondFNN(eqx.Module):
             )
         )
 
+        self.dropout = eqx.nn.Dropout(dropout_rate)
         self.scale = jnp.array([0.0])
 
     def __call__(self, x):
-        for layer in self.layers:
+        x = x.flatten()
+        for i, layer in enumerate(self.layers):
+            x = self.dropout(x, key=jax.random.PRNGKey(i))
             x = layer(x)
+
         return x
 
 
-def condition_number_loss(model, U1, DD, mask):
-    nnzL = jax.vmap(model)(U1).squeeze()
-    L = jnp.zeros_like(DD)
-    L = L.at[mask].set(nnzL.flatten())
-    # L = jnp.where((DD != 0.0), nnzL.flatten(), 0.0)
-    L = model.scale * L + jnp.eye(L.shape[-1])
-    LL_t = jnp.matmul(L, L.conj().transpose((0, 2, 1)))
-    precond_sys = jnp.matmul(LL_t, DD)
+def condition_number_loss_tilde(model, inputs):
+    U1, DD, mask, _ = inputs
+    U_tilde = jax.vmap(model)(U1).squeeze()
+    U_tilde = U_tilde.reshape(U1.shape[0], 2, 8, 8)
+    M = Dirac_Matrix(U_tilde, kappa=0.276)
+    M = construct_matrix(
+        M, B=U1.shape[0]
+    )  # what if taking the lower triangular part of M
+    M = model.scale * M + jnp.eye(M.shape[-1])
+    MM = jnp.matmul(M, M.conj().transpose((0, 2, 1)))
+    precond_sys = jnp.matmul(MM, DD)
     cond_number = jnp.linalg.cond(precond_sys)
     return jnp.mean(cond_number)
 
@@ -126,29 +138,41 @@ def train(
 ):
     print(f"Training with {loss_name} loss")
     if loss_name == "conditionNumber":
-        loss_fn = condition_number_loss
+        loss_fn = condition_number_loss_tilde
+    elif loss_name == "inverse":
+        loss_fn = inverse_loss
+    elif loss_name == "inverse_multiU":
+        loss_fn = inverse_loss_multiU
     else:
         raise NotImplementedError
 
     opt_state = optim.init(eqx.filter(model, eqx.is_array))
 
     @eqx.filter_jit
-    def update_step(model, U1, DD, mask, opt_state):
-        loss, grads = eqx.filter_value_and_grad(loss_fn)(model, U1, DD, mask)
+    def update_step(model, inputs, opt_state):
+        model = eqx.nn.inference_mode(model, value=False)
+        loss, grads = eqx.filter_value_and_grad(loss_fn)(model, inputs)
         updates, opt_state = optim.update(grads, opt_state)
         model = eqx.apply_updates(model, updates)
         return model, opt_state, loss
 
+    @eqx.filter_jit
+    def val_step(model, inputs):
+        model = eqx.nn.inference_mode(model)
+        return loss_fn(model, inputs)
+
     best_loss = 1e6
+    patience = 0
     for _ in range(configs["num_epochs"]):
         running_loss = 0.0
         for i, (U1, DD, tmask) in enumerate(trainloader):
+            key = jax.random.PRNGKey(i)
+            k1, k2 = jax.random.split(key)
             U1 = jnp.asarray(U1)
             DD = jnp.asarray(DD)
             tmask = jnp.nonzero(jnp.array(tmask))
-            model, opt_state, loss = update_step(
-                model, U1, DD, tmask, opt_state
-            )
+            inputs = (U1, DD, tmask, k1)
+            model, opt_state, loss = update_step(model, inputs, opt_state)
             running_loss += loss
 
         for U1_val, DD_val, vmask in valloader:
@@ -156,25 +180,32 @@ def train(
             DD_val = jnp.asarray(DD_val)
 
             vmask = jnp.nonzero(jnp.array(vmask))
-            val_loss = loss_fn(model, U1_val, DD_val, vmask)
+            inputs_val = (U1_val, DD_val, vmask, k2)
+            val_loss = val_step(model, inputs_val)
 
         if val_loss < best_loss:
             best_loss = val_loss
             best_model = model
+            patience = 0
+            print("Current best at epoch", _)
+        else:
+            patience += 1
 
-        print(f"train Loss: {running_loss / (i + 1)}")
-        print(f"scale: {model.scale}")
-        print(f"val Loss: {val_loss}")
+        print(f"train Loss: {running_loss / (i + 1)}; val Loss: {val_loss}")
+        # print(f"scale: {model.scale}")
 
         logger.info(
             f"train Loss: {running_loss / (i + 1)}, val Loss: {val_loss}, scale: {model.scale.item()}"
         )
 
+        if patience > 50:
+            break
+
     return best_model
 
 
 def main(data_path):
-    logname = "U1_FNN_M_full"
+    logname = "U1_FNN_U_tilde_full_inverse_loss_multiRandom128V"
     os.makedirs(f"./logs/{logname}", exist_ok=True)
     logging.basicConfig(
         filename=f"./logs/{logname}/log.txt", level=logging.INFO, filemode="w"
@@ -185,7 +216,7 @@ def main(data_path):
     model = PrecondFNN(
         key=subkey,
         in_dim=128,
-        out_dim=1792,
+        out_dim=128,
         activation=eqx.nn.PReLU(),
         layer_sizes=[1024] * 3,
     )
@@ -196,6 +227,9 @@ def main(data_path):
     # )
     trainset = U1DDDataset(data_path, mode="train")
     valset = U1DDDataset(data_path, mode="val")
+    logger.info(
+        f"Train size {trainset.__len__()}, Val size {valset.__len__()}"
+    )
 
     trainloader = DataLoader(trainset, batch_size=config["batch_size"])
     valloader = DataLoader(valset, batch_size=valset.__len__())
@@ -205,7 +239,7 @@ def main(data_path):
         trainloader,
         valloader,
         config["optim"],
-        "conditionNumber",
+        "inverse",
         config,
     )
     eqx.tree_serialise_leaves(f"./logs/{logname}/model.eqx", model)
